@@ -7,20 +7,72 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/pages/home.css">
 </head>
 <body>
   <div id="navbar-container"></div>
 
-  <main class="container py-4">
-    <div class="card p-4">
-      <h1 class="mb-2">Sunshine Squad</h1>
-      <p class="text-secondary mb-0">Base lista. Siguiente: streams + carrusel de juegos por JSON.</p>
-    </div>
+  <main class="container">
+    <section class="hero">
+      <div class="row g-4 align-items-end">
+        <div class="col-lg-7">
+          <h1 class="mb-2">Sunshine Squad</h1>
+          <p class="text-secondary mb-0">
+            División de clanes de Scythe Society — blog, streams y proyectos.
+          </p>
+        </div>
+        <div class="col-lg-5 text-lg-end">
+          <a class="btn btn-outline-light" href="pages/blog/index.html">📓 Blog</a>
+          <a class="btn btn-outline-light ms-2" href="pages/proyectos/index.html">🧩 Proyectos</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-4">
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="card p-3 p-md-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+              <div>
+                <div class="fw-semibold">📺 Stream</div>
+                <div class="text-secondary small">Cambia de plataforma/canal sin recargar</div>
+              </div>
+              <div id="stream-tabs" class="mt-2 mt-md-0"></div>
+            </div>
+
+            <div class="stream-frame">
+              <iframe id="stream-iframe" allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card p-3 p-md-4 h-100">
+            <div class="fw-semibold mb-2">Canales</div>
+            <div class="text-secondary small mb-3">Selecciona uno para cambiar el embed</div>
+            <div id="stream-list" class="list-group stream-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-5">
+      <div class="d-flex justify-content-between align-items-end mb-3">
+        <div>
+          <div id="games-title" class="fw-semibold">Juegos</div>
+          <div class="text-secondary small">Se actualiza desde <code>data/games.json</code></div>
+        </div>
+        <div class="text-secondary small d-none d-md-block">Scroll horizontal</div>
+      </div>
+
+      <div id="games-strip" class="games-strip"></div>
+    </section>
   </main>
 
   <div id="footer-container"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="assets/js/components.js"></script>
+  <script type="module" src="assets/js/pages/home.js"></script>
 </body>
 </html>

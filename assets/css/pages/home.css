@@ -1,0 +1,45 @@
+.hero{ padding-top: 2.2rem; padding-bottom: 1.4rem; }
+.hero h1{ font-weight: 800; letter-spacing: .4px; }
+
+.stream-frame{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.02);
+}
+.stream-frame iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+.stream-list .list-group-item{
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  color: var(--text);
+}
+.stream-list .list-group-item.active{
+  background: rgba(255,255,255,.09);
+  border-color: rgba(255,255,255,.14);
+}
+
+.game-card{
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+}
+.game-cover{ width: 100%; aspect-ratio: 4/5; display:block; object-fit: cover; }
+.game-name{ font-weight: 600; }
+
+.games-strip{
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(170px, 200px);
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x mandatory;
+}
+.games-strip > a{ scroll-snap-align: start; }
+.games-strip::-webkit-scrollbar{ height: 10px; }
+.games-strip::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.12); border-radius: 999px; }

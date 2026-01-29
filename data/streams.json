@@ -1,0 +1,26 @@
+{
+  "default": "twitch",
+  "channels": [
+    {
+      "id": "twitch",
+      "label": "Twitch",
+      "items": [
+        { "name": "SunshineSquad", "type": "twitch", "channel": "sunshinesquad" }
+      ]
+    },
+    {
+      "id": "youtube",
+      "label": "YouTube",
+      "items": [
+        { "name": "Canal Principal", "type": "youtube", "videoId": "dQw4w9WgXcQ" }
+      ]
+    },
+    {
+      "id": "kick",
+      "label": "Kick",
+      "items": [
+        { "name": "SunshineSquad", "type": "kick", "channel": "sunshinesquad" }
+      ]
+    }
+  ]
+}
