@@ -1,7 +1,21 @@
 export function rootPrefix(){
+  // Queremos el prefijo hacia la RAÍZ del repo (no hacia el dominio).
+  // Si estás en /sunshinesquad/index.html -> prefijo ""
+  // Si estás en /sunshinesquad/pages/blog/index.html -> prefijo "../../"
+
   const parts = window.location.pathname.split("/").filter(Boolean);
-  const depth = Math.max(0, parts.length - 1);
-  return "../".repeat(depth);
+
+  // Si el último segmento parece archivo (tiene punto), lo quitamos
+  if (parts.length > 0 && parts[parts.length - 1].includes(".")) {
+    parts.pop();
+  }
+
+  // Ahora parts representa el directorio actual.
+  // En GitHub Pages project: el primer segmento es el nombre del repo ("sunshinesquad")
+  // Profundidad desde la raíz del repo = parts.length - 1
+  const depthFromRepoRoot = Math.max(0, parts.length - 1);
+
+  return "../".repeat(depthFromRepoRoot);
 }
 
 export async function loadText(pathFromRoot){
