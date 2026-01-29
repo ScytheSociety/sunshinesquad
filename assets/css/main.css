@@ -1,0 +1,27 @@
+:root{
+  --bg:#070a0f;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+}
+
+body{
+  background: var(--bg);
+  color: var(--text);
+}
+
+.bg-body-tertiary{ background-color: rgba(11,15,20,.95)!important; }
+.border-dark-subtle{ border-color: rgba(31,42,55,.9)!important; }
+
+.brand-mark{
+  width: 32px; height: 32px;
+  display:inline-flex; align-items:center; justify-content:center;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+}
+
+.card{
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+}
