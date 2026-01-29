@@ -1,35 +1,35 @@
 import { loadJson, rootPrefix } from "../app.js";
 
-function withRoot(pathFromRoot){
+function withRoot(pathFromRoot) {
   return rootPrefix() + pathFromRoot.replace(/^\//, "");
 }
 
-function buildEmbed(item){
+function buildEmbed(item) {
   const parent = window.location.hostname;
   const channel = encodeURIComponent(item.channel);
   return `https://player.twitch.tv/?channel=${channel}&parent=${parent}&autoplay=true&muted=true`;
 }
 
-function buildChat(item){
+function buildChat(item) {
   const parent = window.location.hostname;
   const channel = encodeURIComponent(item.channel);
   return `https://www.twitch.tv/embed/${channel}/chat?parent=${parent}`;
 }
 
-function setFrame(item){
+function setFrame(item) {
   const frame = document.getElementById("stream-iframe");
-  if(frame) frame.src = buildEmbed(item);
+  if (frame) frame.src = buildEmbed(item);
 }
 
-function setChat(item){
+function setChat(item) {
   const chatFrame = document.getElementById("chat-iframe");
-  if(chatFrame) chatFrame.src = buildChat(item);
+  if (chatFrame) chatFrame.src = buildChat(item);
 }
 
-function renderStreams(data){
+function renderStreams(data) {
   const tabs = document.getElementById("stream-tabs");
   const list = document.getElementById("stream-list");
-  if(!tabs || !list) return;
+  if (!tabs || !list) return;
 
   // Solo Twitch (pero dejamos la estructura por si luego quieres más cosas)
   let currentPlatform = data.default || data.channels?.[0]?.id || "twitch";
@@ -44,13 +44,13 @@ function renderStreams(data){
     tabs.appendChild(btn);
   });
 
-  function markTabs(){
+  function markTabs() {
     [...tabs.querySelectorAll("button")].forEach(b =>
       b.classList.toggle("active", b.dataset.platform === currentPlatform)
     );
   }
 
-  function renderList(){
+  function renderList() {
     list.innerHTML = "";
     const platform = data.channels.find(c => c.id === currentPlatform) || data.channels[0];
 
@@ -68,7 +68,7 @@ function renderStreams(data){
       list.appendChild(b);
 
       // primer canal por defecto
-      if(idx === 0){
+      if (idx === 0) {
         b.classList.add("active");
         setFrame(item);
         setChat(item);
@@ -80,11 +80,11 @@ function renderStreams(data){
   markTabs();
 }
 
-function renderGames(data){
+function renderGames(data) {
   const strip = document.getElementById("games-strip");
   const title = document.getElementById("games-title");
-  if(title) title.textContent = data.title || "Juegos";
-  if(!strip) return;
+  if (title) title.textContent = data.title || "Juegos";
+  if (!strip) return;
 
   strip.innerHTML = "";
   data.items.forEach(g => {
@@ -108,7 +108,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const streams = await loadJson("data/streams.json");
   renderStreams(streams);
 
-  // Si aún no quieres juegos, comenta estas 2 líneas:
-  // const games = await loadJson("data/games.json");
-  // renderGames(games);
+  document.addEventListener("DOMContentLoaded", async () => {
+    const streams = await loadJson("data/streams.json");
+    renderStreams(streams);
+
+    const games = await loadJson("data/games.json");
+    renderGames(games);
+  });
+
 });
