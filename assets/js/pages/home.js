@@ -5,22 +5,25 @@ function withRoot(pathFromRoot){
 }
 
 function buildEmbed(item){
-  if(item.type === "twitch"){
-    const parent = window.location.hostname;
-    return `https://player.twitch.tv/?channel=${encodeURIComponent(item.channel)}&parent=${parent}&autoplay=true&muted=true`;
-  }
-  if(item.type === "youtube"){
-    return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.videoId)}?autoplay=1&mute=1`;
-  }
-  if(item.type === "kick"){
-    return `https://player.kick.com/${encodeURIComponent(item.channel)}`;
-  }
-  return "about:blank";
+  const parent = window.location.hostname;
+  const channel = encodeURIComponent(item.channel);
+  return `https://player.twitch.tv/?channel=${channel}&parent=${parent}&autoplay=true&muted=true`;
 }
 
-function setFrame(src){
+function buildChat(item){
+  const parent = window.location.hostname;
+  const channel = encodeURIComponent(item.channel);
+  return `https://www.twitch.tv/embed/${channel}/chat?parent=${parent}`;
+}
+
+function setFrame(item){
   const frame = document.getElementById("stream-iframe");
-  if(frame) frame.src = src;
+  if(frame) frame.src = buildEmbed(item);
+}
+
+function setChat(item){
+  const chatFrame = document.getElementById("chat-iframe");
+  if(chatFrame) chatFrame.src = buildChat(item);
 }
 
 function renderStreams(data){
@@ -28,6 +31,7 @@ function renderStreams(data){
   const list = document.getElementById("stream-list");
   if(!tabs || !list) return;
 
+  // Solo Twitch (pero dejamos la estructura por si luego quieres más cosas)
   let currentPlatform = data.default || data.channels?.[0]?.id || "twitch";
 
   tabs.innerHTML = "";
@@ -58,13 +62,16 @@ function renderStreams(data){
       b.onclick = () => {
         [...list.querySelectorAll(".list-group-item")].forEach(x => x.classList.remove("active"));
         b.classList.add("active");
-        setFrame(buildEmbed(item));
+        setFrame(item);
+        setChat(item);
       };
       list.appendChild(b);
 
+      // primer canal por defecto
       if(idx === 0){
         b.classList.add("active");
-        setFrame(buildEmbed(item));
+        setFrame(item);
+        setChat(item);
       }
     });
   }
@@ -101,6 +108,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const streams = await loadJson("data/streams.json");
   renderStreams(streams);
 
-  const games = await loadJson("data/games.json");
-  renderGames(games);
+  // Si aún no quieres juegos, comenta estas 2 líneas:
+  // const games = await loadJson("data/games.json");
+  // renderGames(games);
 });

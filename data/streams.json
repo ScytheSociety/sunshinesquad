@@ -5,21 +5,10 @@
       "id": "twitch",
       "label": "Twitch",
       "items": [
-        { "name": "SunshineSquad", "type": "twitch", "channel": "sunshinesquad" }
-      ]
-    },
-    {
-      "id": "youtube",
-      "label": "YouTube",
-      "items": [
-        { "name": "Canal Principal", "type": "youtube", "videoId": "dQw4w9WgXcQ" }
-      ]
-    },
-    {
-      "id": "kick",
-      "label": "Kick",
-      "items": [
-        { "name": "SunshineSquad", "type": "kick", "channel": "sunshinesquad" }
+        { "name": "illoJuan", "type": "twitch", "channel": "illojuan", "chat": true },
+        { "name": "ElXokas", "type": "twitch", "channel": "elxokas", "chat": true },
+        { "name": "Rubius", "type": "twitch", "channel": "rubius", "chat": true },
+        { "name": "Carola", "type": "twitch", "channel": "carola", "chat": true }
       ]
     }
   ]
