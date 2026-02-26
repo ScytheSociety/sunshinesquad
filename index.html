@@ -4,76 +4,74 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sunshine Squad</title>
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/pages/home.css">
 </head>
 <body>
+
   <div id="navbar-container"></div>
 
-  <main class="container">
-    <section class="hero">
-      <div class="row g-4 align-items-end">
-        <div class="col-lg-7">
-          <h1 class="mb-2">Sunshine Squad</h1>
-          <p class="text-secondary mb-0">
-            División de clanes de Scythe Society — blog, streams y proyectos.
-          </p>
-        </div>
-        <div class="col-lg-5 text-lg-end">
-          <a class="btn btn-outline-light" href="pages/blog/index.html">📓 Blog</a>
-          <a class="btn btn-outline-light ms-2" href="pages/proyectos/index.html">🧩 Proyectos</a>
+  <main class="container py-4">
+
+    <!-- HERO -->
+    <div class="mb-4">
+      <h1 style="font-weight:800;letter-spacing:.3px;">Sunshine Squad</h1>
+      <p class="text-muted-ss">División de clanes de Scythe Society — streams, juegos y proyectos.</p>
+    </div>
+
+    <!-- STREAM + CHAT -->
+    <div class="card-dark mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+          <div style="font-weight:700;">📺 Twitch</div>
+          <div class="text-muted-ss">Cambia de canal sin recargar la página</div>
         </div>
       </div>
-    </section>
 
-    <section class="mt-4">
-      <div class="row g-4">
-        <div class="col-12">
-          <div class="card p-3 p-md-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-              <div>
-                <div class="fw-semibold">📺 Twitch</div>
-                <div class="text-secondary small">Cambia de canal sin recargar (player + chat)</div>
-              </div>
-              <div id="stream-tabs" class="mt-2 mt-md-0"></div>
-            </div>
+      <div class="row g-3">
 
-            <div class="row g-3">
-              <div class="col-12 col-xl-8">
-                <div class="stream-frame">
-                  <iframe id="stream-iframe" allowfullscreen></iframe>
-                </div>
-              </div>
-
-              <div class="col-12 col-xl-4">
-                <div class="stream-frame stream-chat">
-                  <iframe id="chat-iframe"></iframe>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-3 text-secondary small">
-              Nota: para escribir en el chat necesitas estar logueado en Twitch en tu navegador.
-            </div>
+        <!-- Player -->
+        <div class="col-12 col-xl-6">
+          <div style="position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);">
+            <iframe id="stream-iframe"
+              allowfullscreen
+              style="position:absolute;inset:0;width:100%;height:100%;border:0;">
+            </iframe>
           </div>
         </div>
 
-        <div class="col-lg-4 d-none"><!-- por ahora nada aquí --></div>
-      </div>
-    </section>
+        <!-- Chat -->
+        <div class="col-12 col-xl-3">
+          <div style="width:100%;height:100%;min-height:400px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);">
+            <iframe id="chat-iframe"
+              style="width:100%;height:100%;min-height:400px;border:0;">
+            </iframe>
+          </div>
+        </div>
 
-    <!-- (Opcional) Juegos: deja este bloque si luego quieres el carrusel -->
-    <section class="mt-5 d-none">
-      <div class="d-flex justify-content-between align-items-end mb-3">
+        <!-- Lista de canales -->
+        <div class="col-12 col-xl-3">
+          <div style="font-weight:600;margin-bottom:.75rem;">Canales</div>
+          <div id="channel-list"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- JUEGOS -->
+    <div class="card-dark">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <div id="games-title" class="fw-semibold">Juegos</div>
-          <div class="text-secondary small">Se actualiza desde <code>data/games.json</code></div>
+          <div id="games-title" style="font-weight:700;">Juegos</div>
+          <div class="text-muted-ss">Edita <code>data/games.json</code> para actualizar</div>
         </div>
       </div>
-      <div id="games-strip" class="games-strip"></div>
-    </section>
+
+      <div id="games-strip"
+        style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;">
+      </div>
+    </div>
+
   </main>
 
   <div id="footer-container"></div>
@@ -81,5 +79,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="assets/js/components.js"></script>
   <script type="module" src="assets/js/pages/home.js"></script>
+
 </body>
 </html>

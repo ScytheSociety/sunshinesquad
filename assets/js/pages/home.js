@@ -1,86 +1,64 @@
-async function loadJson(path){
-  const res = await fetch(path, { cache: "no-store" });
-  if(!res.ok) throw new Error(`No se pudo cargar ${path} (${res.status})`);
-  return await res.json();
+import { loadJson, repoRoot } from "../app.js";
+
+// ── Twitch embeds ──────────────────────────────────────────
+function buildPlayer(channel) {
+  const parent = window.location.hostname;
+  return `https://player.twitch.tv/?channel=${channel}&parent=${parent}&autoplay=false&muted=false`;
 }
 
-function buildEmbed(item){
+function buildChat(channel) {
   const parent = window.location.hostname;
-  const channel = encodeURIComponent(item.channel);
-  return `https://player.twitch.tv/?channel=${channel}&parent=${parent}&autoplay=true&muted=true`;
-}
-
-function buildChat(item){
-  const parent = window.location.hostname;
-  const channel = encodeURIComponent(item.channel);
   return `https://www.twitch.tv/embed/${channel}/chat?parent=${parent}`;
 }
 
-function setFrame(item){
-  const frame = document.getElementById("stream-iframe");
-  if(frame) frame.src = buildEmbed(item);
+function setStream(channel) {
+  document.getElementById("stream-iframe").src = buildPlayer(channel);
+  document.getElementById("chat-iframe").src    = buildChat(channel);
 }
 
-function setChat(item){
-  const chatFrame = document.getElementById("chat-iframe");
-  if(chatFrame) chatFrame.src = buildChat(item);
-}
+// ── Renderiza lista de canales ─────────────────────────────
+function renderChannels(channels) {
+  const list = document.getElementById("channel-list");
+  if (!list) return;
 
-function renderStreams(data){
-  const tabs = document.getElementById("stream-tabs");
-  const list = document.getElementById("stream-list");
-  if(!tabs || !list) return;
+  channels.forEach((item, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "btn-ss w-100 text-start mb-2";
+    btn.textContent = item.name;
 
-  tabs.innerHTML = "";
-  list.innerHTML = "";
+    btn.addEventListener("click", () => {
+      list.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      setStream(item.channel);
+    });
 
-  const platform = data.channels?.[0];
-  if(!platform || !platform.items?.length) return;
+    list.appendChild(btn);
 
-  // Botón único "Twitch" (porque solo hay Twitch)
-  const btn = document.createElement("button");
-  btn.className = "btn btn-sm btn-outline-light me-2 mb-2 active";
-  btn.textContent = "Twitch";
-  tabs.appendChild(btn);
-
-  platform.items.forEach((item, idx) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
-    b.innerHTML = `<span>${item.name}</span><span class="badge text-bg-secondary">Twitch</span>`;
-    b.onclick = () => {
-      [...list.querySelectorAll(".list-group-item")].forEach(x => x.classList.remove("active"));
-      b.classList.add("active");
-      setFrame(item);
-      setChat(item);
-    };
-    list.appendChild(b);
-
-    if(idx === 0){
-      b.classList.add("active");
-      setFrame(item);
-      setChat(item);
+    if (idx === 0) {
+      btn.classList.add("active");
+      setStream(item.channel);
     }
   });
 }
 
-function renderGames(data){
+// ── Renderiza carrusel de juegos ───────────────────────────
+function renderGames(data) {
   const strip = document.getElementById("games-strip");
   const title = document.getElementById("games-title");
-  if(title) title.textContent = data.title || "Juegos";
-  if(!strip) return;
+  if (title) title.textContent = data.title || "Juegos";
+  if (!strip) return;
 
-  strip.innerHTML = "";
-  (data.items || []).forEach(g => {
+  data.items.forEach(g => {
     const a = document.createElement("a");
-    a.className = "text-reset";
-    a.href = g.url;
+    a.href = repoRoot() + g.url;
+    a.style.cssText = "text-decoration:none;color:inherit;";
     a.innerHTML = `
-      <div class="game-card">
-        <img class="game-cover" src="${g.image}" alt="${g.name}">
-        <div class="p-3">
-          <div class="game-name">${g.name}</div>
-          <div class="text-secondary small">Ver sección</div>
+      <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);width:180px;flex-shrink:0;">
+        <img src="${repoRoot() + g.image}" alt="${g.name}"
+             style="width:100%;aspect-ratio:4/5;object-fit:cover;display:block;">
+        <div style="padding:.75rem 1rem;">
+          <div style="font-weight:600;font-size:.9rem;">${g.name}</div>
+          <div style="color:rgba(255,255,255,.4);font-size:.78rem;">Ver sección</div>
         </div>
       </div>
     `;
@@ -88,26 +66,19 @@ function renderGames(data){
   });
 }
 
-// Si algo falla, lo mostramos en pantalla (sin consola)
-function showError(msg){
-  const host = document.createElement("div");
-  host.className = "container mt-3";
-  host.innerHTML = `<div class="alert alert-danger mb-0">${msg}</div>`;
-  document.body.prepend(host);
-}
-
+// ── Init ───────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
-  try{
-    const streams = await loadJson("./data/streams.json");
-    renderStreams(streams);
-  }catch(e){
-    showError("Error cargando streams.json: " + e.message);
+  try {
+    const streams = await loadJson("data/streams.json");
+    renderChannels(streams.channels);
+  } catch(e) {
+    console.error("streams.json:", e);
   }
 
-  try{
-    const games = await loadJson("./data/games.json");
+  try {
+    const games = await loadJson("data/games.json");
     renderGames(games);
-  }catch(e){
-    showError("Error cargando games.json: " + e.message);
+  } catch(e) {
+    console.error("games.json:", e);
   }
 });

@@ -1,10 +1,10 @@
-import { rootPrefix, loadText, setYear } from "./app.js";
+import { url, loadText, setYear } from "./app.js";
 
-async function inject(id, file){
+async function inject(id, path) {
   const el = document.getElementById(id);
-  if(!el) return;
-  const html = await loadText(file);
-  el.innerHTML = html.replaceAll("{{ROOT}}", rootPrefix());
+  if (!el) return;
+  const html = await loadText(path);
+  el.innerHTML = html.replaceAll("{{ROOT}}", url("").slice(0, -1) + "/");
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

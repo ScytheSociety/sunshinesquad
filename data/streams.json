@@ -1,15 +1,8 @@
 {
-  "default": "twitch",
   "channels": [
-    {
-      "id": "twitch",
-      "label": "Twitch",
-      "items": [
-        { "name": "illoJuan", "type": "twitch", "channel": "illojuan", "chat": true },
-        { "name": "ElXokas", "type": "twitch", "channel": "elxokas", "chat": true },
-        { "name": "Rubius", "type": "twitch", "channel": "rubius", "chat": true },
-        { "name": "Carola", "type": "twitch", "channel": "carola", "chat": true }
-      ]
-    }
+    { "name": "illoJuan",  "channel": "illojuan" },
+    { "name": "ElXokas",   "channel": "elxokas"  },
+    { "name": "Rubius",    "channel": "rubius"   },
+    { "name": "Carola",    "channel": "carola"   }
   ]
 }

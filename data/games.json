@@ -4,12 +4,12 @@
     {
       "name": "World of Warcraft",
       "image": "assets/images/games/wow_4x5.jpg",
-      "url": "pages/juegos/wow.html"
+      "url": "pages/juegos/"
     },
     {
       "name": "Ragnarok Online",
       "image": "assets/images/games/ro_4x5.jpg",
-      "url": "pages/juegos/ro.html"
+      "url": "pages/juegos/"
     }
   ]
 }
