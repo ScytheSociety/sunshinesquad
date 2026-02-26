@@ -3,7 +3,7 @@ import { loadJson, repoRoot } from "../app.js";
 // ── Twitch embeds ──────────────────────────────────────────
 function buildPlayer(channel) {
   const parent = window.location.hostname;
-  return `https://player.twitch.tv/?channel=${channel}&parent=${parent}&autoplay=false&muted=false`;
+  return `https://player.twitch.tv/?channel=${channel}&parent=${parent}&autoplay=true&muted=false`;
 }
 
 function buildChat(channel) {
