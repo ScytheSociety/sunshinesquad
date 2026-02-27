@@ -42,11 +42,11 @@
     <!-- PESTAÑA: INICIO -->
     <div id="tab-inicio" class="tab-content">
 
+      <!-- SERVIDOR -->
       <div class="card-dark mb-4">
 
-        <!-- CABECERA SERVIDOR: logo + título + botones -->
+        <!-- CABECERA -->
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-
           <div class="d-flex align-items-center gap-3">
             <img id="servidor-logo" src="" alt="uaRO"
                  style="height:36px;object-fit:contain;">
@@ -56,7 +56,7 @@
             </div>
           </div>
 
-          <!-- BOTONES COMPACTOS -->
+          <!-- BOTONES -->
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <a id="btn-descarga" href="#" target="_blank"
                style="display:none;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#e5e7eb;font-size:.8rem;text-decoration:none;"
@@ -89,18 +89,45 @@
         <p id="servidor-descripcion"
            style="color:rgba(255,255,255,.55);font-size:.88rem;line-height:1.6;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(255,255,255,.07);"></p>
 
-        <!-- TABLA CONFIGURACIÓN (rates incluidos aquí) -->
+        <!-- TABLA CONFIG -->
         <div style="font-weight:700;margin-bottom:.85rem;font-size:.9rem;">⚙️ Configuración del servidor</div>
         <div id="servidor-tabla" class="ro-tabla"></div>
 
       </div>
 
-      <!-- GALERÍA -->
-      <div class="card-dark">
-        <div style="font-weight:700;margin-bottom:1rem;">📸 Galería</div>
-        <div id="galeria-strip"
-          style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;">
+      <!-- STREAMERS -->
+      <div class="card-dark mb-4">
+        <div style="font-weight:700;margin-bottom:.5rem;">🎮 Streamers de la comunidad</div>
+        <div class="text-muted-ss mb-3" style="font-size:.82rem;">Creadores de contenido que juegan en uaRO</div>
+        <div id="streamers-row" class="streamers-row"></div>
+      </div>
+
+      <!-- GALERÍA DE IMÁGENES -->
+      <div class="card-dark mb-4">
+        <div style="font-weight:700;margin-bottom:.5rem;">📸 Galería</div>
+        <div class="text-muted-ss mb-3" style="font-size:.82rem;">
+          Agrega imágenes en <code>data/ragnarok.json</code> → sección <code>galeria</code>
         </div>
+
+        <div class="galeria-wrapper">
+          <div class="galeria-strip-wrap">
+            <div id="galeria-strip" class="galeria-strip"></div>
+          </div>
+          <div class="galeria-nav">
+            <button id="galeria-prev" class="galeria-nav-btn">←</button>
+            <div id="galeria-dots" class="galeria-dots"></div>
+            <button id="galeria-next" class="galeria-nav-btn">→</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GALERÍA DE VIDEOS -->
+      <div class="card-dark">
+        <div style="font-weight:700;margin-bottom:.5rem;">🎬 Videos</div>
+        <div class="text-muted-ss mb-3" style="font-size:.82rem;">
+          Agrega videos en <code>data/ragnarok.json</code> → sección <code>videos</code>
+        </div>
+        <div id="videos-grid" class="videos-grid"></div>
       </div>
 
     </div>

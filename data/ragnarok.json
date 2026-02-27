@@ -6,8 +6,8 @@
         "descripcion": "uaRO es un servidor Pre-Renewal clásico con contenido Renewal integrado, corriendo sobre Hercules con protección anti-cheat Gepard 3.0. Sin atajos: sin Warpers, sin Job Changers, sin doble cliente. Rates x5 toda la semana y x7.5 los fines de semana. Ofrece nuevas mazmorras, sistema de mascotas mejorado, misiones de caza por nivel, recuperación de HP/SP acelerada, eventos de temporada, BG expandido hasta 40v40 y actualizaciones constantes que mantienen el juego vivo y equilibrado. Una experiencia auténtica de Pre-Renewal con sistemas de end-game profundos para los que buscan el verdadero grind. Sunshine Squad es el clan latino de Scythe Society en uaRO. Somos un grupo que acepta a todos sin importar experiencia ni nivel, donde lo que importa es pasarla bien juntos. Nuestra meta es completar todo el contenido del juego unidos: desde el leveling hasta las instancias más difíciles, WoE, MVPs y todo lo que el servidor tenga para ofrecer. Un lugar donde la comunidad latina crece junta, se ayuda y sobre todo, se divierte.",
         "web": "https://uaro.net/",
         "wiki": "https://wiki.uaro.net/site/",
-        "descarga": "",
-        "discord": "https://discord.com/invite/2SEqmbDe7G",
+        "descarga": "https://drive.google.com/file/d/1XP9J6wmX5vSU5VY3DaVhFqDwA8Wsrrzs/view?usp=drive_link",
+        "discord": "https://discord.gg/uaro",
         "info": [
             {
                 "label": "Rates semana",
@@ -67,6 +67,48 @@
             }
         ]
     },
+    "streamers": [
+        {
+            "nombre": "Evangelion0",
+            "plataforma": "Twitch",
+            "link": "https://www.twitch.tv/evangelion0",
+            "color": "#9146FF",
+            "colorTexto": "#ffffff",
+            "icono": "🟣"
+        },
+        {
+            "nombre": "HeyImAce_TV",
+            "plataforma": "Kick",
+            "link": "https://kick.com/heyimace-tv",
+            "color": "#53FC18",
+            "colorTexto": "#000000",
+            "icono": "🟢"
+        },
+        {
+            "nombre": "VEGETTA777",
+            "plataforma": "YouTube",
+            "link": "https://www.youtube.com/@vegetta777",
+            "color": "#FF0000",
+            "colorTexto": "#ffffff",
+            "icono": "🔴"
+        },
+        {
+            "nombre": "bio",
+            "plataforma": "TikTok",
+            "link": "https://www.tiktok.com/@biometrias/live",
+            "color": "#010101",
+            "colorTexto": "#00f2ea",
+            "icono": "⚫"
+        },
+        {
+            "nombre": "GG4ALL",
+            "plataforma": "Twitch",
+            "link": "https://twitch.tv/gg4alltv",
+            "color": "#9146FF",
+            "colorTexto": "#ffffff",
+            "icono": "🟣"
+        }
+    ],
     "galeria": [
         {
             "imagen": "assets/images/ragnarok/galeria/placeholder1.jpg",
@@ -79,6 +121,28 @@
         {
             "imagen": "assets/images/ragnarok/galeria/placeholder3.jpg",
             "titulo": "Instancia"
+        },
+        {
+            "imagen": "assets/images/ragnarok/galeria/placeholder4.jpg",
+            "titulo": "MVP"
+        },
+        {
+            "imagen": "assets/images/ragnarok/galeria/placeholder5.jpg",
+            "titulo": "Guild"
+        }
+    ],
+    "videos": [
+        {
+            "titulo": "Guía de Leveling uaRO",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+            "titulo": "WoE Sunshine Squad",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+            "titulo": "Farm de Zeny",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         }
     ],
     "guias": [
