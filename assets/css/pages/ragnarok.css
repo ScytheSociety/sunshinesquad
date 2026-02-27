@@ -53,6 +53,7 @@
   object-fit: cover;
   display: block;
   background: rgba(255,255,255,.05);
+  min-height: 110px;
 }
 
 .ro-card-body {
@@ -87,10 +88,60 @@
   object-fit: cover;
   display: block;
   background: rgba(255,255,255,.05);
+  min-height: 140px;
 }
 
 .galeria-item-titulo {
   padding: .5rem .75rem;
   font-size: .82rem;
   color: rgba(255,255,255,.5);
+}
+
+/* ===================== INFO DEL SERVIDOR ===================== */
+.ro-info-box {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.ro-info-label {
+  font-size: .78rem;
+  color: rgba(255,255,255,.4);
+  margin-bottom: .25rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.ro-info-valor {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ===================== TABLA DE CONFIGURACIÓN ===================== */
+.ro-tabla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.ro-tabla-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 8px;
+  padding: .5rem .85rem;
+  font-size: .85rem;
+}
+
+.ro-tabla-fila-label {
+  color: rgba(255,255,255,.45);
+}
+
+.ro-tabla-fila-valor {
+  font-weight: 600;
+  color: #e5e7eb;
 }

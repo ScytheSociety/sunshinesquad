@@ -1,19 +1,41 @@
 {
   "descripcion": "Ragnarok Online es un MMORPG clásico donde Sunshine Squad tiene su clan activo. Exploramos instancias, competimos en WoE y ayudamos a nuevos jugadores.",
+  "servidor": {
+    "nombre": "uaRO",
+    "logo": "https://uaro.net/images/uaro-logo-new-horisontal@2x.webp",
+    "web": "https://uaro.net/",
+    "wiki": "https://wiki.uaro.net/site/",
+    "descarga": "",
+    "rates": {
+      "base": "x5 / x5 / x5",
+      "finde": "x7.5 / x7.5 / x5"
+    },
+    "info": [
+      { "label": "Episodio",        "valor": "13.1 Ash Vacuum" },
+      { "label": "Modo",            "valor": "Classic Pre-renewal" },
+      { "label": "Max Nivel",       "valor": "99/70" },
+      { "label": "Max Stats",       "valor": "99" },
+      { "label": "Max ASPD",        "valor": "190" },
+      { "label": "Cast Instantáneo","valor": "150 DEX" },
+      { "label": "Emulador",        "valor": "Hercules" },
+      { "label": "Ubicación",       "valor": "Europa, Alemania" },
+      { "label": "Anti-cheat",      "valor": "Gepard 3.0" }
+    ]
+  },
   "galeria": [
     { "imagen": "assets/images/ragnarok/galeria/placeholder1.jpg", "titulo": "Prontera" },
     { "imagen": "assets/images/ragnarok/galeria/placeholder2.jpg", "titulo": "WoE" },
     { "imagen": "assets/images/ragnarok/galeria/placeholder3.jpg", "titulo": "Instancia" }
   ],
   "guias": [
-    { "nombre": "Leveling",   "imagen": "assets/images/ragnarok/guias/leveling.jpg",   "url": "pages/juegos/ragnarok/guias/leveling.html",        "descripcion": "Sube de nivel rápido y eficiente." },
-    { "nombre": "Zeny",       "imagen": "assets/images/ragnarok/guias/zeny.jpg",       "url": "pages/juegos/ragnarok/guias/zeny.html",            "descripcion": "Las mejores formas de farmear zeny." },
-    { "nombre": "Instancias", "imagen": "assets/images/ragnarok/guias/instancias.jpg", "url": "pages/juegos/ragnarok/guias/instancias.html",      "descripcion": "Guías de cada instancia del juego." },
-    { "nombre": "Quests",     "imagen": "assets/images/ragnarok/guias/quests.jpg",     "url": "pages/juegos/ragnarok/guias/quests/quests.html",   "descripcion": "Todas las quests importantes." }
+    { "nombre": "Leveling",   "imagen": "assets/images/ragnarok/guias/leveling.jpg",   "url": "pages/juegos/ragnarok/guias/leveling.html",      "descripcion": "Sube de nivel rápido y eficiente." },
+    { "nombre": "Zeny",       "imagen": "assets/images/ragnarok/guias/zeny.jpg",       "url": "pages/juegos/ragnarok/guias/zeny.html",          "descripcion": "Las mejores formas de farmear zeny." },
+    { "nombre": "Instancias", "imagen": "assets/images/ragnarok/guias/instancias.jpg", "url": "pages/juegos/ragnarok/guias/instancias.html",    "descripcion": "Guías de cada instancia del juego." },
+    { "nombre": "Quests",     "imagen": "assets/images/ragnarok/guias/quests.jpg",     "url": "pages/juegos/ragnarok/guias/quests/quests.html", "descripcion": "Todas las quests importantes." }
   ],
   "builds": [
-    { "nombre": "Genetic",    "imagen": "assets/images/ragnarok/builds/genetic.jpg",   "url": "pages/juegos/ragnarok/builds/genetic.html",       "descripcion": "Build de Genetic para farming." },
-    { "nombre": "Sorcerer",   "imagen": "assets/images/ragnarok/builds/sorcerer.jpg",  "url": "pages/juegos/ragnarok/builds/sorcerer.html",      "descripcion": "Build de Sorcerer para instancias." },
-    { "nombre": "Ranger",     "imagen": "assets/images/ragnarok/builds/ranger.jpg",    "url": "pages/juegos/ragnarok/builds/ranger.html",        "descripcion": "Build de Ranger DPS." }
+    { "nombre": "Genetic",  "imagen": "assets/images/ragnarok/builds/genetic.jpg",  "url": "pages/juegos/ragnarok/builds/genetic.html",  "descripcion": "Build de Genetic para farming." },
+    { "nombre": "Sorcerer", "imagen": "assets/images/ragnarok/builds/sorcerer.jpg", "url": "pages/juegos/ragnarok/builds/sorcerer.html", "descripcion": "Build de Sorcerer para instancias." },
+    { "nombre": "Ranger",   "imagen": "assets/images/ragnarok/builds/ranger.jpg",   "url": "pages/juegos/ragnarok/builds/ranger.html",   "descripcion": "Build de Ranger DPS." }
   ]
 }
