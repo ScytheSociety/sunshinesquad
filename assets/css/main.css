@@ -61,3 +61,11 @@ a:hover {
   color: rgba(255,255,255,.4);
   font-size: .875rem;
 }
+
+/* ===================== NAVBAR SIN SUBRAYADO ===================== */
+.navbar-brand:hover,
+.navbar-brand:focus,
+.nav-link:hover,
+.nav-link:focus {
+  text-decoration: none !important;
+}
