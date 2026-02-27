@@ -61,104 +61,115 @@ function renderServidor(s) {
   }
 }
 
-// ── Streamers ──────────────────────────────────────────────
-function renderStreamers(streamers) {
-  const row = document.getElementById("streamers-row");
-  if (!row) return;
-
-  streamers.forEach(s => {
-    const a = document.createElement("a");
-    a.href = s.link;
-    a.target = "_blank";
-    a.rel = "noreferrer";
-    a.className = "streamer-btn";
-    a.style.cssText = `
-      background: ${s.color}22;
-      border-color: ${s.color}88;
-      color: ${s.colorTexto === "#000000" ? "#000" : "#fff"};
-      --glow: ${s.color};
-    `;
-    a.innerHTML = `
-      <span>${s.icono}</span>
-      <span>
-        <span style="display:block;line-height:1.2;">${s.nombre}</span>
-        <span class="streamer-plataforma">${s.plataforma}</span>
-      </span>
-    `;
-    row.appendChild(a);
-  });
-}
-
-// ── Galería de imágenes con navegación ────────────────────
-function renderGaleria(items) {
-  const strip     = document.getElementById("galeria-strip");
-  const dotsEl    = document.getElementById("galeria-dots");
-  const btnPrev   = document.getElementById("galeria-prev");
-  const btnNext   = document.getElementById("galeria-next");
-  if (!strip) return;
+// ── Slider genérico (sliding window) ──────────────────────
+// Siempre se ven `visible` items. Al avanzar se desplaza de 1 en 1.
+function buildSlider({ stripId, dotsId, prevId, nextId, visible, gap, dotClass }) {
+  const strip   = document.getElementById(stripId);
+  const dotsEl  = document.getElementById(dotsId);
+  const btnPrev = document.getElementById(prevId);
+  const btnNext = document.getElementById(nextId);
+  if (!strip) return null;
 
   let current = 0;
-  let itemWidth = 0;
-  const visible = () => window.innerWidth < 640 ? 1 : window.innerWidth < 1024 ? 2 : 3;
 
-  items.forEach((item, idx) => {
-    const div = document.createElement("div");
-    div.className = "galeria-item";
-    div.style.flex = "0 0 calc((100% - " + (visible() - 1) * 12 + "px) / " + visible() + ")";
-    div.innerHTML = `
-      <img src="${repoRoot() + item.imagen}" alt="${item.titulo}"
-           onerror="this.parentElement.style.display='none'">
-      <div class="galeria-item-titulo">${item.titulo}</div>
-    `;
-    strip.appendChild(div);
+  function totalItems() { return strip.children.length; }
+  function maxPos()     { return Math.max(0, totalItems() - visible); }
 
-    if (dotsEl) {
-      const dot = document.createElement("div");
-      dot.className = "galeria-dot" + (idx === 0 ? " active" : "");
-      dot.addEventListener("click", () => goTo(idx));
-      dotsEl.appendChild(dot);
-    }
-  });
+  function setWidths() {
+    const containerW = strip.parentElement.offsetWidth;
+    const totalGap   = gap * (visible - 1);
+    const w          = (containerW - totalGap) / visible;
+    [...strip.children].forEach(el => { el.style.width = w + "px"; });
+    return w;
+  }
 
   function updateDots() {
     if (!dotsEl) return;
-    dotsEl.querySelectorAll(".galeria-dot").forEach((d, i) => {
-      d.classList.toggle("active", i === current);
-    });
+    [...dotsEl.children].forEach((d, i) => d.classList.toggle("active", i === current));
+  }
+
+  function updateBtns() {
+    if (btnPrev) btnPrev.disabled = current === 0;
+    if (btnNext) btnNext.disabled = current >= maxPos();
   }
 
   function goTo(idx) {
-    const max = Math.max(0, items.length - visible());
-    current = Math.max(0, Math.min(idx, max));
-    const w = strip.querySelector(".galeria-item");
-    if (!w) return;
-    const gap = 12;
-    const offset = current * (w.offsetWidth + gap);
+    current = Math.max(0, Math.min(idx, maxPos()));
+    const w      = setWidths();
+    const offset = current * (w + gap);
     strip.style.transform = `translateX(-${offset}px)`;
     updateDots();
+    updateBtns();
   }
 
   if (btnPrev) btnPrev.addEventListener("click", () => goTo(current - 1));
   if (btnNext) btnNext.addEventListener("click", () => goTo(current + 1));
-
   window.addEventListener("resize", () => goTo(current));
+
+  function addDot(idx) {
+    if (!dotsEl) return;
+    const dot = document.createElement("div");
+    dot.className = dotClass + (idx === 0 ? " active" : "");
+    dot.addEventListener("click", () => goTo(idx));
+    dotsEl.appendChild(dot);
+  }
+
+  function init() {
+    setTimeout(() => { setWidths(); goTo(0); }, 60);
+  }
+
+  return { goTo, addDot, init };
 }
 
-// ── Galería de videos ──────────────────────────────────────
-function renderVideos(videos) {
-  const grid = document.getElementById("videos-grid");
-  if (!grid) return;
+// ── Galería de imágenes (5 visibles) ──────────────────────
+function renderGaleria(items) {
+  const slider = buildSlider({
+    stripId:  "galeria-strip",
+    dotsId:   "galeria-dots",
+    prevId:   "galeria-prev",
+    nextId:   "galeria-next",
+    visible:  5,
+    gap:      10,
+    dotClass: "galeria-dot"
+  });
+  if (!slider) return;
 
-  videos.forEach(v => {
+  const strip = document.getElementById("galeria-strip");
+  items.forEach((item, idx) => {
+    const div = document.createElement("div");
+    div.className = "galeria-item";
+    div.innerHTML = `
+      <img src="${repoRoot() + item.imagen}" alt="${item.titulo}"
+           onerror="this.style.minHeight='100px'">
+      <div class="galeria-item-titulo">${item.titulo}</div>
+    `;
+    strip.appendChild(div);
+    slider.addDot(idx);
+  });
+  slider.init();
+}
+
+// ── Galería de videos (3 visibles) ────────────────────────
+function renderVideos(videos) {
+  const slider = buildSlider({
+    stripId:  "videos-strip",
+    dotsId:   "videos-dots",
+    prevId:   "videos-prev",
+    nextId:   "videos-next",
+    visible:  3,
+    gap:      10,
+    dotClass: "videos-dot"
+  });
+  if (!slider) return;
+
+  const strip = document.getElementById("videos-strip");
+  videos.forEach((v, idx) => {
     const div = document.createElement("div");
     div.className = "video-item";
 
-    // Convierte URL de YouTube a embed
     let embedUrl = v.url;
     const ytMatch = v.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
-    if (ytMatch) {
-      embedUrl = `https://www.youtube-nocookie.com/embed/${ytMatch[1]}`;
-    }
+    if (ytMatch) embedUrl = `https://www.youtube-nocookie.com/embed/${ytMatch[1]}`;
 
     div.innerHTML = `
       <iframe src="${embedUrl}" allowfullscreen
@@ -166,8 +177,10 @@ function renderVideos(videos) {
       </iframe>
       <div class="video-titulo">${v.titulo}</div>
     `;
-    grid.appendChild(div);
+    strip.appendChild(div);
+    slider.addDot(idx);
   });
+  slider.init();
 }
 
 // ── Cards guías / builds ───────────────────────────────────
@@ -199,7 +212,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (d1) d1.textContent = data.descripcion;
 
     renderServidor(data.servidor);
-    renderStreamers(data.streamers);
     renderGaleria(data.galeria);
     renderVideos(data.videos);
     renderCards(data.guias,  "guias-grid");

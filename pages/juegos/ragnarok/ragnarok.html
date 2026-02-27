@@ -46,8 +46,7 @@
       <div class="card-dark mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
           <div class="d-flex align-items-center gap-3">
-            <img id="servidor-logo" src="" alt="uaRO"
-                 style="height:36px;object-fit:contain;">
+            <img id="servidor-logo" src="" alt="uaRO" style="height:36px;object-fit:contain;">
             <div>
               <div style="font-weight:700;font-size:1rem;">Servidor oficial de la comunidad</div>
               <div class="text-muted-ss" style="font-size:.8rem;">Únete y juega con Sunshine Squad</div>
@@ -82,10 +81,7 @@
 
       <!-- GALERÍA DE IMÁGENES -->
       <div class="card-dark mb-4">
-        <div style="font-weight:700;margin-bottom:.5rem;">📸 Galería</div>
-        <div class="text-muted-ss mb-3" style="font-size:.82rem;">
-          Agrega imágenes en <code>data/ragnarok.json</code> → sección <code>galeria</code>
-        </div>
+        <div style="font-weight:700;margin-bottom:1rem;">📸 Galería</div>
         <div class="galeria-wrapper">
           <div class="galeria-strip-wrap">
             <div id="galeria-strip" class="galeria-strip"></div>
@@ -100,11 +96,17 @@
 
       <!-- GALERÍA DE VIDEOS -->
       <div class="card-dark">
-        <div style="font-weight:700;margin-bottom:.5rem;">🎬 Videos</div>
-        <div class="text-muted-ss mb-3" style="font-size:.82rem;">
-          Agrega videos en <code>data/ragnarok.json</code> → sección <code>videos</code>
+        <div style="font-weight:700;margin-bottom:1rem;">🎬 Videos</div>
+        <div class="videos-wrapper">
+          <div class="videos-strip-wrap">
+            <div id="videos-strip" class="videos-strip"></div>
+          </div>
+          <div class="videos-nav">
+            <button id="videos-prev" class="videos-nav-btn">←</button>
+            <div id="videos-dots" class="videos-dots"></div>
+            <button id="videos-next" class="videos-nav-btn">→</button>
+          </div>
         </div>
-        <div id="videos-grid" class="videos-grid"></div>
       </div>
 
     </div>
