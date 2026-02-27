@@ -3,6 +3,7 @@
   "servidor": {
     "nombre": "uaRO",
     "logo": "https://uaro.net/images/uaro-logo-new-horisontal@2x.webp",
+    "descripcion": "Servidor Pre-Renewal clásico con contenido Renewal integrado. Sin atajos: sin Warpers, sin Job Changers, sin doble cliente. Solo tú, el grind y una experiencia auténtica con sistemas de end-game profundos, misiones de caza, nuevas mazmorras, sistema de mascotas mejorado y recuperación de HP/SP acelerada. Rates x5 toda la semana, x7.5 los fines de semana.",
     "web": "https://uaro.net/",
     "wiki": "https://wiki.uaro.net/site/",
     "descarga": "",
@@ -11,15 +12,18 @@
       "finde": "x7.5 / x7.5 / x5"
     },
     "info": [
-      { "label": "Episodio",        "valor": "13.1 Ash Vacuum" },
-      { "label": "Modo",            "valor": "Classic Pre-renewal" },
-      { "label": "Max Nivel",       "valor": "99/70" },
-      { "label": "Max Stats",       "valor": "99" },
-      { "label": "Max ASPD",        "valor": "190" },
-      { "label": "Cast Instantáneo","valor": "150 DEX" },
-      { "label": "Emulador",        "valor": "Hercules" },
-      { "label": "Ubicación",       "valor": "Europa, Alemania" },
-      { "label": "Anti-cheat",      "valor": "Gepard 3.0" }
+      { "label": "Episodio",            "valor": "13.1 Ash Vacuum" },
+      { "label": "Modo",                "valor": "Classic Pre-renewal" },
+      { "label": "Max Nivel",           "valor": "99/70" },
+      { "label": "Max Stats",           "valor": "99" },
+      { "label": "Max ASPD",            "valor": "190" },
+      { "label": "Cast Instantáneo",    "valor": "150 DEX" },
+      { "label": "Doble cliente",       "valor": "No permitido" },
+      { "label": "HP/SP Recovery",      "valor": "Rápido (% base)" },
+      { "label": "Emulador",            "valor": "Hercules" },
+      { "label": "Ubicación",           "valor": "Europa, Alemania" },
+      { "label": "Anti-cheat",          "valor": "Gepard 3.0" },
+      { "label": "Idioma",              "valor": "Inglés" }
     ]
   },
   "galeria": [

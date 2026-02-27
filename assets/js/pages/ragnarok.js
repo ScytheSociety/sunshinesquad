@@ -15,34 +15,32 @@ function initTabs() {
 
 // ── Servidor ───────────────────────────────────────────────
 function renderServidor(s) {
-  // Logo
   const logo = document.getElementById("servidor-logo");
   if (logo) logo.src = s.logo;
 
-  // Botones
-  const btnWeb      = document.getElementById("btn-web");
-  const btnWiki     = document.getElementById("btn-wiki");
-  const btnDescarga = document.getElementById("btn-descarga");
+  const desc = document.getElementById("servidor-descripcion");
+  if (desc) desc.textContent = s.descripcion;
+
+  const btnWeb  = document.getElementById("btn-web");
+  const btnWiki = document.getElementById("btn-wiki");
+  const btnDesc = document.getElementById("btn-descarga");
 
   if (btnWeb)  btnWeb.href  = s.web;
   if (btnWiki) btnWiki.href = s.wiki;
-
-  if (btnDescarga) {
+  if (btnDesc) {
     if (s.descarga) {
-      btnDescarga.href = s.descarga;
-      btnDescarga.style.display = "inline-flex";
+      btnDesc.href = s.descarga;
+      btnDesc.style.display = "inline-flex";
     } else {
-      btnDescarga.style.display = "none";
+      btnDesc.style.display = "none";
     }
   }
 
-  // Rates
   const ratesBase  = document.getElementById("rates-base");
   const ratesFinde = document.getElementById("rates-finde");
   if (ratesBase)  ratesBase.textContent  = s.rates.base;
   if (ratesFinde) ratesFinde.textContent = s.rates.finde;
 
-  // Tabla de info
   const tabla = document.getElementById("servidor-tabla");
   if (tabla) {
     s.info.forEach(item => {
@@ -61,7 +59,6 @@ function renderServidor(s) {
 function renderGaleria(items) {
   const strip = document.getElementById("galeria-strip");
   if (!strip) return;
-
   items.forEach(item => {
     const div = document.createElement("div");
     div.className = "galeria-item";
@@ -77,7 +74,6 @@ function renderGaleria(items) {
 function renderCards(items, containerId) {
   const grid = document.getElementById(containerId);
   if (!grid) return;
-
   items.forEach(item => {
     const a = document.createElement("a");
     a.className = "ro-card";
@@ -96,24 +92,16 @@ function renderCards(items, containerId) {
 // ── Init ───────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   initTabs();
-
   try {
     const data = await loadJson("data/ragnarok.json");
 
-    // Descripción
     const d1 = document.getElementById("ro-descripcion");
     if (d1) d1.textContent = data.descripcion;
 
-    // Servidor
     renderServidor(data.servidor);
-
-    // Galería
     renderGaleria(data.galeria);
-
-    // Guías y builds
     renderCards(data.guias,  "guias-grid");
     renderCards(data.builds, "builds-grid");
-
   } catch(e) {
     console.error("ragnarok.json:", e);
   }
