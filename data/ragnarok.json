@@ -3,16 +3,20 @@
     "servidor": {
         "nombre": "uaRO",
         "logo": "https://uaro.net/images/uaro-logo-new-horisontal@2x.webp",
-        "descripcion": "Servidor Pre-Renewal clásico con contenido Renewal integrado. Sin atajos: sin Warpers, sin Job Changers, sin doble cliente. Solo tú, el grind y una experiencia auténtica con sistemas de end-game profundos, misiones de caza, nuevas mazmorras, sistema de mascotas mejorado y recuperación de HP/SP acelerada. Rates x5 toda la semana, x7.5 los fines de semana.",
+        "descripcion": "Somos Sunshine Squad, el clan latino de Scythe Society en uaRO. Aceptamos a todos sin importar experiencia ni nivel: aquí lo que importa es pasarla bien juntos. Nuestra meta es clara: completar todo el contenido del juego unidos, desde el leveling hasta las instancias más difíciles, WoE y los MVPs más esquivos. Un lugar donde la comunidad crece junta, se ayuda y sobre todo, se divierte.",
         "web": "https://uaro.net/",
         "wiki": "https://wiki.uaro.net/site/",
         "descarga": "",
         "discord": "https://discord.com/invite/2SEqmbDe7G",
-        "rates": {
-            "base": "x5 / x5 / x5",
-            "finde": "x7.5 / x7.5 / x5"
-        },
         "info": [
+            {
+                "label": "Rates semana",
+                "valor": "x5 / x5 / x5"
+            },
+            {
+                "label": "Rates fin de semana",
+                "valor": "x7.5 / x7.5 / x5"
+            },
             {
                 "label": "Episodio",
                 "valor": "13.1 Ash Vacuum"

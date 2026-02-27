@@ -28,6 +28,7 @@ function renderServidor(s) {
 
     if (btnWeb) btnWeb.href = s.web;
     if (btnWiki) btnWiki.href = s.wiki;
+
     if (btnDesc) {
         if (s.descarga) {
             btnDesc.href = s.descarga;
@@ -36,6 +37,7 @@ function renderServidor(s) {
             btnDesc.style.display = "none";
         }
     }
+
     if (btnDiscord) {
         if (s.discord) {
             btnDiscord.href = s.discord;
@@ -45,11 +47,7 @@ function renderServidor(s) {
         }
     }
 
-    const ratesBase = document.getElementById("rates-base");
-    const ratesFinde = document.getElementById("rates-finde");
-    if (ratesBase) ratesBase.textContent = s.rates.base;
-    if (ratesFinde) ratesFinde.textContent = s.rates.finde;
-
+    // Tabla: rates + info todo junto
     const tabla = document.getElementById("servidor-tabla");
     if (tabla) {
         s.info.forEach(item => {
