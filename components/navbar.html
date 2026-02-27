@@ -1,10 +1,10 @@
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background:rgba(7,10,15,.96);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);">
   <div class="container">
 
-    <a class="navbar-brand d-flex align-items-center gap-2 text-white" href="{{ROOT}}"
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{{ROOT}}"
        style="text-decoration:none !important;">
       <span style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:rgba(255,255,255,.05);font-size:16px;">☀️</span>
-      <span style="letter-spacing:.4px;font-weight:600;">Sunshine Squad</span>
+      <span style="letter-spacing:.4px;font-weight:600;color:#fff;">Sunshine Squad</span>
     </a>
 
     <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
@@ -12,13 +12,55 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navMain">
-      <ul class="navbar-nav ms-auto gap-lg-1">
-        <li class="nav-item"><a class="nav-link text-white-50" href="{{ROOT}}" style="text-decoration:none !important;">Inicio</a></li>
-        <li class="nav-item"><a class="nav-link text-white-50" href="{{ROOT}}pages/blog/" style="text-decoration:none !important;">Blog</a></li>
-        <li class="nav-item"><a class="nav-link text-white-50" href="{{ROOT}}pages/juegos/" style="text-decoration:none !important;">Juegos</a></li>
-        <li class="nav-item"><a class="nav-link text-white-50" href="{{ROOT}}pages/proyectos/" style="text-decoration:none !important;">Proyectos</a></li>
+      <ul class="navbar-nav ms-auto gap-lg-1 align-items-lg-center">
+
+        <li class="nav-item">
+          <a class="nav-link" href="{{ROOT}}"
+             style="text-decoration:none !important;color:rgba(255,255,255,.6);transition:color .15s;">
+            Inicio
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{{ROOT}}pages/blog/"
+             style="text-decoration:none !important;color:rgba(255,255,255,.6);transition:color .15s;">
+            Blog
+          </a>
+        </li>
+
+        <!-- DROPDOWN JUEGOS -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="{{ROOT}}pages/juegos/juegos.html"
+             data-bs-toggle="dropdown" data-bs-auto-close="outside"
+             style="text-decoration:none !important;color:rgba(255,255,255,.6);transition:color .15s;">
+            Juegos
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end"
+              style="background:rgba(10,13,20,.97);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:.5rem;min-width:220px;backdrop-filter:blur(12px);">
+
+            <li>
+              <a class="dropdown-item" href="{{ROOT}}pages/juegos/juegos.html"
+                 style="border-radius:8px;color:rgba(255,255,255,.5);font-size:.82rem;padding:.35rem .75rem;text-decoration:none;">
+                🎮 Ver todos los juegos
+              </a>
+            </li>
+
+            <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,.08);margin:.4rem 0;"></li>
+
+            <!-- Los juegos se inyectan aquí desde JS -->
+            <div id="nav-juegos-list"></div>
+
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{{ROOT}}pages/proyectos/"
+             style="text-decoration:none !important;color:rgba(255,255,255,.6);transition:color .15s;">
+            Proyectos
+          </a>
+        </li>
+
       </ul>
     </div>
-
   </div>
 </nav>

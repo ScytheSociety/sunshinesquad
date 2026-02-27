@@ -1,15 +1,122 @@
 {
-  "title": "Juegos de la comunidad",
-  "items": [
+  "descripcion": "Esta es la sección donde mostramos los juegos de Sunshine Squad: aquellos donde tenemos clanes activos, donde jugamos por diversión y donde creamos contenido en stream.",
+  "juegos": [
     {
-      "name": "World of Warcraft",
-      "image": "assets/images/games/wow_4x5.jpg",
-      "url": "pages/juegos/"
+      "nombre": "Ragnarok Online",
+      "imagen": "assets/images/games/ragnarok.jpg",
+      "descripcion": "Servidor Privado uaRO · Pre-Renewal · Clan activo",
+      "guild": true,
+      "serie": false,
+      "servidor": "uaRO · Pre-Renewal",
+      "url": "pages/juegos/ragnarok/ragnarok.html"
     },
     {
-      "name": "Ragnarok Online",
-      "image": "assets/images/games/ro_4x5.jpg",
-      "url": "pages/juegos/ragnarok/ragnarok.html"
+      "nombre": "World of Warcraft",
+      "imagen": "assets/images/games/wow.jpg",
+      "descripcion": "Servidor Oficial US · Burning Crusade 20th · Clan activo",
+      "guild": true,
+      "serie": false,
+      "servidor": "DreamScythe · BC 20th",
+      "url": "pages/juegos/wow/wow.html"
+    },
+    {
+      "nombre": "Lineage 2",
+      "imagen": "assets/images/games/lineage2.jpg",
+      "descripcion": "Servidor Privado Reborn Origins · High Five · Clan activo",
+      "guild": true,
+      "serie": false,
+      "servidor": "Reborn Origins · High Five",
+      "url": "pages/juegos/lineage2/lineage2.html"
+    },
+    {
+      "nombre": "Brawl Stars",
+      "imagen": "assets/images/games/brawlstars.jpg",
+      "descripcion": "Servidor Oficial · Club activo",
+      "guild": true,
+      "serie": false,
+      "servidor": "Oficial",
+      "url": "pages/juegos/brawlstars/brawlstars.html"
+    },
+    {
+      "nombre": "Throne and Liberty",
+      "imagen": "assets/images/games/throneandliberty.jpg",
+      "descripcion": "Servidor Oficial US-East Ivory · Guild activo",
+      "guild": true,
+      "serie": false,
+      "servidor": "US-East Ivory",
+      "url": "pages/juegos/throneandliberty/throneandliberty.html"
+    },
+    {
+      "nombre": "Core Keeper",
+      "imagen": "assets/images/games/corekeeper.jpg",
+      "descripcion": "Servidor propio de la comunidad · Próximamente",
+      "guild": false,
+      "serie": false,
+      "servidor": "Servidor comunidad",
+      "url": "pages/juegos/corekeeper/corekeeper.html"
+    },
+    {
+      "nombre": "Left 4 Dead 2",
+      "imagen": "assets/images/games/l4d2.jpg",
+      "descripcion": "Serie en stream · Supervivencia cooperativa",
+      "guild": false,
+      "serie": true,
+      "servidor": "Oficial",
+      "url": "pages/juegos/l4d2/l4d2.html"
+    },
+    {
+      "nombre": "Overcooked 2",
+      "imagen": "assets/images/games/overcooked2.jpg",
+      "descripcion": "Jugamos por diversión · Caos culinario",
+      "guild": false,
+      "serie": false,
+      "servidor": "Oficial",
+      "url": "pages/juegos/overcooked2/overcooked2.html"
+    },
+    {
+      "nombre": "Project Zomboid",
+      "imagen": "assets/images/games/zomboid.jpg",
+      "descripcion": "Jugamos por diversión · Supervivencia zombie",
+      "guild": false,
+      "serie": false,
+      "servidor": "Oficial",
+      "url": "pages/juegos/zomboid/zomboid.html"
+    },
+    {
+      "nombre": "Minecraft",
+      "imagen": "assets/images/games/minecraft.jpg",
+      "descripcion": "Jugamos por diversión · Construcción sin límites",
+      "guild": false,
+      "serie": false,
+      "servidor": "Oficial",
+      "url": "pages/juegos/minecraft/minecraft.html"
+    },
+    {
+      "nombre": "Dota 2",
+      "imagen": "assets/images/games/dota2.jpg",
+      "descripcion": "Jugamos por diversión · MOBA competitivo",
+      "guild": false,
+      "serie": false,
+      "servidor": "Oficial",
+      "url": "pages/juegos/dota2/dota2.html"
+    },
+    {
+      "nombre": "League of Legends",
+      "imagen": "assets/images/games/lol.jpg",
+      "descripcion": "Jugamos por diversión · MOBA clásico",
+      "guild": false,
+      "serie": false,
+      "servidor": "Oficial",
+      "url": "pages/juegos/lol/lol.html"
+    },
+    {
+      "nombre": "Smite 2",
+      "imagen": "assets/images/games/smite2.jpg",
+      "descripcion": "Jugamos por diversión · MOBA en tercera persona",
+      "guild": false,
+      "serie": false,
+      "servidor": "Oficial",
+      "url": "pages/juegos/smite2/smite2.html"
     }
   ]
 }
