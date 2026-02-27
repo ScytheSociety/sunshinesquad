@@ -104,7 +104,7 @@
 /* Imagen vertical tipo portada de Steam */
 .juego-card img {
   width: 100%;
-  aspect-ratio: 3/4;
+  aspect-ratio: 9/16;
   object-fit: cover;
   display: block;
   background: rgba(255,255,255,.05);
