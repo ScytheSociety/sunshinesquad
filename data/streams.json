@@ -1,8 +1,24 @@
 {
   "channels": [
-    { "name": "illoJuan",  "channel": "illojuan" },
-    { "name": "ElXokas",   "channel": "elxokas"  },
-    { "name": "Rubius",    "channel": "rubius"   },
-    { "name": "Carola",    "channel": "carola"   }
+    {
+      "name": "GG4ALL",
+      "channel": "gg4alltv"
+    },
+    {
+      "name": "IlloJuan",
+      "channel": "illojuan"
+    },
+    {
+      "name": "ElXokas",
+      "channel": "elxokas"
+    },
+    {
+      "name": "Rubius",
+      "channel": "rubius"
+    },
+    {
+      "name": "Carola",
+      "channel": "carola"
+    }
   ]
 }
