@@ -27,19 +27,22 @@ a:hover {
   padding: 1.5rem;
 }
 
-/* ===================== BOTONES ===================== */
+/* ===================== BOTONES CANALES ===================== */
 .btn-ss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
   border: 1px solid rgba(255,255,255,.15);
   background: rgba(255,255,255,.05);
   color: #e5e7eb;
   border-radius: 10px;
-  padding: .45rem .5rem;
-  font-size: .8rem;
+  padding: .5rem .75rem;
+  font-size: .82rem;
   cursor: pointer;
   transition: background .15s;
-  width: 100%;
-  text-align: center;
-  display: block;
+  margin-bottom: .5rem;
 }
 
 .btn-ss:hover {
@@ -47,9 +50,10 @@ a:hover {
 }
 
 .btn-ss.active {
-  background: rgba(255,255,255,.12);
-  border-color: rgba(255,255,255,.3);
+  background: rgba(255,255,255,.14);
+  border-color: rgba(255,255,255,.35);
   color: #fff;
+  font-weight: 600;
 }
 
 /* ===================== TEXTOS ===================== */

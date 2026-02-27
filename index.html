@@ -27,30 +27,27 @@
         <div class="text-muted-ss">Cambia de canal sin recargar la página</div>
       </div>
 
-      <div class="row g-3">
+      <!-- Wrapper que mide su propia altura para sincronizar player y chat -->
+      <div id="stream-row" style="display:flex;gap:12px;align-items:stretch;">
 
-        <!-- Player -->
-        <div class="col-12 col-xl-7">
-          <div id="player-wrap" style="position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);">
-            <iframe id="stream-iframe"
-              allowfullscreen
-              style="position:absolute;inset:0;width:100%;height:100%;border:0;">
-            </iframe>
-          </div>
+        <!-- Player (flex-grow para ocupar el máximo) -->
+        <div id="player-wrap" style="flex:1 1 0;min-width:0;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);position:relative;">
+          <iframe id="stream-iframe"
+            allowfullscreen
+            style="position:absolute;inset:0;width:100%;height:100%;border:0;">
+          </iframe>
         </div>
 
-        <!-- Chat (misma altura que el player via JS) -->
-        <div class="col-12 col-xl-3">
-          <div id="chat-wrap" style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);">
-            <iframe id="chat-iframe"
-              style="width:100%;height:100%;border:0;display:block;">
-            </iframe>
-          </div>
+        <!-- Chat (ancho fijo, altura = altura del player via JS) -->
+        <div id="chat-wrap" style="width:300px;flex-shrink:0;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);">
+          <iframe id="chat-iframe"
+            style="width:100%;height:100%;border:0;display:block;">
+          </iframe>
         </div>
 
-        <!-- Lista de canales -->
-        <div class="col-12 col-xl-2">
-          <div style="font-weight:600;margin-bottom:.75rem;">Canales</div>
+        <!-- Lista de canales (ancho fijo) -->
+        <div style="width:130px;flex-shrink:0;">
+          <div style="font-weight:600;margin-bottom:.75rem;font-size:.9rem;">Canales</div>
           <div id="channel-list"></div>
         </div>
 

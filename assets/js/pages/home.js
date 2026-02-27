@@ -16,6 +16,22 @@ function setStream(channel) {
   document.getElementById("chat-iframe").src    = buildChat(channel);
 }
 
+// ── Iguala la altura del chat a la del player ──────────────
+function matchChatHeight() {
+  const player   = document.getElementById("player-wrap");
+  const chatWrap = document.getElementById("chat-wrap");
+  const chatFrame = document.getElementById("chat-iframe");
+  if (!player || !chatWrap || !chatFrame) return;
+
+  // El player usa aspect-ratio:16/9 así que su altura real es width * 9/16
+  const h = player.offsetWidth * 9 / 16;
+  chatWrap.style.height  = h + "px";
+  chatFrame.style.height = h + "px";
+}
+
+window.addEventListener("load",   matchChatHeight);
+window.addEventListener("resize", matchChatHeight);
+
 // ── Renderiza lista de canales ─────────────────────────────
 function renderChannels(channels) {
   const list = document.getElementById("channel-list");
@@ -23,7 +39,7 @@ function renderChannels(channels) {
 
   channels.forEach((item, idx) => {
     const btn = document.createElement("button");
-    btn.className = "btn-ss w-100 text-start mb-2";
+    btn.className = "btn-ss";
     btn.textContent = item.name;
 
     btn.addEventListener("click", () => {
@@ -51,7 +67,7 @@ function renderGames(data) {
   data.items.forEach(g => {
     const a = document.createElement("a");
     a.href = repoRoot() + g.url;
-    a.style.cssText = "text-decoration:none;color:inherit;";
+    a.style.cssText = "text-decoration:none;color:inherit;scroll-snap-align:start;";
     a.innerHTML = `
       <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);width:180px;flex-shrink:0;">
         <img src="${repoRoot() + g.image}" alt="${g.name}"
@@ -66,24 +82,13 @@ function renderGames(data) {
   });
 }
 
-function matchChatHeight() {
-  const player = document.getElementById("player-wrap");
-  const chatWrap = document.getElementById("chat-wrap");
-  const chatFrame = document.getElementById("chat-iframe");
-  if (!player || !chatWrap || !chatFrame) return;
-  const h = player.offsetHeight;
-  chatWrap.style.height = h + "px";
-  chatFrame.style.height = h + "px";
-}
-
-window.addEventListener("load", matchChatHeight);
-window.addEventListener("resize", matchChatHeight);
-
 // ── Init ───────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const streams = await loadJson("data/streams.json");
     renderChannels(streams.channels);
+    // Recalcular altura tras renderizar (el player ya tiene tamaño)
+    setTimeout(matchChatHeight, 100);
   } catch(e) {
     console.error("streams.json:", e);
   }
