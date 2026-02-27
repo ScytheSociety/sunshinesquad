@@ -111,24 +111,44 @@
     ],
     "galeria": [
         {
-            "imagen": "assets/images/ragnarok/galeria/placeholder1.jpg",
+            "imagen": "https://picsum.photos/seed/ro1/800/450",
             "titulo": "Prontera"
         },
         {
-            "imagen": "assets/images/ragnarok/galeria/placeholder2.jpg",
+            "imagen": "https://picsum.photos/seed/ro2/800/450",
             "titulo": "WoE"
         },
         {
-            "imagen": "assets/images/ragnarok/galeria/placeholder3.jpg",
+            "imagen": "https://picsum.photos/seed/ro3/800/450",
             "titulo": "Instancia"
         },
         {
-            "imagen": "assets/images/ragnarok/galeria/placeholder4.jpg",
-            "titulo": "MVP"
+            "imagen": "https://picsum.photos/seed/ro4/800/450",
+            "titulo": "MVP Hunt"
         },
         {
-            "imagen": "assets/images/ragnarok/galeria/placeholder5.jpg",
+            "imagen": "https://picsum.photos/seed/ro5/800/450",
             "titulo": "Guild"
+        },
+        {
+            "imagen": "https://picsum.photos/seed/ro6/800/450",
+            "titulo": "Farming"
+        },
+        {
+            "imagen": "https://picsum.photos/seed/ro7/800/450",
+            "titulo": "PvP"
+        },
+        {
+            "imagen": "https://picsum.photos/seed/ro8/800/450",
+            "titulo": "Dungeon"
+        },
+        {
+            "imagen": "https://picsum.photos/seed/ro9/800/450",
+            "titulo": "Event"
+        },
+        {
+            "imagen": "https://picsum.photos/seed/ro10/800/450",
+            "titulo": "Castle"
         }
     ],
     "videos": [
@@ -141,7 +161,35 @@
             "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         },
         {
-            "titulo": "Farm de Zeny",
+            "titulo": "Farm de Zeny — Genetic",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+            "titulo": "Instancia Faceworm",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+            "titulo": "Build Sorcerer completa",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+            "titulo": "MVP Farming — Ranger",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+            "titulo": "Guía de Quests importantes",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+            "titulo": "Tour por Prontera uaRO",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+            "titulo": "PvP — mejores momentos",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+            "titulo": "Event Halloween 2025",
             "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         }
     ],
