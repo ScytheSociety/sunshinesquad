@@ -66,6 +66,19 @@ function renderGames(data) {
   });
 }
 
+function matchChatHeight() {
+  const player = document.getElementById("player-wrap");
+  const chatWrap = document.getElementById("chat-wrap");
+  const chatFrame = document.getElementById("chat-iframe");
+  if (!player || !chatWrap || !chatFrame) return;
+  const h = player.offsetHeight;
+  chatWrap.style.height = h + "px";
+  chatFrame.style.height = h + "px";
+}
+
+window.addEventListener("load", matchChatHeight);
+window.addEventListener("resize", matchChatHeight);
+
 // ── Init ───────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   try {
