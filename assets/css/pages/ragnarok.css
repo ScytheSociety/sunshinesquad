@@ -1,0 +1,96 @@
+/* ===================== PESTAÑAS ===================== */
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,.4);
+  padding: .6rem 1.2rem;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+  margin-bottom: -1px;
+}
+
+.tab-btn:hover {
+  color: #fff;
+}
+
+.tab-btn.active {
+  color: #fff;
+  font-weight: 600;
+  border-bottom: 2px solid #fff;
+}
+
+/* ===================== GRID DE CARDS ===================== */
+.ro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* ===================== CARD DE SECCIÓN ===================== */
+.ro-card {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: border-color .15s, background .15s;
+}
+
+.ro-card:hover {
+  border-color: rgba(255,255,255,.25);
+  background: rgba(255,255,255,.06);
+  text-decoration: none;
+  color: inherit;
+}
+
+.ro-card img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  background: rgba(255,255,255,.05);
+}
+
+.ro-card-body {
+  padding: .85rem 1rem;
+}
+
+.ro-card-title {
+  font-weight: 700;
+  font-size: .95rem;
+  margin-bottom: .25rem;
+}
+
+.ro-card-desc {
+  color: rgba(255,255,255,.4);
+  font-size: .8rem;
+}
+
+/* ===================== GALERÍA ===================== */
+.galeria-item {
+  flex-shrink: 0;
+  width: 260px;
+  scroll-snap-align: start;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+}
+
+.galeria-item img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  background: rgba(255,255,255,.05);
+}
+
+.galeria-item-titulo {
+  padding: .5rem .75rem;
+  font-size: .82rem;
+  color: rgba(255,255,255,.5);
+}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ragnarok Online · Sunshine Squad</title>
+
+  <!-- ===================== NO TOCAR (BASE) ===================== -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../../assets/css/main.css">
+  <!-- =================== /NO TOCAR (BASE) ===================== -->
+
+  <link rel="stylesheet" href="../../../assets/css/pages/ragnarok.css">
+</head>
+<body>
+
+  <!-- ===================== NO TOCAR (BASE) ===================== -->
+  <div id="navbar-container"></div>
+  <!-- =================== /NO TOCAR (BASE) ===================== -->
+
+  <!-- ============================================================
+       =================== TU CONTENIDO AQUÍ =====================
+       ============================================================ -->
+  <main class="container py-4">
+
+    <!-- CABECERA -->
+    <div class="mb-4">
+      <div class="text-muted-ss mb-1">Juegos</div>
+      <h1 style="font-weight:800;">Ragnarok Online</h1>
+      <p id="ro-descripcion" class="text-muted-ss"></p>
+    </div>
+
+    <!-- PESTAÑAS -->
+    <div class="mb-4" style="border-bottom:1px solid rgba(255,255,255,.10);">
+      <div style="display:flex;gap:4px;">
+        <button class="tab-btn active" data-tab="inicio">🏠 Inicio</button>
+        <button class="tab-btn" data-tab="guias">📖 Guías</button>
+        <button class="tab-btn" data-tab="builds">⚔️ Builds</button>
+      </div>
+    </div>
+
+    <!-- PESTAÑA: INICIO -->
+    <div id="tab-inicio" class="tab-content">
+      <div class="card-dark mb-4">
+        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:.5rem;">Sobre el juego</h2>
+        <p id="ro-descripcion-2" class="text-muted-ss mb-0"></p>
+      </div>
+
+      <!-- GALERÍA -->
+      <div class="card-dark">
+        <div style="font-weight:700;margin-bottom:1rem;">📸 Galería</div>
+        <div id="galeria-strip"
+          style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;">
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA: GUÍAS -->
+    <div id="tab-guias" class="tab-content" style="display:none;">
+      <div id="guias-grid" class="ro-grid"></div>
+    </div>
+
+    <!-- PESTAÑA: BUILDS -->
+    <div id="tab-builds" class="tab-content" style="display:none;">
+      <div id="builds-grid" class="ro-grid"></div>
+    </div>
+
+  </main>
+  <!-- ============================================================
+       =================== FIN TU CONTENIDO ======================
+       ============================================================ -->
+
+  <!-- ===================== NO TOCAR (BASE) ===================== -->
+  <div id="footer-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../../../assets/js/components.js"></script>
+  <!-- =================== /NO TOCAR (BASE) ===================== -->
+
+  <script type="module" src="../../../assets/js/pages/ragnarok.js"></script>
+
+</body>
+</html>
