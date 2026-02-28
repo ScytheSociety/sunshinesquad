@@ -4,20 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Horario · Sunshine Squad</title>
-  <link rel="icon" href="../../assets/images/favicon.png">
-
-  <!-- ===================== NO TOCAR (BASE) ===================== -->
+  <link rel="icon" href="https://em-content.zobj.net/source/twitter/376/sun_2600-fe0f.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/main.css">
-  <!-- =================== /NO TOCAR (BASE) ===================== -->
-
   <link rel="stylesheet" href="../../assets/css/pages/schedule.css">
 </head>
 <body>
-
-  <!-- ===================== NO TOCAR (BASE) ===================== -->
   <div id="navbar-container"></div>
-  <!-- =================== /NO TOCAR (BASE) ===================== -->
 
   <main class="container py-4">
 
@@ -38,35 +31,31 @@
       <div id="schedule-tz" class="schedule-tz"></div>
 
       <!-- Leyenda -->
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem;">
-        <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:rgba(255,255,255,.5);">
-          <span style="width:10px;height:10px;border-radius:2px;background:rgba(34,197,94,.4);display:inline-block;"></span> Activo
+      <div class="schedule-legend">
+        <div class="legend-item">
+          <span class="legend-dot" style="background:rgba(34,197,94,.5);"></span> Activo
         </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:rgba(255,255,255,.5);">
-          <span style="width:10px;height:10px;border-radius:2px;background:rgba(99,102,241,.4);display:inline-block;"></span> Próximo
+        <div class="legend-item">
+          <span class="legend-dot" style="background:rgba(99,102,241,.5);"></span> Próximo
         </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:rgba(255,255,255,.5);">
-          <span style="width:10px;height:10px;border-radius:2px;background:rgba(100,116,139,.3);display:inline-block;"></span> Pasado
+        <div class="legend-item">
+          <span class="legend-dot" style="background:rgba(100,116,139,.4);"></span> Pasado
         </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:rgba(255,255,255,.5);">
-          <span style="width:10px;height:10px;border-radius:2px;background:#ef4444;display:inline-block;border-radius:50%;"></span> Ahora
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#ef4444;border-radius:50%;"></span> Ahora
         </div>
       </div>
 
-      <!-- Grid del horario -->
-      <div id="schedule-container" class="schedule-container"></div>
+      <!-- Horario — el JS lo construye dentro de este div -->
+      <div id="schedule-outer" class="schedule-outer"></div>
 
     </div>
 
   </main>
 
-  <!-- ===================== NO TOCAR (BASE) ===================== -->
   <div id="footer-container"></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="../../assets/js/components.js"></script>
-  <!-- =================== /NO TOCAR (BASE) ===================== -->
-
   <script type="module" src="../../assets/js/pages/schedule.js"></script>
-
 </body>
 </html>
