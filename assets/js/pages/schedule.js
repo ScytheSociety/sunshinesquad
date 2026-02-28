@@ -1,9 +1,12 @@
 import { loadJson } from "../app.js";
 
-const DIAS_CORTO  = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
-const ZONA_USER   = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const HORA_PX     = 60;   // 1 hora = 60px
-const HORAS       = 24;
+const DIAS_CORTO = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const MESES      = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                    "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const ZONA_USER  = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const HORA_PX    = 60;   // 1 hora = 60px
+const HORAS      = 24;
+const MIN_DIA    = 1440; // minutos en un día
 
 let scheduleData   = [];
 let activitiesData = {};
@@ -32,7 +35,7 @@ function isSameDay(a, b) {
          a.getDate()     === b.getDate();
 }
 
-function fmtFecha(d) {
+function fmtCorto(d) {
   return d.toLocaleDateString("es", { day:"numeric", month:"short" });
 }
 
@@ -64,11 +67,47 @@ function gj(juego) {
   return "";
 }
 
+// ── Fragmentos de evento que caben en un día ───────────────
+// Si un evento empieza a las 23:00 y dura 4h, en ese día solo
+// ocupa de 23:00 a 00:00 (60px). Al día siguiente continuará
+// desde 00:00 hasta 02:00 (si ese día también está en la semana).
+function getFragmentos(ev) {
+  const ini    = toLocal(ev.fecha, ev.hora);
+  const finMs  = ini.getTime() + ev.duracion * 3600000;
+  const frags  = [];
+
+  // Inicio de la medianoche del día de inicio
+  let diaActual = new Date(ini);
+  diaActual.setHours(0,0,0,0);
+
+  while (diaActual.getTime() < finMs) {
+    const inicioFrag = Math.max(ini.getTime(), diaActual.getTime());
+    const finDia     = diaActual.getTime() + 24 * 3600000;
+    const finFrag    = Math.min(finMs, finDia);
+
+    const topMin  = (inicioFrag - diaActual.getTime()) / 60000;
+    const durMin  = (finFrag - inicioFrag) / 60000;
+    const esCont  = inicioFrag > ini.getTime(); // es un fragmento de continuación
+
+    frags.push({
+      dia:    new Date(diaActual),
+      topPx:  topMin * (HORA_PX / 60),
+      altPx:  Math.max(durMin * (HORA_PX / 60), 22),
+      hora:   new Date(inicioFrag),
+      esCont,
+      ev
+    });
+
+    diaActual = new Date(finDia);
+  }
+
+  return frags;
+}
+
 // ── Popup ──────────────────────────────────────────────────
 function showPopup(ev, inicio, est) {
   const info = activitiesData[ev.id] || {};
-
-  const cfg = {
+  const cfg  = {
     futuro: { label:"🔵 Próximo",    bg:"rgba(99,102,241,.25)", border:"#6366f1" },
     activo: { label:"🟢 En curso",   bg:"rgba(34,197,94,.25)",  border:"#22c55e" },
     pasado: { label:"⚫ Finalizado", bg:"rgba(100,116,139,.2)", border:"#64748b" }
@@ -76,8 +115,7 @@ function showPopup(ev, inicio, est) {
 
   const hora  = inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
   const fecha = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
-
-  const tags = arr => (arr||[]).map(x => `<span class="popup-tag">${x}</span>`).join("");
+  const tags  = arr => (arr||[]).map(x => `<span class="popup-tag">${x}</span>`).join("");
 
   const el = document.createElement("div");
   el.className = "popup-overlay";
@@ -97,7 +135,6 @@ function showPopup(ev, inicio, est) {
         ${info.link_registro && info.link_registro !== "#" ? `<a href="${info.link_registro}" target="_blank" class="popup-btn">📋 Registro</a>` : ""}
       </div>
     </div>`;
-
   el.querySelector(".popup-close").onclick = () => el.remove();
   el.onclick = e => { if (e.target === el) el.remove(); };
   document.body.appendChild(el);
@@ -106,76 +143,93 @@ function showPopup(ev, inicio, est) {
 // ── Render principal ───────────────────────────────────────
 function render() {
   const outer = document.getElementById("schedule-outer");
-  const label = document.getElementById("schedule-week-label");
   if (!outer) return;
 
   const lunes = getLunes(semanaOffset);
-  const dias  = Array.from({ length:7 }, (_,i) => addDays(lunes,i));
+  const dias  = Array.from({ length:7 }, (_,i) => addDays(lunes, i));
   const hoy   = new Date();
 
-  if (label) label.textContent = `${fmtFecha(lunes)} – ${fmtFecha(addDays(lunes,6))}`;
+  // ── Header elegante ──────────────────────────────────────
+  // Detectar el mes/año predominante de la semana
+  const mesInicio = lunes.getMonth();
+  const anioInicio = lunes.getFullYear();
+  const dom        = addDays(lunes, 6);
+  const mesFin     = dom.getMonth();
+  const anioFin    = dom.getFullYear();
 
-  // ── Construir HTML ──────────────────────────────────────
-  // 1) HEADER
+  // Si la semana cruza dos meses: "Febrero / Marzo 2026"
+  let mesLabel;
+  if (mesInicio === mesFin) {
+    mesLabel = MESES[mesInicio];
+  } else {
+    mesLabel = `${MESES[mesInicio]} · ${MESES[mesFin]}`;
+  }
+  const anioLabel  = anioInicio === anioFin ? `${anioInicio}` : `${anioInicio} · ${anioFin}`;
+  const rangoLabel = `Semana del ${fmtCorto(lunes)} al ${fmtCorto(dom)}`;
+
+  const labelEl = document.getElementById("schedule-week-label");
+  if (labelEl) {
+    labelEl.innerHTML = `
+      <div class="swl-year">${anioLabel}</div>
+      <div class="swl-month">${mesLabel}</div>
+      <div class="swl-range">${rangoLabel}</div>
+    `;
+  }
+
+  // ── HTML del header de días ──────────────────────────────
   const headDaysHTML = dias.map(d => {
     const esHoy = isSameDay(d, hoy);
-    return `
-      <div class="head-day${esHoy ? " today" : ""}">
-        <div class="hd-name">${DIAS_CORTO[d.getDay()]}</div>
-        <div class="hd-date">${fmtFecha(d)}</div>
-      </div>`;
+    return `<div class="head-day${esHoy ? " today" : ""}">
+      <div class="hd-name">${DIAS_CORTO[d.getDay()]}</div>
+      <div class="hd-date">${fmtCorto(d)}</div>
+    </div>`;
   }).join("");
 
-  // 2) Columna de horas
+  // ── Columna de horas ─────────────────────────────────────
   const horasHTML = Array.from({length:HORAS}, (_,h) =>
     `<div class="hour-lbl" style="height:${HORA_PX}px;">${String(h).padStart(2,"0")}:00</div>`
   ).join("");
 
-  // 3) Columnas de días con líneas y eventos
+  // ── Precalcular todos los fragmentos de esta semana ──────
+  const todosFrag = scheduleData.flatMap(ev => getFragmentos(ev));
+
+  // ── Columnas de días ─────────────────────────────────────
   const colsHTML = dias.map(d => {
     const esHoy = isSameDay(d, hoy);
 
-    // líneas horizontales
     const lineas = Array.from({length:HORAS}, (_,h) =>
-      `<div class="hr-line" style="top:${h*HORA_PX}px;"></div>`
+      `<div class="hr-line" style="top:${h * HORA_PX}px;"></div>`
     ).join("");
 
-    // línea de ahora
     let nowHTML = "";
     if (esHoy && semanaOffset === 0) {
       const now = new Date();
-      const px  = now.getHours() * HORA_PX + Math.floor(now.getMinutes() * HORA_PX / 60);
+      const px  = now.getHours() * HORA_PX + Math.floor(now.getMinutes() * (HORA_PX / 60));
       nowHTML = `<div class="now-line" style="top:${px}px;"></div>`;
     }
 
-    // eventos
-    const eventsHTML = scheduleData
-      .filter(ev => {
-        const ini = toLocal(ev.fecha, ev.hora);
-        return isSameDay(ini, d);
-      })
-      .map(ev => {
-        const ini  = toLocal(ev.fecha, ev.hora);
-        const est  = estado(ini, ev.duracion);
-        const top  = ini.getHours() * HORA_PX + Math.floor(ini.getMinutes() * HORA_PX / 60);
-        const h    = ev.duracion * HORA_PX;
-        const hora = ini.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
+    const eventsHTML = todosFrag
+      .filter(f => isSameDay(f.dia, d))
+      .map(f => {
+        const ev   = f.ev;
+        const est  = estado(toLocal(ev.fecha, ev.hora), ev.duracion);
+        const hora = f.hora.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
 
         return `<div class="sched-ev ${gj(ev.juego)} st-${est}"
-                     style="top:${top}px;height:${h}px;"
+                     style="top:${f.topPx}px;height:${f.altPx}px;"
                      data-evid="${ev.id}"
                      data-fecha="${ev.fecha}"
                      data-hora="${ev.hora}">
-          <div class="ev-hora">${hora}</div>
+          ${!f.esCont ? `<div class="ev-hora">${hora}</div>` : `<div class="ev-cont">↑ continúa</div>`}
           <div class="ev-juego">${ev.juego}</div>
-          <div class="ev-nombre">${ev.evento}</div>
+          ${f.altPx > 40 ? `<div class="ev-nombre">${ev.evento}</div>` : ""}
         </div>`;
       }).join("");
 
     return `<div class="day-col${esHoy ? " today" : ""}">${lineas}${nowHTML}${eventsHTML}</div>`;
   }).join("");
 
-  // ── Insertar en DOM ─────────────────────────────────────
+  // ── Insertar en DOM ──────────────────────────────────────
   outer.innerHTML = `
     <div class="schedule-head">
       <div class="head-gutter"></div>
@@ -192,11 +246,10 @@ function render() {
     if (body) body.scrollTop = 8 * HORA_PX;
   }, 30);
 
-  // Eventos click en tarjetas
+  // Click en eventos
   outer.querySelectorAll(".sched-ev").forEach(el => {
     el.addEventListener("click", () => {
-      const evId   = el.dataset.evid;
-      const evData = scheduleData.find(e => e.id === evId);
+      const evData = scheduleData.find(e => e.id === el.dataset.evid);
       if (!evData) return;
       const ini = toLocal(evData.fecha, evData.hora);
       showPopup(evData, ini, estado(ini, evData.duracion));

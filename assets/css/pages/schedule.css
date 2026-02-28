@@ -3,10 +3,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   gap: 12px;
 }
-.schedule-week-label { font-weight: 700; font-size: 1rem; color: #fff; }
+
 .schedule-week-btn {
   width: 36px; height: 36px;
   border-radius: 50%;
@@ -17,6 +17,35 @@
   cursor: pointer; transition: background .15s; flex-shrink: 0;
 }
 .schedule-week-btn:hover { background: rgba(255,255,255,.15); }
+
+/* Header elegante año / mes / semana */
+.schedule-week-label {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+.swl-year {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,.3);
+  text-transform: uppercase;
+}
+.swl-month {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-transform: uppercase;
+}
+.swl-range {
+  font-size: .72rem;
+  color: rgba(255,255,255,.35);
+  letter-spacing: .5px;
+}
 
 .schedule-tz { font-size: .78rem; color: rgba(255,255,255,.35); margin-bottom: .75rem; }
 .schedule-tz span { color: rgba(255,255,255,.65); font-weight: 600; }
@@ -31,30 +60,17 @@
 }
 .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
-/* ===================== ESTRUCTURA PRINCIPAL =====================
-   Layout:
-   ┌────────┬──────────────────────────────────────┐  ← header fijo
-   │ vacío  │  LUN │ MAR │ MIÉ │ JUE │ VIE │ SÁB │ DOM │
-   ├────────┼──────────────────────────────────────┤
-   │ 00:00  │                                      │  ↑
-   │ 01:00  │     cuerpo scrolleable               │  scroll
-   │  ...   │                                      │  ↓
-   └────────┴──────────────────────────────────────┘
-   
-   CLAVE: header y body tienen EXACTAMENTE el mismo gutter de horas (58px)
-   para que las columnas queden alineadas.
-*/
-
+/* ===================== ESTRUCTURA PRINCIPAL ===================== */
 .schedule-outer {
   display: flex;
   flex-direction: column;
   border: 1px solid rgba(255,255,255,.08);
   border-radius: 14px;
   overflow: hidden;
-  height: 620px;          /* altura total reducida */
+  height: 620px;
 }
 
-/* ── HEADER (sticky, no hace scroll) ─────────────────────── */
+/* ── HEADER (sticky) ─────────────────────────────────────── */
 .schedule-head {
   display: flex;
   flex-shrink: 0;
@@ -62,28 +78,24 @@
   background: rgba(7,10,15,.98);
 }
 
-/* celda vacía que ocupa el mismo ancho que la columna de horas */
 .head-gutter {
   width: 58px;
   flex-shrink: 0;
+  /* borde derecho igual al de hours-col para alinearse */
   border-right: 1px solid rgba(255,255,255,.07);
 }
 
-/* fila de nombres de día */
-.head-days {
-  flex: 1;
-  display: flex;
-}
+.head-days { flex: 1; display: flex; }
 
 .head-day {
   flex: 1;
-  padding: .5rem .2rem;
+  padding: .55rem .2rem;
   text-align: center;
-  border-right: 1px solid rgba(255,255,255,.05);
+  /* SIEMPRE borde derecho, incluyendo el último */
+  border-right: 1px solid rgba(255,255,255,.06);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
 }
-.head-day:last-child { border-right: none; }
 .head-day.today { background: rgba(255,255,255,.05); }
 
 .hd-name {
@@ -92,29 +104,25 @@
   color: rgba(255,255,255,.6);
 }
 .head-day.today .hd-name { color: #fff; }
-
 .hd-date { font-size: .67rem; color: rgba(255,255,255,.3); margin-top: 1px; }
 .head-day.today .hd-date { color: rgba(255,255,255,.5); }
 
-/* ── BODY (hace scroll) ──────────────────────────────────── */
+/* ── BODY (scrolleable) ──────────────────────────────────── */
 .schedule-body {
   display: flex;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  position: relative;
 }
 .schedule-body::-webkit-scrollbar { width: 5px; }
 .schedule-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 10px; }
 
-/* columna de horas — mismo ancho que head-gutter */
+/* columna de horas */
 .hours-col {
   width: 58px;
   flex-shrink: 0;
   border-right: 1px solid rgba(255,255,255,.07);
-  /* debe tener exactamente 24 * 60px de alto para alinearse con el grid */
 }
-
 .hour-lbl {
   height: 60px;
   display: flex;
@@ -126,23 +134,23 @@
   box-sizing: border-box;
 }
 
-/* grid de columnas de días */
+/* grid de días */
 .days-grid {
   flex: 1;
   display: flex;
-  min-height: 1440px;   /* 24h × 60px */
+  min-height: 1440px; /* 24h × 60px */
   position: relative;
 }
 
 .day-col {
   flex: 1;
   position: relative;
-  border-right: 1px solid rgba(255,255,255,.05);
+  /* SIEMPRE borde derecho para que las líneas verticales sean continuas */
+  border-right: 1px solid rgba(255,255,255,.06);
 }
-.day-col:last-child { border-right: none; }
 .day-col.today { background: rgba(255,255,255,.012); }
 
-/* líneas horizontales — una por hora, posicionadas absolutas */
+/* líneas horizontales por hora */
 .hr-line {
   position: absolute;
   left: 0; right: 0;
@@ -183,13 +191,14 @@
   border-left: 3px solid transparent;
   transition: filter .15s, transform .15s;
   box-sizing: border-box;
-  min-height: 24px;
+  min-height: 22px;
 }
 .sched-ev:hover { filter: brightness(1.25); transform: scaleX(1.02); }
 
 .ev-hora   { font-size: .62rem; opacity: .7; margin-bottom: 1px; }
 .ev-juego  { font-weight: 700; line-height: 1.2; }
 .ev-nombre { font-size: .64rem; opacity: .72; line-height: 1.2; margin-top: 1px; }
+.ev-cont   { font-size: .6rem; opacity: .5; margin-top: 2px; font-style: italic; }
 
 /* Estados */
 .st-futuro { background: rgba(99,102,241,.22); border-left-color: #6366f1; color: #c7d2fe; }
@@ -202,7 +211,7 @@
   50%      { border-left-color: #86efac; }
 }
 
-/* Juegos */
+/* Colores por juego */
 .gj-ragnarok { border-left-color: #f97316; }
 .gj-ragnarok.st-futuro { background: rgba(249,115,22,.18); color: #fed7aa; }
 .gj-ragnarok.st-activo { background: rgba(249,115,22,.26); color: #fed7aa; }
@@ -278,4 +287,5 @@
   .schedule-body  { overflow-x: auto; }
   .days-grid      { min-width: 560px; }
   .head-days      { min-width: 560px; }
+  .swl-month      { font-size: .9rem; }
 }
