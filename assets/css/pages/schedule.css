@@ -1,0 +1,141 @@
+/* ===================== HORARIO ===================== */
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.schedule-day {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.07);
+  background: rgba(255,255,255,.02);
+  min-height: 120px;
+}
+
+.schedule-day-header {
+  padding: .5rem .6rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  background: rgba(255,255,255,.04);
+}
+
+.schedule-day-name {
+  font-size: .75rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.7);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.schedule-day-date {
+  font-size: .68rem;
+  color: rgba(255,255,255,.3);
+  margin-top: 2px;
+}
+
+.schedule-day.today .schedule-day-header {
+  background: rgba(255,255,255,.08);
+  border-bottom-color: rgba(255,255,255,.15);
+}
+
+.schedule-day.today .schedule-day-name {
+  color: #fff;
+}
+
+.schedule-day-events {
+  padding: .4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Evento */
+.schedule-event {
+  border-radius: 8px;
+  padding: .45rem .6rem;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.04);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: background .15s, border-color .15s;
+  cursor: pointer;
+}
+
+.schedule-event:hover {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.18);
+  text-decoration: none;
+  color: inherit;
+}
+
+.schedule-event-hora {
+  font-size: .68rem;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 2px;
+}
+
+.schedule-event-juego {
+  font-size: .72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.85);
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.schedule-event-nombre {
+  font-size: .7rem;
+  color: rgba(255,255,255,.45);
+  line-height: 1.3;
+}
+
+.schedule-event-dur {
+  font-size: .65rem;
+  color: rgba(255,255,255,.28);
+  margin-top: 3px;
+}
+
+/* Zona horaria del usuario */
+.schedule-tz {
+  font-size: .78rem;
+  color: rgba(255,255,255,.35);
+  margin-bottom: 1rem;
+}
+
+.schedule-tz span {
+  color: rgba(255,255,255,.6);
+  font-weight: 600;
+}
+
+/* Colores por juego */
+.ev-ragnarok {
+  border-left: 3px solid #f97316 !important;
+}
+.ev-wow {
+  border-left: 3px solid #3b82f6 !important;
+}
+.ev-lineage {
+  border-left: 3px solid #a855f7 !important;
+}
+.ev-brawl {
+  border-left: 3px solid #facc15 !important;
+}
+.ev-throne {
+  border-left: 3px solid #22c55e !important;
+}
+.ev-default {
+  border-left: 3px solid rgba(255,255,255,.2) !important;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .schedule-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 575px) {
+  .schedule-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

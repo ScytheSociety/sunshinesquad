@@ -82,31 +82,27 @@
       <!-- GALERÍA DE IMÁGENES -->
       <div class="card-dark mb-4">
         <div style="font-weight:700;margin-bottom:1rem;">📸 Galería</div>
-        <div class="galeria-wrapper">
+        <div class="galeria-outer">
+          <button id="galeria-prev" class="galeria-arrow">←</button>
           <div class="galeria-strip-wrap">
             <div id="galeria-strip" class="galeria-strip"></div>
           </div>
-          <div class="galeria-nav">
-            <button id="galeria-prev" class="galeria-nav-btn">←</button>
-            <div id="galeria-dots" class="galeria-dots"></div>
-            <button id="galeria-next" class="galeria-nav-btn">→</button>
-          </div>
+          <button id="galeria-next" class="galeria-arrow">→</button>
         </div>
+        <div id="galeria-dots" class="galeria-dots"></div>
       </div>
 
       <!-- GALERÍA DE VIDEOS -->
       <div class="card-dark">
         <div style="font-weight:700;margin-bottom:1rem;">🎬 Videos</div>
-        <div class="videos-wrapper">
+        <div class="videos-outer">
+          <button id="videos-prev" class="videos-arrow">←</button>
           <div class="videos-strip-wrap">
             <div id="videos-strip" class="videos-strip"></div>
           </div>
-          <div class="videos-nav">
-            <button id="videos-prev" class="videos-nav-btn">←</button>
-            <div id="videos-dots" class="videos-dots"></div>
-            <button id="videos-next" class="videos-nav-btn">→</button>
-          </div>
+          <button id="videos-next" class="videos-arrow">→</button>
         </div>
+        <div id="videos-dots" class="videos-dots"></div>
       </div>
 
     </div>

@@ -72,27 +72,45 @@
 .ro-tabla-fila-label { color: rgba(255,255,255,.45); }
 .ro-tabla-fila-valor { font-weight: 600; color: #e5e7eb; }
 
-/* ===================== GALERÍA COMPARTIDA ===================== */
-.galeria-wrapper,
-.videos-wrapper {
-  position: relative;
+/* ===================== GALERÍA IMÁGENES (slider lateral) ===================== */
+.galeria-outer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.galeria-strip-wrap,
-.videos-strip-wrap {
+.galeria-arrow {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+.galeria-arrow:hover { background: rgba(255,255,255,.15); transform: scale(1.08); }
+.galeria-arrow:disabled { opacity: .25; cursor: default; transform: none; }
+
+.galeria-strip-wrap {
   overflow: hidden;
+  flex: 1;
 }
 
-.galeria-strip,
-.videos-strip {
+.galeria-strip {
   display: flex;
   gap: 10px;
-  transition: transform .35s ease;
+  transition: transform .38s cubic-bezier(.4,0,.2,1);
   will-change: transform;
 }
 
-.galeria-item,
-.video-item {
+/* Imagen 9:16 tipo portada vertical */
+.galeria-item {
   flex-shrink: 0;
   border-radius: 12px;
   overflow: hidden;
@@ -102,18 +120,78 @@
 
 .galeria-item img {
   width: 100%;
-  aspect-ratio: 16/9;
+  aspect-ratio: 9/16;
   object-fit: cover;
   display: block;
   background: rgba(255,255,255,.05);
 }
 
-.galeria-item-titulo,
-.video-titulo {
+.galeria-item-titulo {
   padding: .45rem .75rem;
   font-size: .8rem;
   color: rgba(255,255,255,.5);
   text-align: center;
+}
+
+/* Dots galería */
+.galeria-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: .75rem;
+}
+.galeria-dot {
+  width: 7px; height: 7px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.2);
+  cursor: pointer;
+  transition: background .15s, width .2s;
+}
+.galeria-dot.active { background: #fff; width: 18px; }
+
+/* ===================== GALERÍA VIDEOS (slider lateral) ===================== */
+.videos-outer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.videos-arrow {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+.videos-arrow:hover { background: rgba(255,255,255,.15); transform: scale(1.08); }
+.videos-arrow:disabled { opacity: .25; cursor: default; transform: none; }
+
+.videos-strip-wrap {
+  overflow: hidden;
+  flex: 1;
+}
+
+.videos-strip {
+  display: flex;
+  gap: 10px;
+  transition: transform .38s cubic-bezier(.4,0,.2,1);
+  will-change: transform;
+}
+
+.video-item {
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
 }
 
 .video-item iframe {
@@ -123,57 +201,28 @@
   border: 0;
 }
 
-/* ===================== NAVEGACIÓN ===================== */
-.galeria-nav,
-.videos-nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-top: .85rem;
+.video-titulo {
+  padding: .5rem .85rem;
+  font-size: .82rem;
+  color: rgba(255,255,255,.55);
+  text-align: center;
 }
 
-.galeria-nav-btn,
-.videos-nav-btn {
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.14);
-  color: #fff;
-  border-radius: 8px;
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: .9rem;
-  transition: background .15s;
-}
-.galeria-nav-btn:hover,
-.videos-nav-btn:hover { background: rgba(255,255,255,.14); }
-.galeria-nav-btn:disabled,
-.videos-nav-btn:disabled { opacity: .25; cursor: default; }
-
-.galeria-dots,
+/* Dots videos */
 .videos-dots {
   display: flex;
+  justify-content: center;
   gap: 6px;
-  align-items: center;
+  margin-top: .75rem;
 }
-
-.galeria-dot,
 .videos-dot {
-  width: 7px;
-  height: 7px;
+  width: 7px; height: 7px;
   border-radius: 999px;
   background: rgba(255,255,255,.2);
   cursor: pointer;
   transition: background .15s, width .2s;
 }
-.galeria-dot.active,
-.videos-dot.active {
-  background: #fff;
-  width: 18px;
-}
+.videos-dot.active { background: #fff; width: 18px; }
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 767px) {
