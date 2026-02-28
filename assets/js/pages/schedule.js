@@ -4,9 +4,8 @@ const DIAS_CORTO = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
 const MESES      = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
                     "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const ZONA_USER  = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const HORA_PX    = 60;   // 1 hora = 60px
+const HORA_PX    = 60;
 const HORAS      = 24;
-const MIN_DIA    = 1440; // minutos en un día
 
 let scheduleData   = [];
 let activitiesData = {};
@@ -22,22 +21,13 @@ function getLunes(offset = 0) {
   d.setHours(0,0,0,0);
   return d;
 }
-
-function addDays(d, n) {
-  const r = new Date(d);
-  r.setDate(r.getDate() + n);
-  return r;
-}
-
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
 function isSameDay(a, b) {
   return a.getFullYear() === b.getFullYear() &&
          a.getMonth()    === b.getMonth()    &&
          a.getDate()     === b.getDate();
 }
-
-function fmtCorto(d) {
-  return d.toLocaleDateString("es", { day:"numeric", month:"short" });
-}
+function fmtCorto(d) { return d.toLocaleDateString("es", { day:"numeric", month:"short" }); }
 
 // ── Conversión Lima → local ────────────────────────────────
 function toLocal(fechaISO, horaStr) {
@@ -67,16 +57,12 @@ function gj(juego) {
   return "";
 }
 
-// ── Fragmentos de evento que caben en un día ───────────────
-// Si un evento empieza a las 23:00 y dura 4h, en ese día solo
-// ocupa de 23:00 a 00:00 (60px). Al día siguiente continuará
-// desde 00:00 hasta 02:00 (si ese día también está en la semana).
+// ── Fragmentos (eventos que cruzan medianoche se cortan) ───
 function getFragmentos(ev) {
-  const ini    = toLocal(ev.fecha, ev.hora);
-  const finMs  = ini.getTime() + ev.duracion * 3600000;
-  const frags  = [];
+  const ini   = toLocal(ev.fecha, ev.hora);
+  const finMs = ini.getTime() + ev.duracion * 3600000;
+  const frags = [];
 
-  // Inicio de la medianoche del día de inicio
   let diaActual = new Date(ini);
   diaActual.setHours(0,0,0,0);
 
@@ -84,23 +70,19 @@ function getFragmentos(ev) {
     const inicioFrag = Math.max(ini.getTime(), diaActual.getTime());
     const finDia     = diaActual.getTime() + 24 * 3600000;
     const finFrag    = Math.min(finMs, finDia);
-
-    const topMin  = (inicioFrag - diaActual.getTime()) / 60000;
-    const durMin  = (finFrag - inicioFrag) / 60000;
-    const esCont  = inicioFrag > ini.getTime(); // es un fragmento de continuación
+    const topMin     = (inicioFrag - diaActual.getTime()) / 60000;
+    const durMin     = (finFrag - inicioFrag) / 60000;
+    const esCont     = inicioFrag > ini.getTime();
 
     frags.push({
-      dia:    new Date(diaActual),
-      topPx:  topMin * (HORA_PX / 60),
-      altPx:  Math.max(durMin * (HORA_PX / 60), 22),
-      hora:   new Date(inicioFrag),
-      esCont,
-      ev
+      dia:   new Date(diaActual),
+      topPx: topMin * (HORA_PX / 60),
+      altPx: Math.max(durMin * (HORA_PX / 60), 22),
+      hora:  new Date(inicioFrag),
+      esCont, ev
     });
-
     diaActual = new Date(finDia);
   }
-
   return frags;
 }
 
@@ -140,7 +122,7 @@ function showPopup(ev, inicio, est) {
   document.body.appendChild(el);
 }
 
-// ── Render principal ───────────────────────────────────────
+// ── Render ─────────────────────────────────────────────────
 function render() {
   const outer = document.getElementById("schedule-outer");
   if (!outer) return;
@@ -149,34 +131,24 @@ function render() {
   const dias  = Array.from({ length:7 }, (_,i) => addDays(lunes, i));
   const hoy   = new Date();
 
-  // ── Header elegante ──────────────────────────────────────
-  // Detectar el mes/año predominante de la semana
-  const mesInicio = lunes.getMonth();
-  const anioInicio = lunes.getFullYear();
+  // Header elegante
   const dom        = addDays(lunes, 6);
+  const mesInicio  = lunes.getMonth();
   const mesFin     = dom.getMonth();
+  const anioInicio = lunes.getFullYear();
   const anioFin    = dom.getFullYear();
-
-  // Si la semana cruza dos meses: "Febrero / Marzo 2026"
-  let mesLabel;
-  if (mesInicio === mesFin) {
-    mesLabel = MESES[mesInicio];
-  } else {
-    mesLabel = `${MESES[mesInicio]} · ${MESES[mesFin]}`;
-  }
+  const mesLabel   = mesInicio === mesFin
+    ? MESES[mesInicio]
+    : `${MESES[mesInicio]} · ${MESES[mesFin]}`;
   const anioLabel  = anioInicio === anioFin ? `${anioInicio}` : `${anioInicio} · ${anioFin}`;
-  const rangoLabel = `Semana del ${fmtCorto(lunes)} al ${fmtCorto(dom)}`;
 
   const labelEl = document.getElementById("schedule-week-label");
-  if (labelEl) {
-    labelEl.innerHTML = `
-      <div class="swl-year">${anioLabel}</div>
-      <div class="swl-month">${mesLabel}</div>
-      <div class="swl-range">${rangoLabel}</div>
-    `;
-  }
+  if (labelEl) labelEl.innerHTML = `
+    <div class="swl-year">${anioLabel}</div>
+    <div class="swl-month">${mesLabel}</div>
+    <div class="swl-range">Semana del ${fmtCorto(lunes)} al ${fmtCorto(dom)}</div>`;
 
-  // ── HTML del header de días ──────────────────────────────
+  // Header días
   const headDaysHTML = dias.map(d => {
     const esHoy = isSameDay(d, hoy);
     return `<div class="head-day${esHoy ? " today" : ""}">
@@ -185,19 +157,19 @@ function render() {
     </div>`;
   }).join("");
 
-  // ── Columna de horas ─────────────────────────────────────
+  // Columna de horas
   const horasHTML = Array.from({length:HORAS}, (_,h) =>
     `<div class="hour-lbl" style="height:${HORA_PX}px;">${String(h).padStart(2,"0")}:00</div>`
   ).join("");
 
-  // ── Precalcular todos los fragmentos de esta semana ──────
+  // Fragmentos
   const todosFrag = scheduleData.flatMap(ev => getFragmentos(ev));
 
-  // ── Columnas de días ─────────────────────────────────────
+  // Columnas de días
   const colsHTML = dias.map(d => {
     const esHoy = isSameDay(d, hoy);
 
-    const lineas = Array.from({length:HORAS}, (_,h) =>
+    const lineasH = Array.from({length:HORAS}, (_,h) =>
       `<div class="hr-line" style="top:${h * HORA_PX}px;"></div>`
     ).join("");
 
@@ -214,22 +186,28 @@ function render() {
         const ev   = f.ev;
         const est  = estado(toLocal(ev.fecha, ev.hora), ev.duracion);
         const hora = f.hora.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
-
         return `<div class="sched-ev ${gj(ev.juego)} st-${est}"
                      style="top:${f.topPx}px;height:${f.altPx}px;"
-                     data-evid="${ev.id}"
-                     data-fecha="${ev.fecha}"
-                     data-hora="${ev.hora}">
-          ${!f.esCont ? `<div class="ev-hora">${hora}</div>` : `<div class="ev-cont">↑ continúa</div>`}
+                     data-evid="${ev.id}">
+          ${!f.esCont
+            ? `<div class="ev-hora">${hora}</div>`
+            : `<div class="ev-cont">↑ continúa</div>`}
           <div class="ev-juego">${ev.juego}</div>
           ${f.altPx > 40 ? `<div class="ev-nombre">${ev.evento}</div>` : ""}
         </div>`;
       }).join("");
 
-    return `<div class="day-col${esHoy ? " today" : ""}">${lineas}${nowHTML}${eventsHTML}</div>`;
+    return `<div class="day-col${esHoy ? " today" : ""}">${lineasH}${nowHTML}${eventsHTML}</div>`;
   }).join("");
 
-  // ── Insertar en DOM ──────────────────────────────────────
+  // ── Líneas verticales como divs absolutos dentro de days-grid ──
+  // Se colocan en cada límite entre columnas (1/7, 2/7 ... 7/7)
+  // Así no dependen de border ni box-shadow y nunca se cortan.
+  const lineasV = Array.from({length:7}, (_,i) =>
+    `<div class="vr-line" style="left:${((i+1)/7*100).toFixed(4)}%;"></div>`
+  ).join("");
+
+  // ── DOM ────────────────────────────────────────────────────
   outer.innerHTML = `
     <div class="schedule-head">
       <div class="head-gutter"></div>
@@ -237,7 +215,7 @@ function render() {
     </div>
     <div class="schedule-body" id="sched-body">
       <div class="hours-col">${horasHTML}</div>
-      <div class="days-grid">${colsHTML}</div>
+      <div class="days-grid">${lineasV}${colsHTML}</div>
     </div>`;
 
   // Scroll a las 8am
@@ -246,7 +224,7 @@ function render() {
     if (body) body.scrollTop = 8 * HORA_PX;
   }, 30);
 
-  // Click en eventos
+  // Clicks en eventos
   outer.querySelectorAll(".sched-ev").forEach(el => {
     el.addEventListener("click", () => {
       const evData = scheduleData.find(e => e.id === el.dataset.evid);
