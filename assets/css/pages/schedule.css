@@ -6,7 +6,6 @@
   margin-bottom: 1.25rem;
   gap: 12px;
 }
-
 .schedule-week-btn {
   width: 36px; height: 36px;
   border-radius: 50%;
@@ -20,174 +19,128 @@
 
 .schedule-week-label {
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 2px; flex: 1;
 }
-.swl-year {
-  font-size: .72rem; font-weight: 700;
-  letter-spacing: 3px; color: rgba(255,255,255,.3);
-  text-transform: uppercase;
-}
-.swl-month {
-  font-size: 1.1rem; font-weight: 900;
-  letter-spacing: 2px; color: #fff;
-  text-transform: uppercase;
-}
-.swl-range {
-  font-size: .72rem; color: rgba(255,255,255,.35);
-  letter-spacing: .5px;
-}
+.swl-year  { font-size: .7rem; font-weight: 700; letter-spacing: 3px; color: rgba(255,255,255,.3); text-transform: uppercase; }
+.swl-month { font-size: 1rem; font-weight: 900; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
+.swl-range { font-size: .7rem; color: rgba(255,255,255,.35); letter-spacing: .5px; }
 
-.schedule-tz { font-size: .78rem; color: rgba(255,255,255,.35); margin-bottom: .75rem; }
+.schedule-tz { font-size: .76rem; color: rgba(255,255,255,.35); margin-bottom: .65rem; }
 .schedule-tz span { color: rgba(255,255,255,.65); font-weight: 600; }
 
 /* ===================== LEYENDA ===================== */
-.schedule-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 1rem; }
-.legend-item { display: flex; align-items: center; gap: 5px; font-size: .75rem; color: rgba(255,255,255,.5); }
-.legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.schedule-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: .85rem; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: .72rem; color: rgba(255,255,255,.45); }
+.legend-dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
 
-/* ===================== CONTENEDOR ===================== */
+/* ===================== CONTENEDOR SIN SCROLL =====================
+   HORA_PX = 38px, horas visibles = 00:00-23:00 = 24 franjas
+   Total grid = 24 × 38 = 912px
+   Header días = 44px
+   Total outer = 912 + 44 = 956px   → se ve todo sin scroll
+*/
 .schedule-outer {
   display: flex;
   flex-direction: column;
   border: 1px solid rgba(255,255,255,.08);
   border-radius: 14px;
   overflow: hidden;
-  height: 620px;
+  /* Sin height fija → se estira al contenido exacto */
 }
 
-/* ── HEADER ─────────────────────────────────────────────── */
+/* ── HEADER ──────────────────────────────────────────────── */
 .schedule-head {
   display: flex;
   flex-shrink: 0;
   border-bottom: 1px solid rgba(255,255,255,.09);
   background: rgba(7,10,15,.98);
 }
-
 .head-gutter {
-  width: 58px;
-  flex-shrink: 0;
+  width: 52px; flex-shrink: 0;
   border-right: 1px solid rgba(255,255,255,.07);
 }
-
 .head-days { flex: 1; display: flex; }
-
 .head-day {
-  flex: 1;
-  padding: .55rem .2rem;
-  text-align: center;
+  flex: 1; padding: .45rem .2rem; text-align: center;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
 }
 .head-day.today { background: rgba(255,255,255,.05); }
-
-.hd-name {
-  font-size: .72rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .4px;
-  color: rgba(255,255,255,.6);
-}
+.hd-name { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: rgba(255,255,255,.6); }
 .head-day.today .hd-name { color: #fff; }
-.hd-date { font-size: .67rem; color: rgba(255,255,255,.3); margin-top: 1px; }
+.hd-date { font-size: .63rem; color: rgba(255,255,255,.3); margin-top: 1px; }
 .head-day.today .hd-date { color: rgba(255,255,255,.5); }
 
-/* ── BODY ────────────────────────────────────────────────── */
+/* ── BODY (sin overflow, sin scroll) ────────────────────── */
 .schedule-body {
   display: flex;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  /* SIN overflow → sin scroll, sin barra lateral */
 }
-.schedule-body::-webkit-scrollbar { width: 5px; }
-.schedule-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 10px; }
 
-/* box-shadow en lugar de border-right para que no se corte con el scroll */
 .hours-col {
-  width: 58px;
-  flex-shrink: 0;
-  box-shadow: 1px 0 0 0 rgba(255,255,255,.07);
+  width: 52px; flex-shrink: 0;
+  /* border como parte del layout normal, no scrollea */
+  border-right: 1px solid rgba(255,255,255,.07);
 }
 .hour-lbl {
-  height: 60px;
+  height: 38px;   /* HORA_PX = 38 */
   display: flex; align-items: flex-start;
-  padding-top: 4px; justify-content: center;
-  font-size: .63rem; color: rgba(255,255,255,.28);
+  padding-top: 3px; justify-content: center;
+  font-size: .6rem; color: rgba(255,255,255,.25);
   box-sizing: border-box;
 }
 
 .days-grid {
   flex: 1;
   display: flex;
-  min-height: 1440px;
+  min-height: 912px;   /* 24 × 38px */
   position: relative;
 }
-
-.day-col {
-  flex: 1;
-  position: relative;
-}
+.day-col { flex: 1; position: relative; }
 .day-col.today { background: rgba(255,255,255,.012); }
 
 /* Líneas horizontales */
 .hr-line {
-  position: absolute;
-  left: 0; right: 0; height: 0;
-  border-top: 1px solid rgba(255,255,255,.07);
+  position: absolute; left: 0; right: 0; height: 0;
+  border-top: 1px solid rgba(255,255,255,.06);
   pointer-events: none;
 }
-
-/* Líneas verticales — divs absolutos generados por JS */
+/* Líneas verticales (generadas por JS) */
 .vr-line {
-  position: absolute;
-  top: 0; bottom: 0;
-  width: 1px;
-  background: rgba(255,255,255,.07);
-  pointer-events: none;
-  z-index: 1;
+  position: absolute; top: 0; bottom: 0;
+  width: 1px; background: rgba(255,255,255,.06);
+  pointer-events: none; z-index: 1;
 }
-
 /* Línea de ahora */
 .now-line {
-  position: absolute;
-  left: 0; right: 0; height: 2px;
-  background: #ef4444;
-  z-index: 10; pointer-events: none; border-radius: 1px;
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: #ef4444; z-index: 10; pointer-events: none; border-radius: 1px;
 }
 .now-line::before {
-  content: '';
-  position: absolute;
-  left: -4px; top: -4px;
-  width: 10px; height: 10px;
+  content: ''; position: absolute;
+  left: -4px; top: -4px; width: 9px; height: 9px;
   border-radius: 50%; background: #ef4444;
 }
 
 /* ===================== EVENTOS ===================== */
 .sched-ev {
-  position: absolute;
-  left: 3px; right: 3px;
-  border-radius: 7px;
-  padding: 4px 6px;
-  font-size: .7rem;
-  cursor: pointer;
-  overflow: hidden;
-  z-index: 3;
-  border-left: 3px solid transparent;
+  position: absolute; left: 2px; right: 2px;
+  border-radius: 6px; padding: 3px 5px;
+  font-size: .67rem; cursor: pointer; overflow: hidden;
+  z-index: 3; border-left: 3px solid transparent;
   transition: filter .15s, transform .15s;
-  box-sizing: border-box;
-  min-height: 22px;
+  box-sizing: border-box; min-height: 20px;
 }
 .sched-ev:hover { filter: brightness(1.25); transform: scaleX(1.02); }
 
-.ev-hora   { font-size: .62rem; opacity: .7; margin-bottom: 1px; }
-.ev-juego  { font-weight: 700; line-height: 1.2; }
-.ev-nombre { font-size: .64rem; opacity: .72; line-height: 1.2; margin-top: 1px; }
-.ev-cont   { font-size: .6rem; opacity: .5; margin-top: 2px; font-style: italic; }
+.ev-hora   { font-size: .6rem; opacity: .7; margin-bottom: 1px; }
+.ev-juego  { font-weight: 700; line-height: 1.2; font-size: .67rem; }
+.ev-nombre { font-size: .62rem; opacity: .72; line-height: 1.2; margin-top: 1px; }
+.ev-cont   { font-size: .58rem; opacity: .5; margin-top: 1px; font-style: italic; }
 
 .st-futuro { background: rgba(99,102,241,.22); border-left-color: #6366f1; color: #c7d2fe; }
-.st-activo { background: rgba(34,197,94,.22);  border-left-color: #22c55e; color: #bbf7d0;
-  animation: evpulse 2s infinite; }
+.st-activo { background: rgba(34,197,94,.22);  border-left-color: #22c55e; color: #bbf7d0; animation: evpulse 2s infinite; }
 .st-pasado { background: rgba(100,116,139,.14); border-left-color: #64748b; color: rgba(255,255,255,.28); }
 
 @keyframes evpulse {
@@ -207,15 +160,12 @@
 
 /* ===================== POPUP ===================== */
 .popup-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.65);
-  z-index: 2000;
-  display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; background: rgba(0,0,0,.65);
+  z-index: 2000; display: flex; align-items: center; justify-content: center;
   padding: 1rem; backdrop-filter: blur(5px);
 }
 .popup-box {
-  background: #0d1117;
-  border: 1px solid rgba(255,255,255,.13);
+  background: #0d1117; border: 1px solid rgba(255,255,255,.13);
   border-radius: 18px; padding: 1.75rem;
   max-width: 480px; width: 100%;
   position: relative; max-height: 88vh; overflow-y: auto;
@@ -230,37 +180,20 @@
   cursor: pointer; font-size: .9rem; transition: background .15s;
 }
 .popup-close:hover { background: rgba(255,255,255,.15); }
-.popup-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: .22rem .7rem; border-radius: 999px;
-  font-size: .72rem; font-weight: 700; margin-bottom: .85rem;
-}
+.popup-badge { display: inline-flex; align-items: center; gap: 5px; padding: .22rem .7rem; border-radius: 999px; font-size: .72rem; font-weight: 700; margin-bottom: .85rem; }
 .popup-title { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: .2rem; }
 .popup-sub   { font-size: .82rem; color: rgba(255,255,255,.4); margin-bottom: 1.1rem; }
-.popup-label { font-size: .7rem; font-weight: 700; color: rgba(255,255,255,.3);
-  text-transform: uppercase; letter-spacing: .5px; margin-top: 1rem; margin-bottom: .35rem; }
+.popup-label { font-size: .7rem; font-weight: 700; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: .5px; margin-top: 1rem; margin-bottom: .35rem; }
 .popup-text  { font-size: .87rem; color: rgba(255,255,255,.65); line-height: 1.6; }
-.popup-tag {
-  display: inline-flex;
-  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
-  border-radius: 6px; padding: .18rem .52rem;
-  font-size: .74rem; color: rgba(255,255,255,.55); margin: 2px;
-}
+.popup-tag { display: inline-flex; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 6px; padding: .18rem .52rem; font-size: .74rem; color: rgba(255,255,255,.55); margin: 2px; }
 .popup-actions { margin-top: 1.25rem; display: flex; gap: .5rem; flex-wrap: wrap; }
-.popup-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: .5rem 1.1rem; border-radius: 9px;
-  font-size: .84rem; font-weight: 600; text-decoration: none;
-  transition: background .15s; border: 1px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.07); color: #fff;
-}
+.popup-btn { display: inline-flex; align-items: center; gap: 6px; padding: .5rem 1.1rem; border-radius: 9px; font-size: .84rem; font-weight: 600; text-decoration: none; transition: background .15s; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.07); color: #fff; }
 .popup-btn:hover { background: rgba(255,255,255,.15); color: #fff; text-decoration: none; }
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 767px) {
-  .schedule-outer { height: auto; min-height: 500px; }
   .schedule-body  { overflow-x: auto; }
-  .days-grid      { min-width: 560px; }
-  .head-days      { min-width: 560px; }
+  .days-grid      { min-width: 520px; }
+  .head-days      { min-width: 520px; }
   .swl-month      { font-size: .9rem; }
 }

@@ -4,7 +4,7 @@ const DIAS_CORTO = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
 const MESES      = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
                     "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const ZONA_USER  = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const HORA_PX    = 60;
+const HORA_PX    = 38;   // 1 hora = 38px → 24h = 912px sin scroll
 const HORAS      = 24;
 
 let scheduleData   = [];
@@ -57,12 +57,11 @@ function gj(juego) {
   return "";
 }
 
-// ── Fragmentos (eventos que cruzan medianoche se cortan) ───
+// ── Fragmentos (corta eventos que cruzan medianoche) ───────
 function getFragmentos(ev) {
   const ini   = toLocal(ev.fecha, ev.hora);
   const finMs = ini.getTime() + ev.duracion * 3600000;
   const frags = [];
-
   let diaActual = new Date(ini);
   diaActual.setHours(0,0,0,0);
 
@@ -72,14 +71,14 @@ function getFragmentos(ev) {
     const finFrag    = Math.min(finMs, finDia);
     const topMin     = (inicioFrag - diaActual.getTime()) / 60000;
     const durMin     = (finFrag - inicioFrag) / 60000;
-    const esCont     = inicioFrag > ini.getTime();
 
     frags.push({
       dia:   new Date(diaActual),
       topPx: topMin * (HORA_PX / 60),
-      altPx: Math.max(durMin * (HORA_PX / 60), 22),
+      altPx: Math.max(durMin * (HORA_PX / 60), 20),
       hora:  new Date(inicioFrag),
-      esCont, ev
+      esCont: inicioFrag > ini.getTime(),
+      ev
     });
     diaActual = new Date(finDia);
   }
@@ -137,9 +136,7 @@ function render() {
   const mesFin     = dom.getMonth();
   const anioInicio = lunes.getFullYear();
   const anioFin    = dom.getFullYear();
-  const mesLabel   = mesInicio === mesFin
-    ? MESES[mesInicio]
-    : `${MESES[mesInicio]} · ${MESES[mesFin]}`;
+  const mesLabel   = mesInicio === mesFin ? MESES[mesInicio] : `${MESES[mesInicio]} · ${MESES[mesFin]}`;
   const anioLabel  = anioInicio === anioFin ? `${anioInicio}` : `${anioInicio} · ${anioFin}`;
 
   const labelEl = document.getElementById("schedule-week-label");
@@ -189,42 +186,32 @@ function render() {
         return `<div class="sched-ev ${gj(ev.juego)} st-${est}"
                      style="top:${f.topPx}px;height:${f.altPx}px;"
                      data-evid="${ev.id}">
-          ${!f.esCont
-            ? `<div class="ev-hora">${hora}</div>`
-            : `<div class="ev-cont">↑ continúa</div>`}
+          ${!f.esCont ? `<div class="ev-hora">${hora}</div>` : `<div class="ev-cont">↑ continúa</div>`}
           <div class="ev-juego">${ev.juego}</div>
-          ${f.altPx > 40 ? `<div class="ev-nombre">${ev.evento}</div>` : ""}
+          ${f.altPx > 38 ? `<div class="ev-nombre">${ev.evento}</div>` : ""}
         </div>`;
       }).join("");
 
     return `<div class="day-col${esHoy ? " today" : ""}">${lineasH}${nowHTML}${eventsHTML}</div>`;
   }).join("");
 
-  // ── Líneas verticales como divs absolutos dentro de days-grid ──
-  // Se colocan en cada límite entre columnas (1/7, 2/7 ... 7/7)
-  // Así no dependen de border ni box-shadow y nunca se cortan.
+  // Líneas verticales como divs absolutos — nunca se cortan
   const lineasV = Array.from({length:7}, (_,i) =>
     `<div class="vr-line" style="left:${((i+1)/7*100).toFixed(4)}%;"></div>`
   ).join("");
 
-  // ── DOM ────────────────────────────────────────────────────
+  // DOM
   outer.innerHTML = `
     <div class="schedule-head">
       <div class="head-gutter"></div>
       <div class="head-days">${headDaysHTML}</div>
     </div>
-    <div class="schedule-body" id="sched-body">
+    <div class="schedule-body">
       <div class="hours-col">${horasHTML}</div>
       <div class="days-grid">${lineasV}${colsHTML}</div>
     </div>`;
 
-  // Scroll a las 8am
-  setTimeout(() => {
-    const body = document.getElementById("sched-body");
-    if (body) body.scrollTop = 8 * HORA_PX;
-  }, 30);
-
-  // Clicks en eventos
+  // Clicks
   outer.querySelectorAll(".sched-ev").forEach(el => {
     el.addEventListener("click", () => {
       const evData = scheduleData.find(e => e.id === el.dataset.evid);
