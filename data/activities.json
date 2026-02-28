@@ -1,0 +1,46 @@
+{
+  "htf-ragnarok": {
+    "nombre": "Horror Toy Factory",
+    "juego": "Ragnarok Online",
+    "descripcion": "Instancia de Halloween ambientada en una fábrica de juguetes embrujada. Requiere coordinación de grupo para superar los jefes internos y obtener recompensas exclusivas.",
+    "nivel_minimo": "99/70",
+    "clases": ["Todas las clases Trans"],
+    "items_requeridos": ["Yggdrasil Berry x10", "Token of Siegfried x5"],
+    "consumibles": ["Potion Pitcher", "Converters según clase"],
+    "link_info": "https://wiki.uaro.net/site/",
+    "link_registro": "#"
+  },
+  "dq-wow": {
+    "nombre": "Dungeons y Quests",
+    "juego": "World of Warcraft",
+    "descripcion": "Sesión de mazmorras y quests del contenido de Burning Crusade. Ideal para avanzar en equipo, completar cadenas de misiones y farmear objetos de raid.",
+    "nivel_minimo": "70",
+    "clases": ["Todas"],
+    "items_requeridos": ["Ninguno"],
+    "consumibles": ["Flasks", "Food Buffs"],
+    "link_info": "#",
+    "link_registro": "#"
+  },
+  "leveo-ogh": {
+    "nombre": "Leveo y Old Glast Heim",
+    "juego": "Ragnarok Online",
+    "descripcion": "Sesión de leveling en zonas eficientes y recorrido por Old Glast Heim. Perfecta para subir nivel rápido y obtener drops valiosos del campo.",
+    "nivel_minimo": "80/50",
+    "clases": ["Todas"],
+    "items_requeridos": ["Ninguno obligatorio"],
+    "consumibles": ["Fly Wing", "Blue Potion"],
+    "link_info": "https://wiki.uaro.net/site/",
+    "link_registro": "#"
+  },
+  "et-ragnarok": {
+    "nombre": "Endless Tower",
+    "juego": "Ragnarok Online",
+    "descripcion": "Torre de 100 pisos con MVPs y mobs desafiantes en cada nivel. Requiere un equipo coordinado, buena preparación y conocimiento de las mecánicas de los jefes.",
+    "nivel_minimo": "99/70",
+    "clases": ["Healer obligatorio", "Tank recomendado"],
+    "items_requeridos": ["Token of Siegfried x10", "Yggdrasil Berry x15"],
+    "consumibles": ["Converters", "Potions", "Fly Wing"],
+    "link_info": "https://wiki.uaro.net/site/",
+    "link_registro": "#"
+  }
+}

@@ -1,141 +1,373 @@
-/* ===================== HORARIO ===================== */
-.schedule-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+/* ===================== NAVEGACIÓN SEMANA ===================== */
+.schedule-week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 12px;
 }
 
-.schedule-day {
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.07);
-  background: rgba(255,255,255,.02);
-  min-height: 120px;
-}
-
-.schedule-day-header {
-  padding: .5rem .6rem;
-  text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,.07);
-  background: rgba(255,255,255,.04);
-}
-
-.schedule-day-name {
-  font-size: .75rem;
+.schedule-week-label {
   font-weight: 700;
-  color: rgba(255,255,255,.7);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-}
-
-.schedule-day-date {
-  font-size: .68rem;
-  color: rgba(255,255,255,.3);
-  margin-top: 2px;
-}
-
-.schedule-day.today .schedule-day-header {
-  background: rgba(255,255,255,.08);
-  border-bottom-color: rgba(255,255,255,.15);
-}
-
-.schedule-day.today .schedule-day-name {
+  font-size: 1rem;
   color: #fff;
 }
 
-.schedule-day-events {
-  padding: .4rem;
+.schedule-week-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.14);
+  color: #fff;
+  font-size: 1rem;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-/* Evento */
-.schedule-event {
-  border-radius: 8px;
-  padding: .45rem .6rem;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.04);
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  transition: background .15s, border-color .15s;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: background .15s;
+  flex-shrink: 0;
 }
+.schedule-week-btn:hover { background: rgba(255,255,255,.14); }
 
-.schedule-event:hover {
-  background: rgba(255,255,255,.08);
-  border-color: rgba(255,255,255,.18);
-  text-decoration: none;
-  color: inherit;
-}
-
-.schedule-event-hora {
-  font-size: .68rem;
-  color: rgba(255,255,255,.4);
-  margin-bottom: 2px;
-}
-
-.schedule-event-juego {
-  font-size: .72rem;
-  font-weight: 700;
-  color: rgba(255,255,255,.85);
-  line-height: 1.2;
-  margin-bottom: 2px;
-}
-
-.schedule-event-nombre {
-  font-size: .7rem;
-  color: rgba(255,255,255,.45);
-  line-height: 1.3;
-}
-
-.schedule-event-dur {
-  font-size: .65rem;
-  color: rgba(255,255,255,.28);
-  margin-top: 3px;
-}
-
-/* Zona horaria del usuario */
 .schedule-tz {
   font-size: .78rem;
   color: rgba(255,255,255,.35);
   margin-bottom: 1rem;
 }
+.schedule-tz span { color: rgba(255,255,255,.6); font-weight: 600; }
 
-.schedule-tz span {
-  color: rgba(255,255,255,.6);
-  font-weight: 600;
+/* ===================== GRID PRINCIPAL ===================== */
+.schedule-container {
+  display: flex;
+  gap: 0;
+  height: 100vh;
+  min-height: 600px;
+  max-height: 860px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Columna de horas a la izquierda */
+.schedule-hours-col {
+  width: 54px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255,255,255,.07);
+  overflow: hidden;
+  background: rgba(255,255,255,.02);
+}
+
+.schedule-hours-header {
+  height: 56px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+.schedule-hours-body {
+  overflow: hidden;
+  height: calc(100% - 56px);
+}
+
+.schedule-hour-slot {
+  height: 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+  font-size: .65rem;
+  color: rgba(255,255,255,.28);
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  flex-shrink: 0;
+}
+
+/* Columna de días */
+.schedule-days-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.schedule-days-header {
+  display: flex;
+  height: 56px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+.schedule-day-header-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid rgba(255,255,255,.05);
+  padding: .3rem;
+  font-size: .75rem;
+}
+
+.schedule-day-header-cell.today {
+  background: rgba(255,255,255,.06);
+}
+
+.schedule-day-name {
+  font-weight: 700;
+  color: rgba(255,255,255,.7);
+  text-transform: uppercase;
+  font-size: .72rem;
+  letter-spacing: .4px;
+}
+
+.schedule-day-date {
+  font-size: .68rem;
+  color: rgba(255,255,255,.3);
+  margin-top: 1px;
+}
+
+.schedule-day-header-cell.today .schedule-day-name { color: #fff; }
+.schedule-day-header-cell.today .schedule-day-date { color: rgba(255,255,255,.55); }
+
+/* Grid de celdas con scroll sincronizado */
+.schedule-body-wrap {
+  display: flex;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.schedule-body-wrap::-webkit-scrollbar { width: 5px; }
+.schedule-body-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 10px; }
+
+.schedule-hours-scroll {
+  width: 54px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255,255,255,.07);
+}
+
+.schedule-days-body {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+.schedule-day-col {
+  flex: 1;
+  border-right: 1px solid rgba(255,255,255,.05);
+  position: relative;
+  min-height: 1440px; /* 24h * 60px */
+}
+
+.schedule-day-col.today {
+  background: rgba(255,255,255,.015);
+}
+
+/* Líneas de hora dentro de cada columna */
+.schedule-hour-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255,255,255,.04);
+}
+
+/* Línea de "ahora" */
+.schedule-now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(239,68,68,.7);
+  z-index: 5;
+  border-radius: 1px;
+}
+.schedule-now-line::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+/* ===================== EVENTOS ===================== */
+.schedule-event {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  border-radius: 7px;
+  padding: 4px 6px;
+  font-size: .7rem;
+  cursor: pointer;
+  transition: filter .15s, transform .15s;
+  overflow: hidden;
+  z-index: 3;
+  border-left: 3px solid transparent;
+}
+
+.schedule-event:hover {
+  filter: brightness(1.2);
+  transform: scaleX(1.02);
+}
+
+.schedule-event-hora { font-size: .62rem; opacity: .75; margin-bottom: 1px; }
+.schedule-event-juego { font-weight: 700; line-height: 1.2; }
+.schedule-event-nombre { opacity: .75; font-size: .65rem; line-height: 1.2; }
+
+/* Estados */
+.ev-futuro  { background: rgba(99,102,241,.25); border-left-color: #6366f1; color: #c7d2fe; }
+.ev-activo  { background: rgba(34,197,94,.25);  border-left-color: #22c55e; color: #bbf7d0; animation: pulse-border 2s infinite; }
+.ev-pasado  { background: rgba(100,116,139,.18); border-left-color: #64748b; color: rgba(255,255,255,.35); }
+
+@keyframes pulse-border {
+  0%, 100% { border-left-color: #22c55e; }
+  50%       { border-left-color: #86efac; }
 }
 
 /* Colores por juego */
-.ev-ragnarok {
-  border-left: 3px solid #f97316 !important;
-}
-.ev-wow {
-  border-left: 3px solid #3b82f6 !important;
-}
-.ev-lineage {
-  border-left: 3px solid #a855f7 !important;
-}
-.ev-brawl {
-  border-left: 3px solid #facc15 !important;
-}
-.ev-throne {
-  border-left: 3px solid #22c55e !important;
-}
-.ev-default {
-  border-left: 3px solid rgba(255,255,255,.2) !important;
+.ev-ragnarok { border-left-color: #f97316; }
+.ev-ragnarok.ev-activo { background: rgba(249,115,22,.25); color: #fed7aa; }
+.ev-ragnarok.ev-futuro { background: rgba(249,115,22,.15); color: #fed7aa; }
+
+.ev-wow { border-left-color: #3b82f6; }
+.ev-wow.ev-activo { background: rgba(59,130,246,.25); color: #bfdbfe; }
+.ev-wow.ev-futuro { background: rgba(59,130,246,.15); color: #bfdbfe; }
+
+.ev-lineage { border-left-color: #a855f7; }
+.ev-throne  { border-left-color: #22c55e; }
+.ev-brawl   { border-left-color: #facc15; }
+
+/* ===================== POPUP ===================== */
+.schedule-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
 }
 
-/* Responsive */
-@media (max-width: 991px) {
-  .schedule-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+.schedule-popup {
+  background: #0d1117;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+  padding: 1.75rem;
+  max-width: 480px;
+  width: 100%;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
 }
-@media (max-width: 575px) {
-  .schedule-grid {
-    grid-template-columns: repeat(2, 1fr);
+
+.schedule-popup::-webkit-scrollbar { width: 4px; }
+.schedule-popup::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 10px; }
+
+.popup-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: background .15s;
+}
+.popup-close:hover { background: rgba(255,255,255,.14); }
+
+.popup-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: .25rem .7rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 700;
+  margin-bottom: .85rem;
+}
+
+.popup-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: .25rem;
+}
+
+.popup-juego {
+  font-size: .82rem;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 1.25rem;
+}
+
+.popup-section-title {
+  font-size: .72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.35);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: .4rem;
+  margin-top: 1rem;
+}
+
+.popup-value {
+  font-size: .88rem;
+  color: rgba(255,255,255,.7);
+  line-height: 1.6;
+}
+
+.popup-tag {
+  display: inline-flex;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: .2rem .55rem;
+  font-size: .75rem;
+  color: rgba(255,255,255,.6);
+  margin: 2px;
+}
+
+.popup-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: .55rem 1.2rem;
+  border-radius: 9px;
+  font-size: .85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s;
+  margin-top: 1.25rem;
+  margin-right: .5rem;
+}
+
+.popup-btn-primary {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+}
+.popup-btn-primary:hover { background: rgba(255,255,255,.18); color: #fff; text-decoration: none; }
+
+.popup-btn-secondary {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.6);
+}
+.popup-btn-secondary:hover { background: rgba(255,255,255,.08); color: #fff; text-decoration: none; }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 767px) {
+  .schedule-container {
+    max-height: none;
+    height: auto;
   }
 }
