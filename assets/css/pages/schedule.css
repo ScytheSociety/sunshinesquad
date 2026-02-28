@@ -73,9 +73,8 @@
   border-right: 1px solid rgba(255,255,255,.07);
 }
 
-.head-days { flex: 1; display: flex; position: relative; }
+.head-days { flex: 1; display: flex; }
 
-/* SIN border ni box-shadow — las líneas verticales las pone el JS */
 .head-day {
   flex: 1;
   padding: .55rem .2rem;
@@ -104,10 +103,11 @@
 .schedule-body::-webkit-scrollbar { width: 5px; }
 .schedule-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 10px; }
 
+/* box-shadow en lugar de border-right para que no se corte con el scroll */
 .hours-col {
   width: 58px;
   flex-shrink: 0;
-  border-right: 1px solid rgba(255,255,255,.07);
+  box-shadow: 1px 0 0 0 rgba(255,255,255,.07);
 }
 .hour-lbl {
   height: 60px;
@@ -121,10 +121,9 @@
   flex: 1;
   display: flex;
   min-height: 1440px;
-  position: relative; /* necesario para las líneas verticales absolutas */
+  position: relative;
 }
 
-/* SIN border ni box-shadow */
 .day-col {
   flex: 1;
   position: relative;
@@ -139,7 +138,7 @@
   pointer-events: none;
 }
 
-/* Líneas verticales — creadas por JS como divs absolutos en .days-grid */
+/* Líneas verticales — divs absolutos generados por JS */
 .vr-line {
   position: absolute;
   top: 0; bottom: 0;
