@@ -91,8 +91,7 @@
   flex: 1;
   padding: .55rem .2rem;
   text-align: center;
-  /* SIEMPRE borde derecho, incluyendo el último */
-  border-right: 1px solid rgba(255,255,255,.06);
+  box-shadow: inset -1px 0 0 rgba(255,255,255,.07);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
 }
@@ -145,8 +144,7 @@
 .day-col {
   flex: 1;
   position: relative;
-  /* SIEMPRE borde derecho para que las líneas verticales sean continuas */
-  border-right: 1px solid rgba(255,255,255,.06);
+  box-shadow: inset -1px 0 0 rgba(255,255,255,.07);
 }
 .day-col.today { background: rgba(255,255,255,.012); }
 
