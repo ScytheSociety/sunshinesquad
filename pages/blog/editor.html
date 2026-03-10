@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor de Post · Sunshine Squad</title>
+  <link rel="icon" href="https://em-content.zobj.net/source/twitter/376/sun_2600-fe0f.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/pages/blog.css">
+  <style>
+    .field-label { font-size:.8rem;color:rgba(255,255,255,.45);margin-bottom:.35rem;font-weight:600;letter-spacing:.4px;text-transform:uppercase; }
+    .field-input {
+      width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+      border-radius:10px;padding:.65rem 1rem;color:#fff;font-size:.9rem;outline:none;
+      transition:border-color .15s;
+    }
+    .field-input:focus { border-color:rgba(99,102,241,.5); }
+    textarea.field-input { resize:vertical;min-height:320px;font-family:inherit;line-height:1.7; }
+    select.field-input option { background:#0f1117; }
+  </style>
+</head>
+<body>
+
+  <div id="navbar-container"></div>
+
+  <main class="container py-4" style="max-width:800px;">
+
+    <div id="access-denied" style="display:none;" class="card-dark text-center py-5">
+      <div style="font-size:2rem;margin-bottom:.75rem;">🔒</div>
+      <div style="color:rgba(255,255,255,.5);">Necesitas ser editor o superior para acceder.</div>
+      <a href="index.html" class="btn-ss mt-3" style="text-decoration:none;display:inline-block;">← Volver al blog</a>
+    </div>
+
+    <div id="editor-wrap" style="display:none;">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="index.html" style="color:rgba(255,255,255,.35);text-decoration:none;font-size:.85rem;">← Blog</a>
+        <h1 id="editor-title" style="font-size:1.4rem;font-weight:900;margin:0;">Nuevo post</h1>
+      </div>
+
+      <div class="card-dark">
+        <div class="mb-3">
+          <div class="field-label">Título *</div>
+          <input id="f-titulo" type="text" class="field-input" placeholder="Título del post">
+        </div>
+        <div class="mb-3">
+          <div class="field-label">Slug (URL) *</div>
+          <input id="f-slug" type="text" class="field-input" placeholder="mi-post-url" style="font-family:monospace;">
+          <div style="font-size:.75rem;color:rgba(255,255,255,.25);margin-top:.3rem;">Solo letras minúsculas, números y guiones. Se genera automático del título.</div>
+        </div>
+        <div class="mb-3">
+          <div class="field-label">Juego</div>
+          <select id="f-juego" class="field-input">
+            <option value="">— General —</option>
+            <option>Ragnarok Online</option>
+            <option>World of Warcraft</option>
+            <option>Lineage 2</option>
+            <option>Brawl Stars</option>
+            <option>Throne &amp; Liberty</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <div class="field-label">Resumen</div>
+          <textarea id="f-resumen" class="field-input" rows="2" style="min-height:70px;" placeholder="Resumen corto (se muestra en la lista)"></textarea>
+        </div>
+        <div class="mb-3">
+          <div class="field-label">Contenido * (HTML permitido)</div>
+          <textarea id="f-contenido" class="field-input" placeholder="<p>Escribe el contenido...</p>"></textarea>
+        </div>
+        <div class="mb-4 d-flex align-items-center gap-2">
+          <input type="checkbox" id="f-publicado" style="width:16px;height:16px;accent-color:#6366f1;">
+          <label for="f-publicado" style="font-size:.88rem;color:rgba(255,255,255,.6);cursor:pointer;">Publicar inmediatamente</label>
+        </div>
+        <div class="d-flex gap-2 justify-content-end">
+          <a href="index.html" class="btn-ss" style="text-decoration:none;">Cancelar</a>
+          <button id="save-btn" class="btn-ss active">💾 Guardar post</button>
+        </div>
+        <div id="save-msg" style="font-size:.82rem;margin-top:.75rem;text-align:right;"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../../assets/js/components.js"></script>
+  <script type="module" src="../../assets/js/pages/blog-editor.js"></script>
+</body>
+</html>
