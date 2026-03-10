@@ -3,12 +3,9 @@ const router   = express.Router();
 const { botDB } = require("../db/bot");
 
 // GET /api/events?semana=0
-// semana=0 → semana actual, semana=-1 → anterior, semana=1 → próxima
 router.get("/", (req, res) => {
   try {
     const db = botDB();
-
-    // Calcular rango de fechas para la semana solicitada
     const offset  = parseInt(req.query.semana) || 0;
     const hoy     = new Date();
     const diaSem  = hoy.getDay();
@@ -19,24 +16,24 @@ router.get("/", (req, res) => {
     const domingo = new Date(lunes);
     domingo.setDate(lunes.getDate() + 6);
     domingo.setHours(23, 59, 59, 999);
-
     const fmt = d => d.toISOString().split("T")[0];
 
     const eventos = db.prepare(`
       SELECT
         e.id,
-        e.event_name   AS evento,
-        e.game         AS juego,
-        e.date         AS fecha,
-        e.time         AS hora,
-        e.duration     AS duracion,
+        e.name                                     AS evento,
+        g.name                                     AS juego,
+        date(e.event_datetime)                     AS fecha,
+        time(e.event_datetime)                     AS hora,
+        ROUND(e.duration_minutes / 60.0, 1)        AS duracion,
         e.status,
         e.description,
-        COALESCE(g.timezone, 'America/Lima') AS timezone
+        COALESCE(g.timezone, 'UTC')                AS timezone
       FROM events e
-      LEFT JOIN game_info g ON lower(e.game) = lower(g.game_name)
-      WHERE e.date BETWEEN ? AND ?
-      ORDER BY e.date ASC, e.time ASC
+      LEFT JOIN game_info g ON e.game_id = g.id
+      WHERE date(e.event_datetime) BETWEEN ? AND ?
+        AND e.status != 'cancelled'
+      ORDER BY e.event_datetime ASC
     `).all(fmt(lunes), fmt(domingo));
 
     res.json({ semanaOffset: offset, eventos });
@@ -46,23 +43,24 @@ router.get("/", (req, res) => {
   }
 });
 
-// GET /api/events/all  → todos los eventos (para calendario completo)
+// GET /api/events/all
 router.get("/all", (req, res) => {
   try {
     const db = botDB();
     const eventos = db.prepare(`
       SELECT
         e.id,
-        e.event_name   AS evento,
-        e.game         AS juego,
-        e.date         AS fecha,
-        e.time         AS hora,
-        e.duration     AS duracion,
+        e.name                              AS evento,
+        g.name                              AS juego,
+        date(e.event_datetime)              AS fecha,
+        time(e.event_datetime)              AS hora,
+        ROUND(e.duration_minutes / 60.0, 1) AS duracion,
         e.status,
-        COALESCE(g.timezone, 'America/Lima') AS timezone
+        COALESCE(g.timezone, 'UTC')         AS timezone
       FROM events e
-      LEFT JOIN game_info g ON lower(e.game) = lower(g.game_name)
-      ORDER BY e.date DESC
+      LEFT JOIN game_info g ON e.game_id = g.id
+      WHERE e.status != 'cancelled'
+      ORDER BY e.event_datetime DESC
       LIMIT 500
     `).all();
     res.json(eventos);

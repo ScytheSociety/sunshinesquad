@@ -8,43 +8,42 @@ router.get("/", (req, res) => {
     const db    = botDB();
     const limit = Math.min(parseInt(req.query.limit) || 5, 50);
 
-    // Top usuarios por puntos totales
     const top = db.prepare(`
       SELECT
-        u.discord_id,
-        u.username,
-        u.avatar_url,
+        u.id            AS uid,
+        u.discord_user_id,
+        u.display_name  AS username,
         SUM(ugs.points) AS puntos_totales
       FROM user_game_stats ugs
-      JOIN users u ON ugs.discord_id = u.discord_id
-      GROUP BY ugs.discord_id
+      JOIN users u ON ugs.user_id = u.id
+      GROUP BY ugs.user_id
       ORDER BY puntos_totales DESC
       LIMIT ?
     `).all(limit);
 
-    // Para cada usuario, obtener desglose por juego y logros
-    const result = top.map((u, idx) => {
+    const result = top.map((u, i) => {
       const juegos = db.prepare(`
-        SELECT game, points, rank_name
-        FROM user_game_stats
-        WHERE discord_id = ?
-        ORDER BY points DESC
-      `).all(u.discord_id);
+        SELECT g.name AS game, ugs.points
+        FROM user_game_stats ugs
+        JOIN game_info g ON ugs.game_id = g.id
+        WHERE ugs.user_id = ?
+        ORDER BY ugs.points DESC
+      `).all(u.uid);
 
       const logros = db.prepare(`
-        SELECT a.name, a.description, a.icon
+        SELECT a.name, a.description, a.emoji AS icon
         FROM user_achievements ua
         JOIN achievements a ON ua.achievement_id = a.id
-        WHERE ua.discord_id = ?
-        ORDER BY ua.earned_at DESC
+        WHERE ua.user_id = ?
+        ORDER BY ua.created_at DESC
         LIMIT 5
-      `).all(u.discord_id);
+      `).all(u.uid);
 
       return {
-        posicion: idx + 1,
-        discord_id:    u.discord_id,
-        username:      u.username,
-        avatar_url:    u.avatar_url,
+        posicion:       i + 1,
+        discord_id:     u.discord_user_id,
+        username:       u.username,
+        avatar_url:     null,   // bot DB no almacena avatar; el frontend puede resolverlo
         puntos_totales: u.puntos_totales,
         juegos,
         logros,

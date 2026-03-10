@@ -2,31 +2,29 @@ const express  = require("express");
 const router   = express.Router();
 const { botDB } = require("../db/bot");
 
-// GET /api/mvp  → lista de MVPs activos/anunciados con info del boss
+// GET /api/mvp
 router.get("/", (req, res) => {
   try {
     const db = botDB();
-
     const mvps = db.prepare(`
       SELECT
         mk.id,
-        mk.boss_name,
-        mk.killed_at,
-        mk.announced_at,
-        mk.respawn_at,
+        mb.nombre        AS boss_name,
+        mk.death_time    AS killed_at,
+        mk.respawn_time  AS respawn_at,
         mk.status,
-        mk.channel_id,
-        mb.min_respawn,
-        mb.max_respawn,
-        mb.map,
-        mb.image_url
+        mk.navigation,
+        mb.hora_respawn,
+        mb.nombre_mapa   AS map,
+        mb.imagen        AS image_url,
+        mb.categoria,
+        mb.navegacion    AS nav_code
       FROM mvp_kills mk
-      LEFT JOIN mvp_bosses mb ON lower(mk.boss_name) = lower(mb.name)
-      WHERE mk.status IN ('active', 'announced')
-      ORDER BY mk.respawn_at ASC
+      LEFT JOIN mvp_bosses mb ON mk.mvp_id = mb.id
+      WHERE mk.status = 'active'
+      ORDER BY mk.respawn_time ASC
       LIMIT 20
     `).all();
-
     res.json(mvps);
   } catch (err) {
     console.error("mvp:", err);
@@ -34,28 +32,26 @@ router.get("/", (req, res) => {
   }
 });
 
-// GET /api/mvp/next  → próximo MVP a spawnear
+// GET /api/mvp/next
 router.get("/next", (req, res) => {
   try {
-    const db = botDB();
+    const db  = botDB();
     const now = new Date().toISOString();
-
     const mvp = db.prepare(`
       SELECT
-        mk.boss_name,
-        mk.respawn_at,
+        mb.nombre       AS boss_name,
+        mk.respawn_time AS respawn_at,
         mk.status,
-        mb.map,
-        mb.image_url,
-        mb.min_respawn,
-        mb.max_respawn
+        mk.navigation,
+        mb.nombre_mapa  AS map,
+        mb.imagen       AS image_url,
+        mb.hora_respawn
       FROM mvp_kills mk
-      LEFT JOIN mvp_bosses mb ON lower(mk.boss_name) = lower(mb.name)
-      WHERE mk.status IN ('active', 'announced') AND mk.respawn_at > ?
-      ORDER BY mk.respawn_at ASC
+      LEFT JOIN mvp_bosses mb ON mk.mvp_id = mb.id
+      WHERE mk.status = 'active' AND mk.respawn_time > ?
+      ORDER BY mk.respawn_time ASC
       LIMIT 1
     `).get(now);
-
     res.json(mvp || null);
   } catch (err) {
     console.error("mvp/next:", err);
