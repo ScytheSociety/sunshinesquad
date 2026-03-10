@@ -21,8 +21,9 @@
         <p class="text-muted-ss mb-0">Arrastra los ítems entre los tiers. Exporta como PNG cuando termines.</p>
       </div>
       <div class="d-flex gap-2 flex-wrap">
-        <button id="btn-reset" class="btn-ss">🔄 Resetear</button>
-        <button id="btn-export" class="btn-ss active">📷 Exportar PNG</button>
+        <button id="btn-reset"  class="btn-ss">🔄 Resetear</button>
+        <button id="btn-export" class="btn-ss">📷 Exportar PNG</button>
+        <button id="btn-share"  class="btn-ss active">🔗 Guardar y compartir</button>
       </div>
     </div>
 
@@ -55,8 +56,17 @@
       </div>
     </div>
 
+    <!-- Panel URL compartida -->
+    <div id="share-panel" class="card-dark mb-3" style="display:none;align-items:center;gap:.75rem;flex-wrap:wrap;">
+      <span style="font-size:.82rem;color:rgba(255,255,255,.5);">🔗 Link para compartir:</span>
+      <input id="share-url" type="text" readonly
+        style="flex:1;min-width:200px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:.4rem .75rem;color:#a5b4fc;font-size:.82rem;font-family:monospace;outline:none;">
+      <button id="btn-copy-url" class="btn-ss active" style="white-space:nowrap;font-size:.82rem;">Copiar</button>
+    </div>
+
     <!-- Tier List -->
     <div id="tierlist-wrap" class="card-dark">
+      <div id="tl-author" style="display:none;font-size:.75rem;color:rgba(255,255,255,.3);text-align:center;margin-bottom:.5rem;"></div>
       <div id="tl-title-display" style="font-size:1.2rem;font-weight:900;text-align:center;margin-bottom:1rem;color:#fff;"></div>
       <div id="tiers-container"></div>
     </div>
