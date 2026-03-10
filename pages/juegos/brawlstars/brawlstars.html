@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brawl Stars · Sunshine Squad</title>
+  <link rel="icon" href="https://em-content.zobj.net/source/twitter/376/sun_2600-fe0f.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../../assets/css/main.css">
+  <link rel="stylesheet" href="../../../assets/css/pages/ragnarok.css">
+</head>
+<body data-game="brawlstars">
+  <div id="navbar-container"></div>
+  <main class="container py-4">
+    <div class="mb-4">
+      <div class="text-muted-ss mb-1">Juegos</div>
+      <h1 style="font-weight:800;">Brawl Stars</h1>
+      <p id="game-descripcion" class="text-muted-ss"></p>
+    </div>
+    <div class="mb-4" style="border-bottom:1px solid rgba(255,255,255,.10);">
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button class="tab-btn active" data-tab="inicio">🏠 Inicio</button>
+        <button class="tab-btn" data-tab="clan">⚔️ Clan</button>
+        <button class="tab-btn" data-tab="guias">📖 Guías</button>
+        <button class="tab-btn" data-tab="builds">🛡️ Builds</button>
+      </div>
+    </div>
+    <div id="tab-inicio" class="tab-content">
+      <div class="card-dark mb-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+          <div class="d-flex align-items-center gap-3">
+            <img id="servidor-logo" src="" alt="" style="height:36px;object-fit:contain;display:none;">
+            <div>
+              <div style="font-weight:700;font-size:1rem;">Servidor oficial de la comunidad</div>
+              <div class="text-muted-ss" style="font-size:.8rem;">Únete y juega con Sunshine Squad</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a id="btn-descarga" href="#" target="_blank" style="display:none;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#e5e7eb;font-size:.8rem;text-decoration:none;">⬇️ Descargar</a>
+            <a id="btn-discord" href="#" target="_blank" style="display:none;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:8px;border:1px solid rgba(88,101,242,.4);background:rgba(88,101,242,.12);color:#e5e7eb;font-size:.8rem;text-decoration:none;">💬 Discord</a>
+            <a id="btn-web" href="#" target="_blank" style="display:none;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#e5e7eb;font-size:.8rem;text-decoration:none;">🌐 Web</a>
+            <a id="btn-wiki" href="#" target="_blank" style="display:none;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#e5e7eb;font-size:.8rem;text-decoration:none;">📚 Wiki</a>
+          </div>
+        </div>
+        <p id="servidor-descripcion" style="color:rgba(255,255,255,.55);font-size:.88rem;line-height:1.6;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(255,255,255,.07);"></p>
+        <div style="font-weight:700;margin-bottom:.85rem;font-size:.9rem;">⚙️ Configuración del servidor</div>
+        <div id="servidor-tabla" class="ro-tabla"></div>
+      </div>
+      <div class="card-dark mb-4">
+        <div style="font-weight:700;margin-bottom:1rem;">📸 Galería</div>
+        <div class="galeria-outer">
+          <button id="galeria-prev" class="galeria-arrow">←</button>
+          <div class="galeria-strip-wrap"><div id="galeria-strip" class="galeria-strip"></div></div>
+          <button id="galeria-next" class="galeria-arrow">→</button>
+        </div>
+        <div id="galeria-dots" class="galeria-dots"></div>
+      </div>
+      <div class="card-dark">
+        <div style="font-weight:700;margin-bottom:1rem;">🎬 Videos</div>
+        <div class="videos-outer">
+          <button id="videos-prev" class="videos-arrow">←</button>
+          <div class="videos-strip-wrap"><div id="videos-strip" class="videos-strip"></div></div>
+          <button id="videos-next" class="videos-arrow">→</button>
+        </div>
+        <div id="videos-dots" class="videos-dots"></div>
+      </div>
+    </div>
+    <div id="tab-clan" class="tab-content" style="display:none;">
+      <div class="card-dark">
+        <div style="font-weight:700;margin-bottom:1rem;">👥 Miembros del clan</div>
+        <div id="clan-content"><div class="text-muted-ss" style="font-size:.85rem;">Cargando...</div></div>
+      </div>
+    </div>
+    <div id="tab-guias" class="tab-content" style="display:none;">
+      <div id="guias-grid" class="ro-grid"></div>
+    </div>
+    <div id="tab-builds" class="tab-content" style="display:none;">
+      <div id="builds-grid" class="ro-grid"></div>
+    </div>
+  </main>
+  <div id="footer-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../../../assets/js/components.js"></script>
+  <script type="module" src="../../../assets/js/pages/game.js"></script>
+</body>
+</html>

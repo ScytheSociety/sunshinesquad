@@ -1,0 +1,33 @@
+{
+  "juego_nombre": "World of Warcraft",
+  "descripcion": "World of Warcraft es el MMORPG más icónico. En Sunshine Squad tenemos un clan activo en el servidor DreamScythe jugando Burning Crusade 20th Anniversary.",
+  "servidor": {
+    "nombre": "DreamScythe · BC 20th",
+    "logo": "",
+    "descripcion": "Jugamos en el servidor oficial de WoW en la versión Burning Crusade 20th Anniversary. Sunshine Squad tiene una guild activa donde hacemos raids semanales, dungeons, PvP y progresión de contenido. Aceptamos jugadores de todos los niveles, desde nuevos hasta veteranos. Lo importante es la buena vibra y el trabajo en equipo.",
+    "web": "https://worldofwarcraft.blizzard.com/",
+    "wiki": "https://wowpedia.fandom.com/",
+    "descarga": "",
+    "discord": "",
+    "info": [
+      { "label": "Versión", "valor": "Burning Crusade 20th Anniversary" },
+      { "label": "Servidor", "valor": "DreamScythe" },
+      { "label": "Región", "valor": "US" },
+      { "label": "Facción", "valor": "Horde / Alliance" },
+      { "label": "Tipo", "valor": "PvE + PvP" },
+      { "label": "Idioma", "valor": "Español / Inglés" }
+    ]
+  },
+  "galeria": [
+    { "imagen": "https://picsum.photos/seed/wow1/800/450", "titulo": "Raids" },
+    { "imagen": "https://picsum.photos/seed/wow2/800/450", "titulo": "Dungeons" },
+    { "imagen": "https://picsum.photos/seed/wow3/800/450", "titulo": "PvP" },
+    { "imagen": "https://picsum.photos/seed/wow4/800/450", "titulo": "Guild" }
+  ],
+  "videos": [
+    { "titulo": "Guía de inicio BC 20th", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+    { "titulo": "Raid semanal con el clan", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
+  ],
+  "guias": [],
+  "builds": []
+}

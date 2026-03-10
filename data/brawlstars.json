@@ -1,0 +1,31 @@
+{
+  "juego_nombre": "Brawl Stars",
+  "descripcion": "Brawl Stars es un juego de batalla en tiempo real. En Sunshine Squad tenemos un club activo en el servidor oficial donde jugamos Club League y eventos semanales.",
+  "servidor": {
+    "nombre": "Oficial · Club Sunshine",
+    "logo": "",
+    "descripcion": "Jugamos en el servidor oficial de Brawl Stars con nuestro club activo. Participamos en Club League, eventos especiales y ayudamos a los miembros a subir de trofeos. Somos un club relajado donde lo importante es divertirse y crecer juntos.",
+    "web": "https://supercell.com/en/games/brawlstars/",
+    "wiki": "https://brawlstars.fandom.com/",
+    "descarga": "",
+    "discord": "",
+    "info": [
+      { "label": "Plataforma", "valor": "iOS / Android / PC" },
+      { "label": "Servidor", "valor": "Oficial" },
+      { "label": "Club", "valor": "Sunshine Squad" },
+      { "label": "Tipo", "valor": "PvP / Club League" },
+      { "label": "Idioma", "valor": "Español" }
+    ]
+  },
+  "galeria": [
+    { "imagen": "https://picsum.photos/seed/bs1/800/450", "titulo": "Club League" },
+    { "imagen": "https://picsum.photos/seed/bs2/800/450", "titulo": "Ranked" },
+    { "imagen": "https://picsum.photos/seed/bs3/800/450", "titulo": "Showdown" }
+  ],
+  "videos": [
+    { "titulo": "Guía para nuevos jugadores", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+    { "titulo": "Mejores brawlers 2026", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
+  ],
+  "guias": [],
+  "builds": []
+}

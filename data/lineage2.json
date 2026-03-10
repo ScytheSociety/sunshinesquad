@@ -1,0 +1,32 @@
+{
+  "juego_nombre": "Lineage 2",
+  "descripcion": "Lineage 2 es un MMORPG clásico de combate y siege. En Sunshine Squad tenemos un clan activo en el servidor Reborn Origins con la versión High Five.",
+  "servidor": {
+    "nombre": "Reborn Origins · High Five",
+    "logo": "",
+    "descripcion": "Jugamos en Reborn Origins, un servidor privado de Lineage 2 con la versión High Five. Tenemos un clan activo con participación en sieges semanales, farm de epics y progresión de personajes. El servidor tiene rates equilibrados que permiten progresar sin perder la esencia del juego clásico.",
+    "web": "https://l2reborn.org/",
+    "wiki": "https://l2wiki.com/",
+    "descarga": "",
+    "discord": "",
+    "info": [
+      { "label": "Versión", "valor": "High Five" },
+      { "label": "Servidor", "valor": "Reborn Origins" },
+      { "label": "Rates", "valor": "x10 / x10 / x10" },
+      { "label": "Tipo", "valor": "PvP / Siege" },
+      { "label": "Idioma", "valor": "Internacional" }
+    ]
+  },
+  "galeria": [
+    { "imagen": "https://picsum.photos/seed/l2a/800/450", "titulo": "Siege" },
+    { "imagen": "https://picsum.photos/seed/l2b/800/450", "titulo": "Epic Boss" },
+    { "imagen": "https://picsum.photos/seed/l2c/800/450", "titulo": "Clan Hall" },
+    { "imagen": "https://picsum.photos/seed/l2d/800/450", "titulo": "PvP" }
+  ],
+  "videos": [
+    { "titulo": "Guía de inicio Lineage 2", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+    { "titulo": "Siege con el clan", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
+  ],
+  "guias": [],
+  "builds": []
+}

@@ -1,0 +1,32 @@
+{
+  "juego_nombre": "Throne and Liberty",
+  "descripcion": "Throne and Liberty es un MMORPG de acción con combate dinámico y transformaciones. Sunshine Squad tiene una guild activa en el servidor US-East Ivory.",
+  "servidor": {
+    "nombre": "US-East Ivory",
+    "logo": "",
+    "descripcion": "Jugamos en el servidor oficial US-East Ivory. Nuestra guild participa activamente en sieges de castillo, content de guild y PvP abierto. Reclutamos jugadores comprometidos que quieran progresar con nosotros en el contenido de end-game.",
+    "web": "https://www.playthroneandliberty.com/",
+    "wiki": "https://throneandliberty.fandom.com/",
+    "descarga": "",
+    "discord": "",
+    "info": [
+      { "label": "Servidor", "valor": "US-East Ivory" },
+      { "label": "Región", "valor": "Norteamérica" },
+      { "label": "Tipo", "valor": "PvP / Siege / PvE" },
+      { "label": "Idioma", "valor": "Español / Inglés" },
+      { "label": "Plataforma", "valor": "PC / PS5 / Xbox" }
+    ]
+  },
+  "galeria": [
+    { "imagen": "https://picsum.photos/seed/tl1/800/450", "titulo": "Castle Siege" },
+    { "imagen": "https://picsum.photos/seed/tl2/800/450", "titulo": "Guild Raid" },
+    { "imagen": "https://picsum.photos/seed/tl3/800/450", "titulo": "Morphs" },
+    { "imagen": "https://picsum.photos/seed/tl4/800/450", "titulo": "Open World PvP" }
+  ],
+  "videos": [
+    { "titulo": "Guía de inicio T&L", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+    { "titulo": "Siege con la guild", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
+  ],
+  "guias": [],
+  "builds": []
+}

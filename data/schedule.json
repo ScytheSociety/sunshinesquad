@@ -8,6 +8,7 @@
       "juego": "Ragnarok Online",
       "evento": "Horror Toy Factory",
       "duracion": 2,
+      "timezone": "UTC",
       "url": "#"
     },
     {
@@ -17,6 +18,7 @@
       "juego": "World of Warcraft",
       "evento": "Dungeons y Quests",
       "duracion": 4,
+      "timezone": "America/Lima",
       "url": "#"
     },
     {
@@ -26,6 +28,7 @@
       "juego": "Ragnarok Online",
       "evento": "Leveo y OGH",
       "duracion": 2,
+      "timezone": "UTC",
       "url": "#"
     },
     {
@@ -35,6 +38,47 @@
       "juego": "Ragnarok Online",
       "evento": "Endless Tower",
       "duracion": 3,
+      "timezone": "UTC",
+      "url": "#"
+    },
+    {
+      "id": "raid-wow",
+      "fecha": "2026-03-09",
+      "hora": "20:00",
+      "juego": "World of Warcraft",
+      "evento": "Raid Semanal",
+      "duracion": 3,
+      "timezone": "America/Lima",
+      "url": "#"
+    },
+    {
+      "id": "woe-ragnarok",
+      "fecha": "2026-03-11",
+      "hora": "20:00",
+      "juego": "Ragnarok Online",
+      "evento": "War of Emperium",
+      "duracion": 2,
+      "timezone": "UTC",
+      "url": "#"
+    },
+    {
+      "id": "siege-l2",
+      "fecha": "2026-03-14",
+      "hora": "21:00",
+      "juego": "Lineage 2",
+      "evento": "Siege semanal",
+      "duracion": 2,
+      "timezone": "America/Lima",
+      "url": "#"
+    },
+    {
+      "id": "brawl-club",
+      "fecha": "2026-03-15",
+      "hora": "18:00",
+      "juego": "Brawl Stars",
+      "evento": "Club League",
+      "duracion": 2,
+      "timezone": "America/Lima",
       "url": "#"
     }
   ]

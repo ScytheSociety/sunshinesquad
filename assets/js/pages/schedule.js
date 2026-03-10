@@ -6,6 +6,7 @@ const MESES      = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
 const ZONA_USER  = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const HORA_PX    = 38;   // 1 hora = 38px → 24h = 912px sin scroll
 const HORAS      = 24;
+const API        = "https://sunshinesquad.es/api";
 
 let scheduleData   = [];
 let activitiesData = {};
@@ -29,12 +30,18 @@ function isSameDay(a, b) {
 }
 function fmtCorto(d) { return d.toLocaleDateString("es", { day:"numeric", month:"short" }); }
 
-// ── Conversión Lima → local ────────────────────────────────
-function toLocal(fechaISO, horaStr) {
-  const iso    = `${fechaISO}T${horaStr}:00`;
-  const enLima = new Date(new Date(iso).toLocaleString("en-US", { timeZone:"America/Lima" }));
-  const diff   = new Date(iso) - enLima;
-  return new Date(new Date(iso).getTime() + diff);
+// ── Conversión timezone → local (corregido, compatible Safari) ─────
+function toLocal(fechaISO, horaStr, timezone = "America/Lima") {
+  const isoStr = `${fechaISO}T${horaStr}:00`;
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year:"numeric", month:"2-digit", day:"2-digit",
+    hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false
+  });
+  const utcRef = new Date(isoStr + "Z");
+  const parts  = fmt.formatToParts(utcRef).reduce((a, p) => { a[p.type] = p.value; return a; }, {});
+  const tzDate = new Date(`${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}Z`);
+  return new Date(utcRef.getTime() + (utcRef - tzDate));
 }
 
 // ── Estado ─────────────────────────────────────────────────
@@ -59,7 +66,7 @@ function gj(juego) {
 
 // ── Fragmentos (corta eventos que cruzan medianoche) ───────
 function getFragmentos(ev) {
-  const ini   = toLocal(ev.fecha, ev.hora);
+  const ini   = toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima");
   const finMs = ini.getTime() + ev.duracion * 3600000;
   const frags = [];
   let diaActual = new Date(ini);
@@ -181,7 +188,7 @@ function render() {
       .filter(f => isSameDay(f.dia, d))
       .map(f => {
         const ev   = f.ev;
-        const est  = estado(toLocal(ev.fecha, ev.hora), ev.duracion);
+        const est  = estado(toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima"), ev.duracion);
         const hora = f.hora.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
         return `<div class="sched-ev ${gj(ev.juego)} st-${est}"
                      style="top:${f.topPx}px;height:${f.altPx}px;"
@@ -222,14 +229,28 @@ function render() {
   });
 }
 
+// ── Carga eventos: API primero, JSON como fallback ─────────
+async function fetchEventos() {
+  try {
+    const res  = await fetch(`${API}/events?semana=${semanaOffset}`);
+    if (!res.ok) throw new Error("API error");
+    const data = await res.json();
+    return data.eventos || [];
+  } catch {
+    // fallback a JSON estático
+    const sched = await loadJson("data/schedule.json");
+    return sched.eventos || [];
+  }
+}
+
 // ── Init ───────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const [sched, acts] = await Promise.all([
-      loadJson("data/schedule.json"),
+    const [eventos, acts] = await Promise.all([
+      fetchEventos(),
       loadJson("data/activities.json")
     ]);
-    scheduleData   = sched.eventos;
+    scheduleData   = eventos;
     activitiesData = acts;
 
     const tzEl = document.getElementById("schedule-tz");
@@ -237,8 +258,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     render();
 
-    document.getElementById("schedule-prev")?.addEventListener("click", () => { semanaOffset--; render(); });
-    document.getElementById("schedule-next")?.addEventListener("click", () => { semanaOffset++; render(); });
+    document.getElementById("schedule-prev")?.addEventListener("click", async () => {
+      semanaOffset--;
+      scheduleData = await fetchEventos();
+      render();
+    });
+    document.getElementById("schedule-next")?.addEventListener("click", async () => {
+      semanaOffset++;
+      scheduleData = await fetchEventos();
+      render();
+    });
 
   } catch(e) { console.error("schedule:", e); }
 });
