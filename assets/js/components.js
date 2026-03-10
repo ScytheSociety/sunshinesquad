@@ -1,5 +1,5 @@
 import { loadText, loadJson, repoRoot } from "./app.js";
-import { renderAuthButton } from "./auth.js";
+import { renderAuthButton, getUser } from "./auth.js";
 
 async function loadComponent(id, path) {
   try {
@@ -51,4 +51,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadNavJuegos();
   setYear();
   renderAuthButton("auth-btn-container");
+
+  // Mostrar enlace admin si tiene permisos
+  const user = getUser();
+  if (user && ["admin","moderador","editor"].includes(user.role)) {
+    const adminLink = document.getElementById("nav-admin-link");
+    if (adminLink) adminLink.style.display = "";
+  }
 });

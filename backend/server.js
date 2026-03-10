@@ -22,7 +22,8 @@ app.use("/api/birthdays", require("./routes/birthdays"));
 app.use("/api/ranking",   require("./routes/ranking"));
 app.use("/api/blog",      require("./routes/blog"));
 app.use("/api/push",      require("./routes/push"));
-app.use("/api/tierlist",  require("./routes/tierlist"));
+app.use("/api/tierlist",    require("./routes/tierlist"));
+app.use("/api/tl-catalog", require("./routes/tl-catalog"));
 
 // ── Health check ─────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {

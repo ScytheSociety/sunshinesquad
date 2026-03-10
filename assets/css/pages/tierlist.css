@@ -21,6 +21,26 @@
 .tl-input:focus, .tl-select:focus { border-color: rgba(99,102,241,.5); }
 .tl-select option { background: #0f1117; }
 
+/* ── Category tabs ───────────────────────────────────────────────── */
+.tl-cat-tab {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px;
+  color: rgba(255,255,255,.5);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  padding: .2rem .75rem;
+  cursor: pointer;
+  transition: all .15s;
+}
+.tl-cat-tab.active,
+.tl-cat-tab:hover {
+  background: rgba(99,102,241,.25);
+  border-color: rgba(99,102,241,.5);
+  color: #a5b4fc;
+}
+
 /* ── Tier row ───────────────────────────────────────────────────── */
 .tier-row {
   display: flex;
@@ -28,7 +48,7 @@
   margin-bottom: 4px;
   border-radius: 10px;
   overflow: hidden;
-  min-height: 72px;
+  min-height: 90px;
 }
 .tier-label {
   width: 64px;
@@ -39,7 +59,6 @@
   font-size: 1.4rem;
   font-weight: 900;
   color: #fff;
-  cursor: pointer;
   user-select: none;
 }
 .tier-zone {
@@ -51,44 +70,98 @@
   background: rgba(255,255,255,.03);
   border: 1px solid rgba(255,255,255,.07);
   border-left: none;
-  min-height: 72px;
+  min-height: 90px;
   border-radius: 0 10px 10px 0;
+  align-content: flex-start;
 }
-.tier-zone.sortable-ghost { background: rgba(99,102,241,.15); }
+.tier-zone.sortable-ghost { background: rgba(99,102,241,.12); }
 
-/* ── Ítem ───────────────────────────────────────────────────────── */
+/* ── ITEM — estructura común ────────────────────────────────────── */
 .tl-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 72px;
-  min-height: 56px;
-  border-radius: 8px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.12);
-  padding: 4px;
+  width: 82px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  padding: 6px 4px 4px;
   cursor: grab;
   user-select: none;
-  transition: transform .1s, border-color .15s;
+  transition: transform .12s, border-color .15s, box-shadow .15s;
   position: relative;
+  gap: 3px;
 }
-.tl-item:hover { border-color: rgba(99,102,241,.5); transform: scale(1.04); }
+.tl-item:hover {
+  border-color: rgba(99,102,241,.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.35);
+}
 .tl-item:active { cursor: grabbing; }
-.tl-item img {
-  width: 48px;
-  height: 48px;
+
+/* ── Imagen ─────────────────────────────────────────────────────── */
+.tl-item-img {
+  width: 60px;
+  height: 60px;
   object-fit: contain;
   border-radius: 6px;
+  flex-shrink: 0;
 }
+
+/* ── Avatar fallback ────────────────────────────────────────────── */
+.tl-item-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: rgba(255,255,255,.9);
+  flex-shrink: 0;
+}
+
+/* ── Nombre ─────────────────────────────────────────────────────── */
 .tl-item-name {
-  font-size: .62rem;
-  color: rgba(255,255,255,.8);
+  font-size: .6rem;
+  color: rgba(255,255,255,.75);
   text-align: center;
   line-height: 1.2;
-  margin-top: 3px;
   word-break: break-word;
+  width: 100%;
 }
+
+/* ── Toggle M/F ─────────────────────────────────────────────────── */
+.tl-gender-toggle {
+  display: flex;
+  gap: 2px;
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.tl-gender-btn {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 4px;
+  color: rgba(255,255,255,.4);
+  font-size: .5rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: all .12s;
+}
+.tl-gender-btn.active {
+  background: rgba(99,102,241,.4);
+  border-color: rgba(99,102,241,.7);
+  color: #fff;
+}
+/* Cuando hay género: deja espacio arriba para el toggle */
+.tl-item.has-gender { padding-top: 18px; }
+
+/* ── Botón quitar ───────────────────────────────────────────────── */
 .tl-item .tl-remove {
   position: absolute;
   top: -5px;
@@ -96,7 +169,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: rgba(239,68,68,.8);
+  background: rgba(239,68,68,.85);
   color: #fff;
   font-size: .6rem;
   display: none;
@@ -105,20 +178,142 @@
   cursor: pointer;
   border: none;
   line-height: 1;
+  z-index: 2;
 }
 .tl-item:hover .tl-remove { display: flex; }
+
+/* ── META column (role + skills) — SOLO en tier-zone ────────────── */
+.tl-item-meta {
+  display: none;
+}
+
+/* Cuando el item está en un tier, cambia a layout horizontal */
+.tier-zone .tl-item {
+  flex-direction: row;
+  align-items: center;
+  width: auto;
+  min-width: 92px;
+  padding: 6px;
+  gap: 4px;
+}
+.tier-zone .tl-item .tl-item-core {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.tier-zone .tl-item .tl-item-name {
+  font-size: .55rem;
+  max-width: 60px;
+}
+.tier-zone .tl-item .tl-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.tier-zone .tl-item .tl-gender-toggle {
+  position: static;
+  transform: none;
+  order: -1;
+  align-self: flex-start;
+  margin-bottom: 2px;
+}
+/* En pool: no mostrar meta */
+.tl-pool .tl-item .tl-item-meta { display: none !important; }
+.tl-pool .tl-item {
+  flex-direction: column;
+  align-items: center;
+  width: 82px;
+}
+
+/* ── Slot de rol ────────────────────────────────────────────────── */
+.tl-role-slot {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.08);
+  border: 1px dashed rgba(255,255,255,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .7rem;
+  cursor: pointer;
+  transition: all .12s;
+  text-align: center;
+  line-height: 1;
+  overflow: hidden;
+  color: rgba(255,255,255,.3);
+}
+.tl-role-slot:hover { border-color: rgba(99,102,241,.6); }
+.tl-role-slot.filled {
+  border-style: solid;
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 700;
+}
+.tl-role-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* ── Slots de skills ────────────────────────────────────────────── */
+.tl-skill-slot {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.04);
+  border: 1px dashed rgba(255,255,255,.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .65rem;
+  color: rgba(255,255,255,.2);
+  cursor: pointer;
+  transition: all .12s;
+  overflow: hidden;
+}
+.tl-skill-slot:hover { border-color: rgba(99,102,241,.4); color: rgba(255,255,255,.4); }
+.tl-skill-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* ── Badge de rol (en pool, bajo el item) ───────────────────────── */
+.tl-role-badge {
+  border-radius: 4px;
+  font-size: .5rem;
+  font-weight: 700;
+  color: #fff;
+  padding: 1px 5px;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 78px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 14px;
+  transition: background .15s;
+  cursor: pointer;
+}
+.tl-role-badge.empty { background: transparent !important; }
 
 /* ── Pool ───────────────────────────────────────────────────────── */
 .tl-pool {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  min-height: 80px;
+  gap: 8px;
+  min-height: 100px;
   padding: 8px;
   background: rgba(255,255,255,.02);
-  border: 1px dashed rgba(255,255,255,.12);
+  border: 1px dashed rgba(255,255,255,.1);
   border-radius: 10px;
 }
+.tl-pool.sortable-ghost { background: rgba(99,102,241,.08); }
 
 /* ── Tier controls ──────────────────────────────────────────────── */
 .tier-ctrl {
@@ -151,3 +346,104 @@
 
 /* ── Export snapshot ────────────────────────────────────────────── */
 #tierlist-wrap { background: #0f1117; }
+
+/* ── Role Modal ─────────────────────────────────────────────────── */
+.tl-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.tl-modal-box {
+  background: #16181f;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  padding: 1.5rem;
+  min-width: 300px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+}
+.tl-modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.8);
+  margin-bottom: 1rem;
+}
+.tl-modal-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tl-role-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.05);
+  border: 1.5px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 600;
+  padding: .5rem .9rem;
+  cursor: pointer;
+  transition: all .15s;
+}
+.tl-role-option:hover {
+  background: rgba(255,255,255,.1);
+  transform: translateY(-1px);
+}
+.tl-role-opt-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Skill modal ────────────────────────────────────────────────── */
+.tl-skill-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.tl-skill-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  padding: .5rem .25rem;
+  cursor: pointer;
+  transition: all .12s;
+  font-size: .6rem;
+  color: rgba(255,255,255,.7);
+  text-align: center;
+}
+.tl-skill-option img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.tl-skill-option:hover {
+  border-color: rgba(99,102,241,.5);
+  background: rgba(99,102,241,.08);
+}
+
+/* ── Throne & Liberty — dual weapon display ─────────────────────── */
+.tl-item.dual-weapon .tl-item-core {
+  flex-direction: row;
+  gap: 2px;
+}
+.tl-item.dual-weapon .tl-item-img {
+  width: 30px;
+  height: 60px;
+}
