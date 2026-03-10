@@ -1,4 +1,5 @@
 import { loadText, loadJson, repoRoot } from "./app.js";
+import { renderAuthButton } from "./auth.js";
 
 async function loadComponent(id, path) {
   try {
@@ -49,4 +50,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadComponent("footer-container", "components/footer.html");
   await loadNavJuegos();
   setYear();
+  renderAuthButton("auth-btn-container");
 });
