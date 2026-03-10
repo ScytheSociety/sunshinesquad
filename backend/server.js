@@ -1,0 +1,43 @@
+require("dotenv").config();
+const express = require("express");
+const cors    = require("cors");
+
+const app = express();
+
+// CORS: solo permite el dominio del frontend
+const FRONTEND = process.env.FRONTEND_URL || "https://sunshinesquad.com";
+app.use(cors({
+  origin: [FRONTEND, "http://localhost:5173", "http://127.0.0.1:5500"],
+  credentials: true,
+}));
+
+app.use(express.json());
+app.set("trust proxy", 1); // necesario para IP real tras NGINX
+
+// ── Rutas ────────────────────────────────────────────────────────────
+app.use("/api/auth",      require("./routes/auth"));
+app.use("/api/events",    require("./routes/events"));
+app.use("/api/mvp",       require("./routes/mvp"));
+app.use("/api/birthdays", require("./routes/birthdays"));
+app.use("/api/ranking",   require("./routes/ranking"));
+app.use("/api/blog",      require("./routes/blog"));
+app.use("/api/push",      require("./routes/push"));
+
+// ── Health check ─────────────────────────────────────────────────────
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true, ts: new Date().toISOString() });
+});
+
+// ── 404 ──────────────────────────────────────────────────────────────
+app.use((req, res) => res.status(404).json({ error: "Ruta no encontrada" }));
+
+// ── Error handler ────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: "Error interno del servidor" });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, "127.0.0.1", () => {
+  console.log(`✅ API corriendo en http://127.0.0.1:${PORT}`);
+});

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciando sesión… · Sunshine Squad</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f1117;
+      font-family: system-ui, sans-serif;
+      color: #e2e8f0;
+    }
+    .box {
+      text-align: center;
+      padding: 2rem;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #334155;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    p { color: #94a3b8; font-size: .95rem; }
+    .error { color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="spinner"></div>
+    <p id="msg">Verificando sesión…</p>
+  </div>
+  <script>
+    (function () {
+      const hash  = window.location.hash.slice(1);
+      const params = new URLSearchParams(hash);
+      const token  = params.get("token");
+      const msg    = document.getElementById("msg");
+
+      if (!token) {
+        msg.className = "error";
+        msg.textContent = "Error: no se recibió token. Intenta de nuevo.";
+        setTimeout(() => window.location.href = "/", 3000);
+        return;
+      }
+
+      // Guardar token y redirigir
+      localStorage.setItem("ss_token", token);
+
+      // Decodificar payload del JWT para mostrar nombre
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        msg.textContent = `¡Bienvenido, ${payload.username}! Redirigiendo…`;
+      } catch {
+        msg.textContent = "Sesión iniciada. Redirigiendo…";
+      }
+
+      // Redirigir a la página de donde venía o al inicio
+      const redirect = sessionStorage.getItem("ss_login_redirect") || "/";
+      sessionStorage.removeItem("ss_login_redirect");
+      setTimeout(() => window.location.href = redirect, 1000);
+    })();
+  </script>
+</body>
+</html>

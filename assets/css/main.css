@@ -115,3 +115,22 @@ a:hover {
   text-decoration: none;
   color: #fff;
 }
+/* ── Auth button ─────────────────────────────────────────────── */
+.btn-indigo {
+  background: rgba(99,102,241,.15);
+  border: 1px solid rgba(99,102,241,.4);
+  color: #a5b4fc;
+  font-size: .82rem;
+  padding: .35rem .85rem;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: background .15s, color .15s;
+}
+.btn-indigo:hover {
+  background: rgba(99,102,241,.28);
+  color: #fff;
+  text-decoration: none;
+}
+.auth-user img { object-fit: cover; }
