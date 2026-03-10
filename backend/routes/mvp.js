@@ -17,8 +17,7 @@ router.get("/", (req, res) => {
         mb.hora_respawn,
         mb.nombre_mapa   AS map,
         mb.imagen        AS image_url,
-        mb.categoria,
-        mb.navegacion    AS nav_code
+        mb.categoria
       FROM mvp_kills mk
       LEFT JOIN mvp_bosses mb ON mk.mvp_id = mb.id
       WHERE mk.status = 'active'

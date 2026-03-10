@@ -8,7 +8,6 @@ let _db = null;
 function botDB() {
   if (!_db) {
     _db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
-    _db.pragma("journal_mode = WAL");
   }
   return _db;
 }
