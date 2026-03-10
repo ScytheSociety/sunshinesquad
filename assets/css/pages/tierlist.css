@@ -1,0 +1,153 @@
+/* ── Controles ──────────────────────────────────────────────────── */
+.tl-field-label {
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+  margin-bottom: .3rem;
+}
+.tl-input, .tl-select {
+  width: 100%;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  padding: .5rem .85rem;
+  color: #fff;
+  font-size: .88rem;
+  outline: none;
+  transition: border-color .15s;
+}
+.tl-input:focus, .tl-select:focus { border-color: rgba(99,102,241,.5); }
+.tl-select option { background: #0f1117; }
+
+/* ── Tier row ───────────────────────────────────────────────────── */
+.tier-row {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 72px;
+}
+.tier-label {
+  width: 64px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+.tier-zone {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-left: none;
+  min-height: 72px;
+  border-radius: 0 10px 10px 0;
+}
+.tier-zone.sortable-ghost { background: rgba(99,102,241,.15); }
+
+/* ── Ítem ───────────────────────────────────────────────────────── */
+.tl-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  min-height: 56px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 4px;
+  cursor: grab;
+  user-select: none;
+  transition: transform .1s, border-color .15s;
+  position: relative;
+}
+.tl-item:hover { border-color: rgba(99,102,241,.5); transform: scale(1.04); }
+.tl-item:active { cursor: grabbing; }
+.tl-item img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.tl-item-name {
+  font-size: .62rem;
+  color: rgba(255,255,255,.8);
+  text-align: center;
+  line-height: 1.2;
+  margin-top: 3px;
+  word-break: break-word;
+}
+.tl-item .tl-remove {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(239,68,68,.8);
+  color: #fff;
+  font-size: .6rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  line-height: 1;
+}
+.tl-item:hover .tl-remove { display: flex; }
+
+/* ── Pool ───────────────────────────────────────────────────────── */
+.tl-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 80px;
+  padding: 8px;
+  background: rgba(255,255,255,.02);
+  border: 1px dashed rgba(255,255,255,.12);
+  border-radius: 10px;
+}
+
+/* ── Tier controls ──────────────────────────────────────────────── */
+.tier-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  padding: .3rem .6rem;
+}
+.tier-ctrl-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.tier-ctrl-name {
+  width: 60px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: .9rem;
+  text-align: center;
+  outline: none;
+}
+
+/* ── Export snapshot ────────────────────────────────────────────── */
+#tierlist-wrap { background: #0f1117; }
