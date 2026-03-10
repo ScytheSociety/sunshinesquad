@@ -1,5 +1,7 @@
 {
   "juego_nombre": "World of Warcraft",
+  "timezone_servidor": "America/Los_Angeles",
+  "timezone_label": "PST/PDT (US West)",
   "descripcion": "World of Warcraft es el MMORPG más icónico. En Sunshine Squad tenemos un clan activo en el servidor DreamScythe jugando Burning Crusade 20th Anniversary.",
   "servidor": {
     "nombre": "DreamScythe · BC 20th",

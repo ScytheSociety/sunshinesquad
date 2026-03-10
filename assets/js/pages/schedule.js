@@ -101,8 +101,11 @@ function showPopup(ev, inicio, est) {
     pasado: { label:"⚫ Finalizado", bg:"rgba(100,116,139,.2)", border:"#64748b" }
   }[est];
 
-  const hora  = inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
-  const fecha = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
+  const hora       = inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
+  const fecha      = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
+  const tz         = ev.timezone || "America/Lima";
+  const horaServer = new Date(`${ev.fecha}T${ev.hora}:00`).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
+  const tzLabel    = tz === "UTC" ? "UTC" : tz.split("/")[1]?.replace(/_/g," ") || tz;
   const tags  = arr => (arr||[]).map(x => `<span class="popup-tag">${x}</span>`).join("");
 
   const el = document.createElement("div");
@@ -113,6 +116,7 @@ function showPopup(ev, inicio, est) {
       <div class="popup-badge" style="background:${cfg.bg};border:1px solid ${cfg.border};color:#fff;">${cfg.label}</div>
       <div class="popup-title">${info.nombre || ev.evento}</div>
       <div class="popup-sub">${ev.juego} · ${fecha} · ${hora} · ~${ev.duracion}h</div>
+      <div class="popup-sub" style="font-size:.75rem;color:rgba(255,255,255,.35);margin-top:.15rem;">🕐 Server time: ${horaServer} ${tzLabel}</div>
       ${info.descripcion ? `<div class="popup-label">Descripción</div><div class="popup-text">${info.descripcion}</div>` : ""}
       ${info.nivel_minimo ? `<div class="popup-label">Nivel mínimo</div><div class="popup-text">${info.nivel_minimo}</div>` : ""}
       ${(info.clases||[]).length ? `<div class="popup-label">Clases</div><div>${tags(info.clases)}</div>` : ""}

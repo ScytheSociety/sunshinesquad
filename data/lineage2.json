@@ -1,5 +1,7 @@
 {
   "juego_nombre": "Lineage 2",
+  "timezone_servidor": "UTC",
+  "timezone_label": "UTC",
   "descripcion": "Lineage 2 es un MMORPG clásico de combate y siege. En Sunshine Squad tenemos un clan activo en el servidor Reborn Origins con la versión High Five.",
   "servidor": {
     "nombre": "Reborn Origins · High Five",

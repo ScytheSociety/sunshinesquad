@@ -1,5 +1,7 @@
 {
   "juego_nombre": "Throne and Liberty",
+  "timezone_servidor": "America/New_York",
+  "timezone_label": "EST/EDT (US East)",
   "descripcion": "Throne and Liberty es un MMORPG de acción con combate dinámico y transformaciones. Sunshine Squad tiene una guild activa en el servidor US-East Ivory.",
   "servidor": {
     "nombre": "US-East Ivory",

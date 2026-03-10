@@ -18,7 +18,7 @@
       "juego": "World of Warcraft",
       "evento": "Dungeons y Quests",
       "duracion": 4,
-      "timezone": "America/Lima",
+      "timezone": "America/Los_Angeles",
       "url": "#"
     },
     {
@@ -48,7 +48,7 @@
       "juego": "World of Warcraft",
       "evento": "Raid Semanal",
       "duracion": 3,
-      "timezone": "America/Lima",
+      "timezone": "America/Los_Angeles",
       "url": "#"
     },
     {
@@ -68,7 +68,7 @@
       "juego": "Lineage 2",
       "evento": "Siege semanal",
       "duracion": 2,
-      "timezone": "America/Lima",
+      "timezone": "UTC",
       "url": "#"
     },
     {
@@ -78,7 +78,17 @@
       "juego": "Brawl Stars",
       "evento": "Club League",
       "duracion": 2,
-      "timezone": "America/Lima",
+      "timezone": "America/Los_Angeles",
+      "url": "#"
+    },
+    {
+      "id": "tnl-siege",
+      "fecha": "2026-03-15",
+      "hora": "21:00",
+      "juego": "Throne and Liberty",
+      "evento": "Castle Siege",
+      "duracion": 2,
+      "timezone": "America/New_York",
       "url": "#"
     }
   ]

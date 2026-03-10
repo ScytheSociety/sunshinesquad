@@ -1,5 +1,7 @@
 {
   "juego_nombre": "Brawl Stars",
+  "timezone_servidor": "America/Los_Angeles",
+  "timezone_label": "PST/PDT (Supercell)",
   "descripcion": "Brawl Stars es un juego de batalla en tiempo real. En Sunshine Squad tenemos un club activo en el servidor oficial donde jugamos Club League y eventos semanales.",
   "servidor": {
     "nombre": "Oficial · Club Sunshine",
