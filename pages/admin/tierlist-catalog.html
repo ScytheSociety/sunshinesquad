@@ -26,10 +26,10 @@
 
     <!-- Selector de juego -->
     <div class="card-dark mb-4">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-          <label class="tl-field-label">Juego activo</label>
-          <select id="adm-game" class="tl-select">
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div style="flex:1;min-width:220px;">
+          <label class="tl-field-label mb-1" style="font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;opacity:.6;">Juego activo</label>
+          <select id="adm-game" class="tl-select" style="font-size:1.05rem;font-weight:700;padding:.55rem .9rem;">
             <option value="ragnarok">Ragnarok Online</option>
             <option value="wow">World of Warcraft</option>
             <option value="lineage2">Lineage 2</option>
@@ -37,9 +37,9 @@
             <option value="throneandliberty">Throne &amp; Liberty</option>
           </select>
         </div>
-        <div class="col-md-8 d-flex gap-2 flex-wrap">
-          <button id="btn-seed-defaults" class="btn-ss">📦 Importar defaults</button>
-          <button id="btn-reload" class="btn-ss">🔄 Recargar</button>
+        <div class="d-flex gap-2 flex-wrap" style="padding-top:1.4rem;">
+          <button id="btn-seed-defaults" class="btn-ss" style="font-size:.78rem;padding:.35rem .75rem;">📦 Importar defaults</button>
+          <button id="btn-reload" class="btn-ss" style="font-size:.78rem;padding:.35rem .75rem;">🔄 Recargar</button>
         </div>
       </div>
     </div>
@@ -184,7 +184,7 @@
       <p id="confirm-msg" style="color:rgba(255,255,255,.6);font-size:.88rem;margin:.5rem 0 1.5rem;"></p>
       <div class="d-flex gap-2 justify-content-end">
         <button id="confirm-cancel" class="btn-ss">Cancelar</button>
-        <button id="confirm-ok" class="btn-ss" style="background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4);color:#fca5a5;">Eliminar</button>
+        <button id="confirm-ok" class="btn-ss" style="background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4);color:#fca5a5;">Confirmar</button>
       </div>
     </div>
   </div>

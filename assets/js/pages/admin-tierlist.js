@@ -132,9 +132,10 @@ function toast(msg, error = false) {
   setTimeout(() => el.className = "", 2800);
 }
 
-function confirm(title, msg, cb) {
-  document.getElementById("confirm-title").textContent = title;
-  document.getElementById("confirm-msg").textContent   = msg;
+function confirm(title, msg, cb, okLabel = "Confirmar") {
+  document.getElementById("confirm-title").textContent  = title;
+  document.getElementById("confirm-msg").textContent    = msg;
+  document.getElementById("confirm-ok").textContent     = okLabel;
   document.getElementById("confirm-modal").style.display = "flex";
   confirmCb = cb;
 }
@@ -171,7 +172,8 @@ document.getElementById("btn-seed-defaults")?.addEventListener("click", () => {
   confirm(
     "Importar defaults",
     `¿Importar datos por defecto para ${currentGame}? No sobreescribirá entradas existentes.`,
-    seedDefaults
+    seedDefaults,
+    "Importar"
   );
 });
 
@@ -240,7 +242,7 @@ function renderItems(items) {
 
     card.querySelector("[data-edit]")?.addEventListener("click", () => editItem(item));
     card.querySelector("[data-del]")?.addEventListener("click", () => {
-      confirm("Borrar clase", `¿Eliminar "${item.name}"?`, () => deleteItem(item.id));
+      confirm("Borrar clase", `¿Eliminar "${item.name}"?`, () => deleteItem(item.id), "Eliminar");
     });
     el.appendChild(card);
   });
@@ -372,7 +374,7 @@ function renderRoles(roles) {
     `;
     row.querySelector("[data-edit-role]")?.addEventListener("click", () => editRole(r));
     row.querySelector("[data-del-role]")?.addEventListener("click", () => {
-      confirm("Borrar rol", `¿Eliminar "${r.role_name}"?`, () => deleteRole(r.id));
+      confirm("Borrar rol", `¿Eliminar "${r.role_name}"?`, () => deleteRole(r.id), "Eliminar");
     });
     el.appendChild(row);
   });
@@ -463,7 +465,7 @@ function renderSkills(skills) {
     `;
     row.querySelector("[data-edit-sk]")?.addEventListener("click", () => editSkill(sk));
     row.querySelector("[data-del-sk]")?.addEventListener("click", () => {
-      confirm("Borrar skill", `¿Eliminar "${sk.name}"?`, () => deleteSkill(sk.id));
+      confirm("Borrar skill", `¿Eliminar "${sk.name}"?`, () => deleteSkill(sk.id), "Eliminar");
     });
     el.appendChild(row);
   });
