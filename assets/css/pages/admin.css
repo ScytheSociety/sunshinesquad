@@ -46,9 +46,10 @@
   line-height: 1.5;
 }
 .admin-card-btn {
-  display: block;
+  display: inline-block;
   text-align: center;
   text-decoration: none;
+  align-self: flex-start;
 }
 .admin-soon-badge {
   display: inline-block;

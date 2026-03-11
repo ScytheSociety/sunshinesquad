@@ -107,11 +107,12 @@ const AVATAR_COLORS = ["#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#8b5cf
 const avatarColor = name => AVATAR_COLORS[(name||"?").charCodeAt(0) % AVATAR_COLORS.length];
 
 let currentGame = "ragnarok";
-let editingItem  = null;
-let editingRole  = null;
-let editingSkill = null;
-let confirmCb    = null;
-let allItems     = [];
+let editingItem   = null;
+let editingRole   = null;
+let editingSkill  = null;
+let editingTalent = null;
+let confirmCb     = null;
+let allItems      = [];
 
 function authHeaders() {
   const token = localStorage.getItem("ss_token");
@@ -153,7 +154,7 @@ document.querySelectorAll("#catalog-tabs .nav-link").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("#catalog-tabs .nav-link").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    ["items","roles","skills"].forEach(t => {
+    ["items","roles","skills","talents"].forEach(t => {
       document.getElementById(`tab-${t}`).style.display = t === btn.dataset.tab ? "block" : "none";
     });
   });
@@ -198,6 +199,7 @@ async function loadAll() {
   loadItems();
   loadRoles();
   loadSkills();
+  loadTalents();
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -523,7 +525,95 @@ async function deleteSkill(id) {
   } catch(e) { toast(e.message, true); }
 }
 
-function resetForms() { resetItemForm(); resetRoleForm(); resetSkillForm(); }
+function resetForms() { resetItemForm(); resetRoleForm(); resetSkillForm(); resetTalentForm(); }
+
+// ─────────────────────────────────────────────────────────────────
+// TALENTOS
+// ─────────────────────────────────────────────────────────────────
+async function loadTalents() {
+  document.getElementById("talents-list").innerHTML = `<div class="admin-loading">Cargando...</div>`;
+  try {
+    const res     = await fetch(`${API}/tl-catalog/${currentGame}/talents`);
+    const talents = await res.json();
+    renderTalents(talents);
+  } catch { document.getElementById("talents-list").innerHTML = `<div class="admin-empty">Error al cargar</div>`; }
+}
+
+function renderTalents(talents) {
+  const el = document.getElementById("talents-list");
+  document.getElementById("talents-count").textContent = `${talents.length} talento${talents.length !== 1 ? "s" : ""}`;
+  if (!talents.length) { el.innerHTML = `<div class="admin-empty">Sin talentos. Añade talentos para este juego.</div>`; return; }
+  el.innerHTML = "";
+  talents.forEach(t => {
+    const row = document.createElement("div");
+    row.className = "admin-row";
+    row.innerHTML = `
+      ${t.image_url ? `<img src="${t.image_url}" class="admin-row-img" loading="lazy">` : `<div class="admin-row-icon" style="background:rgba(255,255,255,.06)">✦</div>`}
+      <div class="admin-row-name">${t.name}</div>
+      <div class="admin-row-actions">
+        <button class="btn-ss active" data-edit-tl="${t.id}">✏️</button>
+        <button class="btn-ss" data-del-tl="${t.id}" style="color:#fca5a5;">🗑️</button>
+      </div>
+    `;
+    row.querySelector("[data-edit-tl]")?.addEventListener("click", () => editTalent(t));
+    row.querySelector("[data-del-tl]")?.addEventListener("click", () => {
+      confirm("Borrar talento", `¿Eliminar "${t.name}"?`, () => deleteTalent(t.id), "Eliminar");
+    });
+    el.appendChild(row);
+  });
+}
+
+function editTalent(t) {
+  editingTalent = t.id;
+  document.getElementById("talent-form-title").textContent = `Editando: ${t.name}`;
+  document.getElementById("talent-name").value  = t.name;
+  document.getElementById("talent-img").value   = t.image_url  || "";
+  document.getElementById("talent-order").value = t.sort_order ?? 0;
+  document.getElementById("btn-cancel-talent").style.display = "";
+}
+
+function resetTalentForm() {
+  editingTalent = null;
+  document.getElementById("talent-form-title").textContent = "Añadir talento";
+  document.getElementById("talent-name").value  = "";
+  document.getElementById("talent-img").value   = "";
+  document.getElementById("talent-order").value = 0;
+  document.getElementById("btn-cancel-talent").style.display = "none";
+}
+
+document.getElementById("btn-cancel-talent")?.addEventListener("click", resetTalentForm);
+
+document.getElementById("btn-save-talent")?.addEventListener("click", async () => {
+  const name = document.getElementById("talent-name").value.trim();
+  if (!name) { toast("El nombre es requerido", true); return; }
+  const body = {
+    name,
+    image_url:  document.getElementById("talent-img").value.trim()   || null,
+    sort_order: parseInt(document.getElementById("talent-order").value) || 0,
+  };
+  try {
+    let res;
+    if (editingTalent) {
+      res = await fetch(`${API}/tl-catalog/talents/${editingTalent}`, { method: "PUT", headers: authHeaders(), body: JSON.stringify(body) });
+    } else {
+      res = await fetch(`${API}/tl-catalog/${currentGame}/talents`, { method: "POST", headers: authHeaders(), body: JSON.stringify(body) });
+    }
+    const r = await res.json();
+    if (!res.ok) throw new Error(r.error || "Error");
+    toast(editingTalent ? "✓ Talento actualizado" : "✓ Talento añadido");
+    resetTalentForm();
+    loadTalents();
+  } catch(e) { toast(e.message, true); }
+});
+
+async function deleteTalent(id) {
+  try {
+    const res = await fetch(`${API}/tl-catalog/talents/${id}`, { method: "DELETE", headers: authHeaders() });
+    if (!res.ok) throw new Error("Error al borrar");
+    toast("✓ Talento eliminado");
+    loadTalents();
+  } catch(e) { toast(e.message, true); }
+}
 
 // ── Init ───────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {

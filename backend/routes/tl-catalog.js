@@ -31,6 +31,13 @@ function ensureTables() {
       image_url  TEXT,
       sort_order INTEGER DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS tl_talents (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      game_key   TEXT NOT NULL,
+      name       TEXT NOT NULL,
+      image_url  TEXT,
+      sort_order INTEGER DEFAULT 0
+    );
   `);
 }
 
@@ -155,10 +162,46 @@ router.delete("/roles/:id", requireRole("editor"), (req, res) => {
   res.json({ ok: true });
 });
 
+// ── GET /api/tl-catalog/:game/talents ─────────────────────────────
+router.get("/:game/talents", (req, res) => {
+  ensureTables();
+  const rows = webDB().prepare(
+    "SELECT * FROM tl_talents WHERE game_key=? ORDER BY sort_order, name"
+  ).all(req.params.game);
+  res.json(rows);
+});
+
+// ── POST /api/tl-catalog/:game/talents ────────────────────────────
+router.post("/:game/talents", requireRole("editor"), (req, res) => {
+  ensureTables();
+  const { name, image_url, sort_order } = req.body;
+  if (!name) return res.status(400).json({ error: "Nombre requerido" });
+  const r = webDB().prepare(
+    "INSERT INTO tl_talents (game_key,name,image_url,sort_order) VALUES (?,?,?,?)"
+  ).run(req.params.game, name, image_url||null, sort_order||0);
+  res.json({ id: r.lastInsertRowid });
+});
+
+// ── PUT /api/tl-catalog/talents/:id ───────────────────────────────
+router.put("/talents/:id", requireRole("editor"), (req, res) => {
+  ensureTables();
+  const { name, image_url, sort_order } = req.body;
+  webDB().prepare("UPDATE tl_talents SET name=?,image_url=?,sort_order=? WHERE id=?")
+    .run(name, image_url||null, sort_order||0, req.params.id);
+  res.json({ ok: true });
+});
+
+// ── DELETE /api/tl-catalog/talents/:id ────────────────────────────
+router.delete("/talents/:id", requireRole("editor"), (req, res) => {
+  ensureTables();
+  webDB().prepare("DELETE FROM tl_talents WHERE id=?").run(req.params.id);
+  res.json({ ok: true });
+});
+
 // ── POST /api/tl-catalog/:game/seed (admin) — seed defaults ───────
 router.post("/:game/seed", requireRole("admin"), (req, res) => {
   ensureTables();
-  const { items = [], roles = [], skills = [] } = req.body;
+  const { items = [], roles = [], skills = [], talents = [] } = req.body;
   const db = webDB();
 
   const stmtI = db.prepare(
@@ -182,7 +225,14 @@ router.post("/:game/seed", requireRole("admin"), (req, res) => {
     stmtS.run(req.params.game, sk.name, sk.image_url||null, sk.sort_order??i);
   });
 
-  res.json({ ok: true, items_added: items.length, roles_added: roles.length, skills_added: skills.length });
+  const stmtT = db.prepare(
+    "INSERT OR IGNORE INTO tl_talents (game_key,name,image_url,sort_order) VALUES (?,?,?,?)"
+  );
+  talents.forEach((t, i) => {
+    stmtT.run(req.params.game, t.name, t.image_url||null, t.sort_order??i);
+  });
+
+  res.json({ ok: true, items_added: items.length, roles_added: roles.length, skills_added: skills.length, talents_added: talents.length });
 });
 
 module.exports = router;

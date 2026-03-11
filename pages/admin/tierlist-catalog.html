@@ -27,7 +27,7 @@
     <!-- Selector de juego -->
     <div class="card-dark mb-4">
       <div class="d-flex align-items-center gap-3 flex-wrap">
-        <div style="flex:1;min-width:220px;">
+        <div style="min-width:200px;max-width:280px;">
           <label class="tl-field-label mb-1" style="font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;opacity:.6;">Juego activo</label>
           <select id="adm-game" class="tl-select" style="font-size:1.05rem;font-weight:700;padding:.55rem .9rem;">
             <option value="ragnarok">Ragnarok Online</option>
@@ -49,6 +49,7 @@
       <li class="nav-item"><button class="nav-link active" data-tab="items">Clases / Ítems</button></li>
       <li class="nav-item"><button class="nav-link" data-tab="roles">Roles</button></li>
       <li class="nav-item"><button class="nav-link" data-tab="skills">Skills</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="talents">Talentos</button></li>
     </ul>
 
     <!-- ─── TAB: ITEMS ─────────────────────────────────────────────── -->
@@ -170,6 +171,37 @@
       <div class="card-dark">
         <div class="tl-field-label mb-3" id="skills-count">Cargando...</div>
         <div id="skills-list" class="admin-rows">
+          <div class="admin-loading">Cargando...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── TAB: TALENTOS ──────────────────────────────────────────── -->
+    <div id="tab-talents" style="display:none;">
+      <div class="card-dark mb-4">
+        <div class="admin-form-title" id="talent-form-title">Añadir talento</div>
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="tl-field-label">Nombre *</label>
+            <input id="talent-name" class="tl-input" type="text" placeholder="Bowling Bash">
+          </div>
+          <div class="col-md-5">
+            <label class="tl-field-label">Imagen (URL)</label>
+            <input id="talent-img" class="tl-input" type="url" placeholder="https://...">
+          </div>
+          <div class="col-md-2">
+            <label class="tl-field-label">Orden</label>
+            <input id="talent-order" class="tl-input" type="number" value="0" min="0">
+          </div>
+          <div class="col-md-2 d-flex gap-2">
+            <button id="btn-save-talent" class="btn-ss active">💾 Guardar</button>
+            <button id="btn-cancel-talent" class="btn-ss" style="display:none;">✕ Cancelar</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-dark">
+        <div class="tl-field-label mb-3" id="talents-count">Cargando...</div>
+        <div id="talents-list" class="admin-rows">
           <div class="admin-loading">Cargando...</div>
         </div>
       </div>
