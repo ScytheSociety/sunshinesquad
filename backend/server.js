@@ -24,6 +24,7 @@ app.use("/api/blog",      require("./routes/blog"));
 app.use("/api/push",      require("./routes/push"));
 app.use("/api/tierlist",    require("./routes/tierlist"));
 app.use("/api/tl-catalog", require("./routes/tl-catalog"));
+app.use("/api/clan",       require("./routes/clan"));
 
 // ── Health check ─────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {

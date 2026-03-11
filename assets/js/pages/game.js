@@ -1,5 +1,4 @@
-// Template genérico para páginas de juego
-// Lee el atributo data-game del <body> para cargar data/{game}.json
+// Página de juego genérica — carga data/{game}.json según data-game del <body>
 import { loadJson, repoRoot } from "../app.js";
 
 const GAME_KEY = document.body.dataset.game;
@@ -19,92 +18,140 @@ function initTabs() {
   });
 }
 
-// ── Info tabla servidor ────────────────────────────────────────────
+// ── Tabla de configuración del servidor ───────────────────────────
 function renderTabla(info) {
   const el = document.getElementById("servidor-tabla");
   if (!el || !info?.length) return;
   el.innerHTML = info.map(r => `
-    <div class="ro-tabla-row">
-      <span class="ro-tabla-label">${r.label}</span>
-      <span class="ro-tabla-valor">${r.valor}</span>
+    <div class="ro-tabla-fila">
+      <span class="ro-tabla-fila-label">${r.label}</span>
+      <span class="ro-tabla-fila-valor">${r.valor}</span>
     </div>`).join("");
 }
 
-// ── Galería ────────────────────────────────────────────────────────
-function initGaleria(items, prefix = "galeria") {
-  const strip = document.getElementById(`${prefix}-strip`);
-  const dots  = document.getElementById(`${prefix}-dots`);
-  if (!strip || !items?.length) return;
-
-  items.forEach((item, i) => {
-    const slide = document.createElement("div");
-    slide.className = "galeria-slide";
-    slide.innerHTML = `<img src="${item.imagen}" alt="${item.titulo || ""}" loading="lazy" style="width:100%;height:220px;object-fit:cover;border-radius:10px;">`;
-    if (item.titulo) {
-      const lbl = document.createElement("div");
-      lbl.style.cssText = "font-size:.78rem;color:rgba(255,255,255,.45);margin-top:.4rem;text-align:center;";
-      lbl.textContent = item.titulo;
-      slide.appendChild(lbl);
-    }
-    strip.appendChild(slide);
-
-    if (dots) {
-      const dot = document.createElement("button");
-      dot.className = "galeria-dot" + (i === 0 ? " active" : "");
-      dot.onclick = () => scrollTo(strip, dots, i);
-      dots.appendChild(dot);
-    }
+// ── Lightbox ────────────────────────────────────────────────────────
+function openLightbox(src, caption) {
+  const overlay = document.createElement("div");
+  overlay.className = "lightbox-overlay";
+  overlay.innerHTML = `
+    <button class="lightbox-close">✕</button>
+    <img src="${src}" alt="${caption || ""}" class="lightbox-img">
+    ${caption ? `<div class="lightbox-caption">${caption}</div>` : ""}
+  `;
+  overlay.addEventListener("click", e => {
+    if (e.target === overlay || e.target.classList.contains("lightbox-close")) overlay.remove();
   });
-
-  document.getElementById(`${prefix}-prev`)?.addEventListener("click", () => scrollStep(strip, dots, -1));
-  document.getElementById(`${prefix}-next`)?.addEventListener("click", () => scrollStep(strip, dots,  1));
+  document.body.appendChild(overlay);
 }
 
-function getVisibleIdx(strip) {
-  const w = strip.parentElement.offsetWidth;
-  return Math.round(strip.scrollLeft / w);
-}
-function scrollTo(strip, dots, idx) {
-  strip.scrollTo({ left: idx * strip.parentElement.offsetWidth, behavior: "smooth" });
-  dots?.querySelectorAll(".galeria-dot").forEach((d, i) => d.classList.toggle("active", i === idx));
-}
-function scrollStep(strip, dots, dir) {
-  const total = strip.children.length;
-  const cur   = getVisibleIdx(strip);
-  scrollTo(strip, dots, Math.max(0, Math.min(total - 1, cur + dir)));
+// ── Slider genérico con botones laterales ──────────────────────────
+function buildSlider({ stripId, dotsId, prevId, nextId, visible, gap, dotClass }) {
+  const strip   = document.getElementById(stripId);
+  const dotsEl  = document.getElementById(dotsId);
+  const btnPrev = document.getElementById(prevId);
+  const btnNext = document.getElementById(nextId);
+  if (!strip) return null;
+
+  let current = 0;
+
+  function getVis() {
+    const w = window.innerWidth;
+    if (w < 480)  return 1;
+    if (w < 768)  return Math.min(2, visible);
+    if (w < 1024) return Math.min(3, visible);
+    return visible;
+  }
+
+  function setWidths() {
+    const vis = getVis();
+    const w   = (strip.parentElement.offsetWidth - gap * (vis - 1)) / vis;
+    [...strip.children].forEach(el => { el.style.width = w + "px"; });
+    return { w, vis };
+  }
+
+  function updateDots() {
+    if (!dotsEl) return;
+    [...dotsEl.children].forEach((d, i) => d.classList.toggle("active", i === current));
+  }
+
+  function goTo(idx) {
+    const { w, vis } = setWidths();
+    const max = Math.max(0, strip.children.length - vis);
+    current = Math.max(0, Math.min(idx, max));
+    strip.style.transform = `translateX(-${current * (w + gap)}px)`;
+    updateDots();
+    if (btnPrev) btnPrev.disabled = current === 0;
+    if (btnNext) btnNext.disabled = current >= max;
+  }
+
+  if (btnPrev) btnPrev.addEventListener("click", () => goTo(current - 1));
+  if (btnNext) btnNext.addEventListener("click", () => goTo(current + 1));
+  window.addEventListener("resize", () => goTo(current));
+
+  function addDot(idx) {
+    if (!dotsEl) return;
+    const dot = document.createElement("div");
+    dot.className = dotClass + (idx === 0 ? " active" : "");
+    dot.addEventListener("click", () => goTo(idx));
+    dotsEl.appendChild(dot);
+  }
+
+  return { addDot, init: () => setTimeout(() => goTo(0), 60) };
 }
 
-// ── Videos ────────────────────────────────────────────────────────
-function initVideos(items) {
+// ── Galería de imágenes 16:9 con lightbox ─────────────────────────
+function renderGaleria(items) {
+  const slider = buildSlider({
+    stripId: "galeria-strip", dotsId: "galeria-dots",
+    prevId:  "galeria-prev",  nextId: "galeria-next",
+    visible: 5, gap: 10, dotClass: "galeria-dot"
+  });
+  if (!slider || !items?.length) return;
+
+  const strip = document.getElementById("galeria-strip");
+  items.forEach((item, idx) => {
+    const imgSrc = item.imagen.startsWith("http") ? item.imagen : ROOT + item.imagen;
+    const div = document.createElement("div");
+    div.className = "galeria-item";
+    div.style.cursor = "pointer";
+    div.innerHTML = `
+      <img src="${imgSrc}" alt="${item.titulo || ""}" loading="lazy" onerror="this.style.minHeight='80px'">
+      <div class="galeria-item-titulo">${item.titulo || ""}</div>
+    `;
+    div.addEventListener("click", () => openLightbox(imgSrc, item.titulo));
+    strip.appendChild(div);
+    slider.addDot(idx);
+  });
+  slider.init();
+}
+
+// ── Galería de videos 16:9 ─────────────────────────────────────────
+function renderVideos(items) {
+  const slider = buildSlider({
+    stripId: "videos-strip", dotsId: "videos-dots",
+    prevId:  "videos-prev",  nextId: "videos-next",
+    visible: 2, gap: 10, dotClass: "videos-dot"
+  });
+  if (!slider || !items?.length) return;
+
   const strip = document.getElementById("videos-strip");
-  const dots  = document.getElementById("videos-dots");
-  if (!strip || !items?.length) return;
-
-  items.forEach((v, i) => {
-    const ytId = v.url.match(/(?:v=|youtu\.be\/)([^&?]+)/)?.[1];
-    const slide = document.createElement("div");
-    slide.className = "videos-slide";
-    slide.innerHTML = ytId
-      ? `<div style="position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;cursor:pointer;" onclick="this.innerHTML='<iframe src=\\'https://www.youtube.com/embed/${ytId}?autoplay=1\\' style=\\'width:100%;height:100%;border:0;\\' allowfullscreen></iframe>'">
-           <img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" alt="${v.titulo}">
-           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);">
-             <div style="width:52px;height:52px;background:rgba(255,0,0,.85);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">▶</div>
-           </div>
-         </div>
-         <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.4rem;text-align:center;">${v.titulo}</div>`
-      : `<div style="padding:1rem;color:rgba(255,255,255,.4);font-size:.85rem;">${v.titulo}</div>`;
-    strip.appendChild(slide);
-
-    if (dots) {
-      const dot = document.createElement("button");
-      dot.className = "galeria-dot" + (i === 0 ? " active" : "");
-      dot.onclick = () => scrollTo(strip, dots, i);
-      dots.appendChild(dot);
-    }
+  items.forEach((v, idx) => {
+    const ytMatch  = v.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
+    const embedUrl = ytMatch ? `https://www.youtube-nocookie.com/embed/${ytMatch[1]}` : v.url;
+    const div = document.createElement("div");
+    div.className = "video-item";
+    div.innerHTML = `
+      <div class="video-item-ratio">
+        <iframe src="${embedUrl}" allowfullscreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+        </iframe>
+      </div>
+      <div class="video-titulo">${v.titulo}</div>
+    `;
+    strip.appendChild(div);
+    slider.addDot(idx);
   });
-
-  document.getElementById("videos-prev")?.addEventListener("click", () => scrollStep(strip, dots, -1));
-  document.getElementById("videos-next")?.addEventListener("click", () => scrollStep(strip, dots,  1));
+  slider.init();
 }
 
 // ── Grid de guías / builds ─────────────────────────────────────────
@@ -117,7 +164,7 @@ function renderGrid(items, containerId) {
   }
   el.innerHTML = items.map(item => `
     <a href="${ROOT}${item.url}" class="ro-card" style="text-decoration:none;">
-      <img src="${ROOT}${item.imagen}" alt="${item.nombre}" class="ro-card-img" onerror="this.style.display='none'">
+      <img src="${ROOT}${item.imagen}" alt="${item.nombre}" onerror="this.style.display='none'" loading="lazy">
       <div class="ro-card-body">
         <div class="ro-card-title">${item.nombre}</div>
         <div class="ro-card-desc">${item.descripcion || ""}</div>
@@ -125,34 +172,31 @@ function renderGrid(items, containerId) {
     </a>`).join("");
 }
 
-// ── Clan desde API ─────────────────────────────────────────────────
-async function renderClan(juegoNombre) {
+// ── Clan ────────────────────────────────────────────────────────────
+async function renderClan(gameKey) {
   const el = document.getElementById("clan-content");
   if (!el) return;
+  el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.85rem;">Cargando...</div>`;
   try {
-    const res   = await fetch(`${API}/ranking?limit=10`);
-    const items = await res.json();
-    // Filtrar por juego
-    const miembros = items.filter(u => u.juegos?.some(j => j.game?.toLowerCase().includes(juegoNombre.toLowerCase())));
+    const res = await fetch(`${API}/clan/${gameKey}`);
+    if (!res.ok) throw new Error();
+    const miembros = await res.json();
     if (!miembros.length) {
-      el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.85rem;">Sin datos de miembros aún.</div>`;
+      el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.85rem;">Sin miembros registrados aún.</div>`;
       return;
     }
-    el.innerHTML = miembros.map((u, i) => {
-      const pts = u.juegos.find(j => j.game?.toLowerCase().includes(juegoNombre.toLowerCase()))?.points || 0;
-      return `
-        <div class="d-flex align-items-center gap-2 mb-2 p-2" style="border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
-          ${u.avatar_url ? `<img src="${u.avatar_url}" width="32" height="32" style="border-radius:50%;object-fit:cover;" alt="${u.username}">` : `<div style="width:32px;height:32px;border-radius:50%;background:rgba(99,102,241,.2);"></div>`}
-          <div style="flex:1;">
-            <div style="font-size:.88rem;font-weight:600;color:#fff;">${u.username}</div>
-            ${u.juegos.find(j=>j.game?.toLowerCase().includes(juegoNombre.toLowerCase()))?.rank_name
-              ? `<div style="font-size:.72rem;color:rgba(255,255,255,.4);">${u.juegos.find(j=>j.game?.toLowerCase().includes(juegoNombre.toLowerCase())).rank_name}</div>` : ""}
-          </div>
-          <div style="font-size:.85rem;font-weight:700;color:#fbbf24;">${pts.toLocaleString()} pts</div>
-        </div>`;
-    }).join("");
+    el.innerHTML = miembros.map((u, i) => `
+      <div class="d-flex align-items-center gap-2 mb-2 p-2" style="border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+        <div style="font-size:.8rem;min-width:20px;text-align:center;color:rgba(255,255,255,.3);">#${i+1}</div>
+        ${u.avatar_url ? `<img src="${u.avatar_url}" width="32" height="32" style="border-radius:50%;object-fit:cover;flex-shrink:0;" loading="lazy">` : `<div style="width:32px;height:32px;border-radius:50%;background:rgba(99,102,241,.2);flex-shrink:0;"></div>`}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.88rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.username}</div>
+          ${u.rank_name ? `<div style="font-size:.72rem;color:rgba(255,255,255,.4);">${u.rank_name}</div>` : ""}
+        </div>
+        ${u.puntos != null ? `<div style="font-size:.85rem;font-weight:700;color:#fbbf24;">${Number(u.puntos).toLocaleString()} pts</div>` : ""}
+      </div>`).join("");
   } catch {
-    el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.82rem;">Clan no disponible.</div>`;
+    el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.82rem;">Datos del clan no disponibles.</div>`;
   }
 }
 
@@ -164,22 +208,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const data = await loadJson(`data/${GAME_KEY}.json`);
 
-    // Descripción
     const descEl = document.getElementById("game-descripcion");
     if (descEl) descEl.textContent = data.descripcion || "";
 
-    // Servidor
     const srv = data.servidor;
     if (srv) {
       const logoEl = document.getElementById("servidor-logo");
-      if (logoEl && srv.logo) { logoEl.src = srv.logo; logoEl.style.display = ""; }
-      else if (logoEl) logoEl.style.display = "none";
+      if (logoEl) { if (srv.logo) { logoEl.src = srv.logo; logoEl.style.display = ""; } else logoEl.style.display = "none"; }
 
       const descSrv = document.getElementById("servidor-descripcion");
       if (descSrv) descSrv.textContent = srv.descripcion || "";
 
       const btnDesc = document.getElementById("btn-descarga");
-      if (btnDesc && srv.descarga) { btnDesc.href = srv.descarga; btnDesc.style.display = "inline-flex"; }
+      if (btnDesc) { if (srv.descarga) { btnDesc.href = srv.descarga; btnDesc.style.display = "inline-flex"; } else btnDesc.style.display = "none"; }
 
       const btnDisc = document.getElementById("btn-discord");
       if (btnDisc) { if (srv.discord) { btnDisc.href = srv.discord; btnDisc.style.display = "inline-flex"; } else btnDisc.style.display = "none"; }
@@ -193,13 +234,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderTabla(srv.info);
     }
 
-    initGaleria(data.galeria);
-    initVideos(data.videos);
+    if (data.galeria?.length) renderGaleria(data.galeria);
+    if (data.videos?.length)  renderVideos(data.videos);
     renderGrid(data.guias,  "guias-grid");
     renderGrid(data.builds, "builds-grid");
-    renderClan(data.juego_nombre || GAME_KEY);
+    renderClan(GAME_KEY);
 
-  } catch(e) {
-    console.error("game.js:", e);
-  }
+  } catch(e) { console.error(`game.js [${GAME_KEY}]:`, e); }
 });

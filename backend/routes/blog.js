@@ -5,6 +5,11 @@ const { requireAuth, requireRole } = require("../middleware/auth");
 
 const POR_PAGINA = 10;
 
+// Asegura que la columna portada_url exista (migración no destructiva)
+try {
+  webDB().exec("ALTER TABLE blog_posts ADD COLUMN portada_url TEXT");
+} catch (_) { /* columna ya existe */ }
+
 // GET /api/blog?page=1&juego=ragnarok
 router.get("/", (req, res) => {
   const db    = webDB();
@@ -17,7 +22,7 @@ router.get("/", (req, res) => {
 
   const total = db.prepare(`SELECT COUNT(*) as n FROM blog_posts ${where}`).get(...(juego ? [juego] : [])).n;
   const posts = db.prepare(`
-    SELECT id, slug, titulo, resumen, juego, autor_nombre, created_at,
+    SELECT id, slug, titulo, resumen, juego, autor_nombre, portada_url, created_at,
            (SELECT ROUND(AVG(estrellas),1) FROM blog_ratings WHERE post_id=blog_posts.id) AS rating,
            (SELECT COUNT(*) FROM blog_ratings WHERE post_id=blog_posts.id) AS votos
     FROM blog_posts ${where}
@@ -92,14 +97,14 @@ router.post("/:slug/rating", requireAuth, (req, res) => {
 // POST /api/blog  → crear post (editor o superior)
 router.post("/", requireRole("editor"), (req, res) => {
   const db = webDB();
-  const { slug, titulo, contenido, resumen, juego, publicado } = req.body;
+  const { slug, titulo, contenido, resumen, juego, portada_url, publicado } = req.body;
   if (!slug || !titulo || !contenido) return res.status(400).json({ error: "Faltan campos requeridos" });
 
   try {
     const info = db.prepare(`
-      INSERT INTO blog_posts (slug, titulo, contenido, resumen, juego, autor_id, autor_nombre, publicado)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(slug, titulo, contenido, resumen || "", juego || null, req.user.id, req.user.username, publicado ? 1 : 0);
+      INSERT INTO blog_posts (slug, titulo, contenido, resumen, juego, portada_url, autor_id, autor_nombre, publicado)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(slug, titulo, contenido, resumen || "", juego || null, portada_url || null, req.user.id, req.user.username, publicado ? 1 : 0);
     res.json({ id: info.lastInsertRowid });
   } catch (err) {
     if (err.message.includes("UNIQUE")) return res.status(409).json({ error: "El slug ya existe" });
@@ -110,12 +115,12 @@ router.post("/", requireRole("editor"), (req, res) => {
 // PUT /api/blog/:slug  → editar post
 router.put("/:slug", requireRole("editor"), (req, res) => {
   const db = webDB();
-  const { titulo, contenido, resumen, juego, publicado } = req.body;
+  const { titulo, contenido, resumen, juego, portada_url, publicado } = req.body;
 
   db.prepare(`
-    UPDATE blog_posts SET titulo=?, contenido=?, resumen=?, juego=?, publicado=?,
+    UPDATE blog_posts SET titulo=?, contenido=?, resumen=?, juego=?, portada_url=?, publicado=?,
     updated_at=datetime('now') WHERE slug=?
-  `).run(titulo, contenido, resumen, juego, publicado ? 1 : 0, req.params.slug);
+  `).run(titulo, contenido, resumen, juego, portada_url || null, publicado ? 1 : 0, req.params.slug);
 
   res.json({ ok: true });
 });

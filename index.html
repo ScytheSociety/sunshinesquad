@@ -100,18 +100,25 @@
       </div>
     </div>
 
-    <!-- ── BLOG: últimos 5 posts ──────────────────────────────────── -->
+    <!-- ── BLOG: últimas publicaciones ───────────────────────────── -->
     <div class="card-dark mb-4" id="blog-section" style="display:none;">
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div style="font-weight:700;">📝 Últimas publicaciones</div>
         <a href="pages/blog/" style="font-size:.8rem;color:rgba(255,255,255,.4);text-decoration:none;border:1px solid rgba(255,255,255,.1);padding:.25rem .75rem;border-radius:8px;transition:background .15s;"
            onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='transparent'">Ver todos →</a>
       </div>
-      <div id="blog-posts-home"></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button id="blog-carousel-prev" class="carousel-arrow-btn">‹</button>
+        <div class="blog-carousel-viewport carousel-viewport" style="flex:1;min-width:0;">
+          <div id="blog-carousel-track" class="carousel-track"></div>
+        </div>
+        <button id="blog-carousel-next" class="carousel-arrow-btn">›</button>
+      </div>
+      <div id="blog-carousel-dots" class="carousel-dots mt-3"></div>
     </div>
 
     <!-- ── NUESTROS PROYECTOS ─────────────────────────────────────── -->
-    <div class="card-dark mb-4" id="proyectos-section">
+    <div class="card-dark mb-4" id="proyectos-section" style="display:none;">
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
           <div style="font-weight:700;font-size:1.05rem;">🚀 Nuestros Proyectos</div>
@@ -120,13 +127,14 @@
         <a href="pages/juegos/juegos.html" style="font-size:.8rem;color:rgba(255,255,255,.4);text-decoration:none;border:1px solid rgba(255,255,255,.1);padding:.25rem .75rem;border-radius:8px;transition:background .15s;"
            onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='transparent'">Ver todos →</a>
       </div>
-      <div id="proyectos-content">
-        <div style="text-align:center;padding:2rem;color:rgba(255,255,255,.25);">
-          <div style="font-size:2.5rem;margin-bottom:.5rem;">🚧</div>
-          <div style="font-size:.9rem;font-weight:600;">Próximamente</div>
-          <div style="font-size:.8rem;margin-top:.3rem;">Aquí aparecerán los juegos y series propias del Squad.</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button id="proy-carousel-prev" class="carousel-arrow-btn">‹</button>
+        <div class="proy-carousel-viewport carousel-viewport" style="flex:1;min-width:0;">
+          <div id="proy-carousel-track" class="carousel-track"></div>
         </div>
+        <button id="proy-carousel-next" class="carousel-arrow-btn">›</button>
       </div>
+      <div id="proy-carousel-dots" class="carousel-dots mt-3"></div>
     </div>
 
     <!-- ── CLANES EN JUEGOS ───────────────────────────────────────── -->
@@ -137,7 +145,7 @@
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <button id="carousel-prev" class="carousel-arrow-btn">‹</button>
-        <div class="carousel-viewport" style="flex:1;min-width:0;">
+        <div class="clanes-carousel-viewport carousel-viewport" style="flex:1;min-width:0;">
           <div id="carousel-track" class="carousel-track"></div>
         </div>
         <button id="carousel-next" class="carousel-arrow-btn">›</button>
