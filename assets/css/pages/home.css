@@ -33,32 +33,205 @@
   .stream-chat { min-height: 380px; }
 }
 
-/* ===================== JUEGOS STRIP ===================== */
+/* ===================== BLOG CARDS (home) ===================== */
+.home-blog-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: .7rem 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  text-decoration: none;
+  transition: background .12s;
+  border-radius: 8px;
+}
+.home-blog-item:last-child { border-bottom: none; }
+.home-blog-item:hover { background: rgba(255,255,255,.03); }
+.home-blog-tag {
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  background: rgba(99,102,241,.18);
+  border: 1px solid rgba(99,102,241,.3);
+  color: #a5b4fc;
+  border-radius: 999px;
+  padding: .15rem .55rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: .15rem;
+}
+.home-blog-title {
+  font-weight: 700;
+  font-size: .9rem;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: .2rem;
+}
+.home-blog-summary {
+  font-size: .78rem;
+  color: rgba(255,255,255,.45);
+  line-height: 1.5;
+  margin-bottom: .25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.home-blog-meta {
+  font-size: .7rem;
+  color: rgba(255,255,255,.28);
+}
+
+/* ===================== GAMES CAROUSEL ===================== */
+.carousel-viewport {
+  overflow: hidden;
+  border-radius: 12px;
+}
+.carousel-track {
+  display: flex;
+  gap: 14px;
+  transition: transform .4s cubic-bezier(.4,0,.2,1);
+  will-change: transform;
+}
+.carousel-card {
+  flex-shrink: 0;
+  width: 180px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  transition: border-color .15s, transform .15s;
+  scroll-snap-align: start;
+}
+.carousel-card:hover {
+  border-color: rgba(99,102,241,.45);
+  transform: translateY(-3px);
+}
+.carousel-cover {
+  width: 100%;
+  aspect-ratio: 4/5;
+  object-fit: cover;
+  display: block;
+  background: rgba(255,255,255,.04);
+}
+.carousel-cover-placeholder {
+  width: 100%;
+  aspect-ratio: 4/5;
+  background: rgba(255,255,255,.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+.carousel-info {
+  padding: .6rem .7rem .75rem;
+}
+.carousel-name {
+  font-weight: 700;
+  font-size: .85rem;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: .25rem;
+}
+.carousel-server {
+  font-size: .68rem;
+  color: rgba(255,255,255,.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.carousel-badge {
+  display: inline-block;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  border-radius: 999px;
+  padding: .1rem .45rem;
+  margin-right: 3px;
+}
+.carousel-badge-guild {
+  background: rgba(234,179,8,.15);
+  border: 1px solid rgba(234,179,8,.35);
+  color: #fde047;
+}
+.carousel-badge-serie {
+  background: rgba(168,85,247,.15);
+  border: 1px solid rgba(168,85,247,.35);
+  color: #d8b4fe;
+}
+
+.carousel-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.18);
+  transition: background .2s, width .2s;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+.carousel-dot.active {
+  background: #a5b4fc;
+  width: 18px;
+}
+
+/* ===================== JUEGOS STRIP (casual) ===================== */
 .game-card {
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,.10);
   background: rgba(255,255,255,.03);
-  width: 180px;
+  width: 160px;
   flex-shrink: 0;
   scroll-snap-align: start;
+  text-decoration: none;
+  display: block;
+  transition: border-color .15s, transform .15s;
+}
+.game-card:hover {
+  border-color: rgba(99,102,241,.4);
+  transform: translateY(-2px);
 }
 .game-cover {
   width: 100%;
   aspect-ratio: 4/5;
   display: block;
   object-fit: cover;
+  background: rgba(255,255,255,.04);
 }
-.game-name { font-weight: 600; font-size: .9rem; }
+.game-cover-placeholder {
+  width: 100%;
+  aspect-ratio: 4/5;
+  background: rgba(255,255,255,.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+.game-name {
+  font-weight: 600;
+  font-size: .82rem;
+  color: #fff;
+  padding: .5rem .6rem .6rem;
+  line-height: 1.2;
+}
 
 .games-strip {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 8px;
   scroll-snap-type: x mandatory;
 }
-.games-strip::-webkit-scrollbar { height: 8px; }
+.games-strip::-webkit-scrollbar { height: 6px; }
 .games-strip::-webkit-scrollbar-thumb {
   background: rgba(255,255,255,.12);
   border-radius: 999px;
