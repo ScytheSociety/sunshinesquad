@@ -7,6 +7,7 @@
       "descripcion": "Servidor Privado uaRO · Pre-Renewal · Clan activo",
       "guild": true,
       "serie": false,
+      "sss": false,
       "servidor": "uaRO · Pre-Renewal",
       "url": "pages/juegos/ragnarok/ragnarok.html"
     },
@@ -16,6 +17,7 @@
       "descripcion": "Servidor Oficial US · Burning Crusade 20th · Clan activo",
       "guild": true,
       "serie": false,
+      "sss": false,
       "servidor": "DreamScythe · BC 20th",
       "url": "pages/juegos/wow/wow.html"
     },
@@ -25,6 +27,7 @@
       "descripcion": "Servidor Privado Reborn Origins · High Five · Clan activo",
       "guild": true,
       "serie": false,
+      "sss": false,
       "servidor": "Reborn Origins · High Five",
       "url": "pages/juegos/lineage2/lineage2.html"
     },
@@ -34,6 +37,7 @@
       "descripcion": "Servidor Oficial · Club activo",
       "guild": true,
       "serie": false,
+      "sss": false,
       "servidor": "Oficial",
       "url": "pages/juegos/brawlstars/brawlstars.html"
     },
@@ -43,6 +47,7 @@
       "descripcion": "Servidor Oficial US-East Ivory · Guild activo",
       "guild": true,
       "serie": false,
+      "sss": false,
       "servidor": "US-East Ivory",
       "url": "pages/juegos/throneandliberty/throneandliberty.html"
     },
@@ -52,6 +57,7 @@
       "descripcion": "Servidor propio de la comunidad · Próximamente",
       "guild": false,
       "serie": false,
+      "sss": false,
       "servidor": "Servidor comunidad",
       "url": "pages/juegos/corekeeper/corekeeper.html"
     },
@@ -61,6 +67,7 @@
       "descripcion": "Serie en stream · Supervivencia cooperativa",
       "guild": false,
       "serie": true,
+      "sss": false,
       "servidor": "Oficial",
       "url": "pages/juegos/l4d2/l4d2.html"
     },
@@ -70,6 +77,7 @@
       "descripcion": "Jugamos por diversión · Caos culinario",
       "guild": false,
       "serie": false,
+      "sss": false,
       "servidor": "Oficial",
       "url": "pages/juegos/overcooked2/overcooked2.html"
     },
@@ -79,6 +87,7 @@
       "descripcion": "Jugamos por diversión · Supervivencia zombie",
       "guild": false,
       "serie": false,
+      "sss": false,
       "servidor": "Oficial",
       "url": "pages/juegos/zomboid/zomboid.html"
     },
@@ -88,6 +97,7 @@
       "descripcion": "Jugamos por diversión · Construcción sin límites",
       "guild": false,
       "serie": false,
+      "sss": false,
       "servidor": "Oficial",
       "url": "pages/juegos/minecraft/minecraft.html"
     },
@@ -97,6 +107,7 @@
       "descripcion": "Jugamos por diversión · MOBA competitivo",
       "guild": false,
       "serie": false,
+      "sss": false,
       "servidor": "Oficial",
       "url": "pages/juegos/dota2/dota2.html"
     },
@@ -106,6 +117,7 @@
       "descripcion": "Jugamos por diversión · MOBA clásico",
       "guild": false,
       "serie": false,
+      "sss": false,
       "servidor": "Oficial",
       "url": "pages/juegos/lol/lol.html"
     },
@@ -115,6 +127,7 @@
       "descripcion": "Jugamos por diversión · MOBA en tercera persona",
       "guild": false,
       "serie": false,
+      "sss": false,
       "servidor": "Oficial",
       "url": "pages/juegos/smite2/smite2.html"
     }

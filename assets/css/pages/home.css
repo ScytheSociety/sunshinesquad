@@ -95,7 +95,7 @@
 }
 .carousel-card {
   flex-shrink: 0;
-  width: 180px;
+  width: 180px; /* overridden by JS dynamically */
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,.10);

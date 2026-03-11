@@ -2,24 +2,16 @@ import { loadJson, repoRoot } from "../app.js";
 
 const API = "https://sunshinesquad.es/api";
 
-// ── Twitch (click-to-load facade) ───────────────────────────────────
-let streamLoaded = false;
-let activeChannel = null;
-
+// ── Twitch ──────────────────────────────────────────────────────────
 function buildPlayer(ch) { return `https://player.twitch.tv/?channel=${ch}&parent=${window.location.hostname}&autoplay=true&muted=false`; }
 function buildChat(ch)   { return `https://www.twitch.tv/embed/${ch}/chat?parent=${window.location.hostname}`; }
 
+let activeChannel = null;
+
 function loadStream(ch) {
-  const facade = document.getElementById("stream-facade");
-  const loaded = document.getElementById("stream-loaded");
-  const pw     = document.getElementById("player-wrap");
-  if (!facade || !loaded) return;
-  facade.style.display = "none";
-  loaded.style.display = "block";
   document.getElementById("stream-iframe").src = buildPlayer(ch);
   document.getElementById("chat-iframe").src   = buildChat(ch);
   matchChatHeight();
-  streamLoaded = true;
   activeChannel = ch;
 }
 
@@ -34,24 +26,24 @@ window.addEventListener("resize", matchChatHeight);
 
 function renderChannels(channels) {
   const list = document.getElementById("channel-list");
-  if (!list) return;
+  if (!list || !channels.length) return;
   channels.forEach((item, idx) => {
     const btn = document.createElement("button");
     btn.className   = "btn-ss";
     btn.textContent = item.name;
-    btn.style.cssText = "font-size:.78rem;padding:.3rem .65rem;";
+    btn.style.cssText = "font-size:.78rem;padding:.3rem .65rem;display:block;width:100%;margin-bottom:6px;text-align:left;";
     btn.addEventListener("click", () => {
       list.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       loadStream(item.channel);
     });
     list.appendChild(btn);
-    if (idx === 0) btn.classList.add("active");
+    if (idx === 0) {
+      btn.classList.add("active");
+      loadStream(item.channel);
+    }
   });
-  // facade click loads first channel
-  document.getElementById("stream-facade")?.addEventListener("click", () => {
-    if (channels.length) loadStream(channels[0].channel);
-  });
+  matchChatHeight();
 }
 
 // ── Timezone helpers ────────────────────────────────────────────────
@@ -214,30 +206,89 @@ async function renderRanking() {
   } catch { el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.8rem;">No disponible.</div>`; }
 }
 
-// ── Games Carousel ──────────────────────────────────────────────────
-let carouselIndex   = 0;
-let carouselGames   = [];
-let carouselTimer   = null;
+// ── Proyectos (sss + serie) ──────────────────────────────────────────
+function renderProyectos(games, rootUrl) {
+  const el = document.getElementById("proyectos-content");
+  if (!el) return;
+  const proyectos = games.filter(g => g.sss || g.serie);
+  if (!proyectos.length) return; // keep "Próximamente" placeholder
+  el.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:14px;">` +
+    proyectos.map(g => {
+      const gameUrl = rootUrl + g.url.replace(/^\//, "");
+      const imgSrc  = g.imagen ? rootUrl + g.imagen : null;
+      const badge   = g.sss
+        ? `<span style="font-size:.6rem;font-weight:700;background:rgba(20,184,166,.15);border:1px solid rgba(20,184,166,.35);color:#5eead4;border-radius:999px;padding:.1rem .4rem;">SSS</span>`
+        : g.serie
+        ? `<span style="font-size:.6rem;font-weight:700;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.35);color:#d8b4fe;border-radius:999px;padding:.1rem .4rem;">SERIE</span>`
+        : "";
+      return `
+        <a href="${gameUrl}" style="width:150px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);text-decoration:none;display:block;transition:border-color .15s,transform .15s;"
+           onmouseover="this.style.borderColor='rgba(99,102,241,.45)';this.style.transform='translateY(-3px)'"
+           onmouseout="this.style.borderColor='rgba(255,255,255,.10)';this.style.transform='none'">
+          ${imgSrc
+            ? `<img src="${imgSrc}" alt="${g.nombre}" style="width:100%;aspect-ratio:4/5;object-fit:cover;display:block;" loading="lazy">`
+            : `<div style="width:100%;aspect-ratio:4/5;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:2rem;">🎮</div>`
+          }
+          <div style="padding:.6rem .7rem .75rem;">
+            <div style="font-weight:700;font-size:.85rem;color:#fff;line-height:1.2;margin-bottom:.25rem;">${g.nombre}</div>
+            <div style="font-size:.68rem;color:rgba(255,255,255,.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.3rem;">${g.servidor || ""}</div>
+            ${badge ? `<div>${badge}</div>` : ""}
+          </div>
+        </a>`;
+    }).join("") + `</div>`;
+}
+
+// ── Games Carousel (guild games, 5 visible) ──────────────────────────
+let carouselIndex = 0;
+let carouselGames = [];
+let carouselTimer = null;
 
 function getVisible() {
   const w = window.innerWidth;
   if (w < 576) return 1;
-  if (w < 992) return 2;
-  return 3;
+  if (w < 768) return 2;
+  if (w < 992) return 3;
+  return 5;
+}
+
+function getCardWidth() {
+  const viewport = document.querySelector(".carousel-viewport");
+  if (!viewport) return 160;
+  const visible = getVisible();
+  const gap = 14;
+  return Math.floor((viewport.offsetWidth - gap * (visible - 1)) / visible);
 }
 
 function updateCarousel() {
   const track = document.getElementById("carousel-track");
   if (!track || !carouselGames.length) return;
-  const cardW = 180 + 14;
-  const max   = Math.max(0, carouselGames.length - getVisible());
+
+  const visible = getVisible();
+  const cardW   = getCardWidth();
+  const gap     = 14;
+
+  // Update each card width dynamically
+  track.querySelectorAll(".carousel-card").forEach(c => { c.style.width = cardW + "px"; });
+
+  const max = Math.max(0, carouselGames.length - visible);
   carouselIndex = Math.max(0, Math.min(carouselIndex, max));
-  track.style.transform = `translateX(-${carouselIndex * cardW}px)`;
+  track.style.transform = `translateX(-${carouselIndex * (cardW + gap)}px)`;
+
   document.querySelectorAll(".carousel-dot").forEach((d, i) => d.classList.toggle("active", i === carouselIndex));
+
   const prev = document.getElementById("carousel-prev");
   const next = document.getElementById("carousel-next");
   if (prev) prev.disabled = carouselIndex === 0;
   if (next) next.disabled = carouselIndex >= max;
+
+  // Hide arrows/dots if all cards fit
+  const arrowPrev = document.getElementById("carousel-prev");
+  const arrowNext = document.getElementById("carousel-next");
+  const dots = document.getElementById("carousel-dots");
+  const noScroll = carouselGames.length <= visible;
+  if (arrowPrev) arrowPrev.style.visibility = noScroll ? "hidden" : "visible";
+  if (arrowNext) arrowNext.style.visibility = noScroll ? "hidden" : "visible";
+  if (dots) dots.style.display = noScroll ? "none" : "flex";
 }
 
 function carouselNext() {
@@ -267,10 +318,11 @@ function renderCarousel(games, rootUrl) {
     const badges  = [
       g.guild ? `<span style="font-size:.6rem;font-weight:700;background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.35);color:#fde047;border-radius:999px;padding:.1rem .4rem;">GUILD</span>` : "",
       g.serie ? `<span style="font-size:.6rem;font-weight:700;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.35);color:#d8b4fe;border-radius:999px;padding:.1rem .4rem;">SERIE</span>` : "",
+      g.sss   ? `<span style="font-size:.6rem;font-weight:700;background:rgba(20,184,166,.15);border:1px solid rgba(20,184,166,.35);color:#5eead4;border-radius:999px;padding:.1rem .4rem;">SSS</span>` : "",
     ].join("");
     const imgSrc = g.imagen ? rootUrl + g.imagen : null;
     return `
-      <a class="carousel-card" href="${gameUrl}">
+      <a class="carousel-card" href="${gameUrl}" style="flex-shrink:0;">
         ${imgSrc ? `<img src="${imgSrc}" alt="${g.nombre}" class="carousel-cover" loading="lazy">` : `<div class="carousel-cover-placeholder">🎮</div>`}
         <div class="carousel-info">
           <div class="carousel-name">${g.nombre}</div>
@@ -280,7 +332,8 @@ function renderCarousel(games, rootUrl) {
       </a>`;
   }).join("");
 
-  const dotsCount = Math.max(1, games.length - getVisible() + 1);
+  const visible   = getVisible();
+  const dotsCount = Math.max(1, games.length - visible + 1);
   if (dots) {
     dots.innerHTML = Array.from({ length: dotsCount }, (_, i) =>
       `<button class="carousel-dot${i === 0 ? " active" : ""}"></button>`
@@ -293,25 +346,12 @@ function renderCarousel(games, rootUrl) {
   document.getElementById("carousel-prev")?.addEventListener("click", () => { carouselPrev(); startCarouselTimer(); });
   document.getElementById("carousel-next")?.addEventListener("click", () => { carouselNext(); startCarouselTimer(); });
   window.addEventListener("resize", updateCarousel);
-  updateCarousel();
-  startCarouselTimer();
-}
 
-// ── Other games ─────────────────────────────────────────────────────
-function renderOtrosJuegos(games, rootUrl) {
-  const section = document.getElementById("otros-juegos-section");
-  const strip   = document.getElementById("otros-juegos-strip");
-  if (!section || !strip || !games.length) return;
-  section.style.display = "block";
-  strip.innerHTML = games.map(g => {
-    const gameUrl = rootUrl + g.url.replace(/^\//, "");
-    const imgSrc  = g.imagen ? rootUrl + g.imagen : null;
-    return `
-      <a class="game-card" href="${gameUrl}">
-        ${imgSrc ? `<img src="${imgSrc}" alt="${g.nombre}" class="game-cover" loading="lazy">` : `<div class="game-cover-placeholder">🎮</div>`}
-        <div class="game-name">${g.nombre}</div>
-      </a>`;
-  }).join("");
+  // Initial sizing after layout
+  requestAnimationFrame(() => {
+    updateCarousel();
+    if (games.length > getVisible()) startCarouselTimer();
+  });
 }
 
 // ── Init ─────────────────────────────────────────────────────────────
@@ -330,7 +370,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data    = await loadJson("data/games.json");
     const rootUrl = repoRoot();
     renderCarousel(data.juegos.filter(g => g.guild), rootUrl);
-    renderOtrosJuegos(data.juegos.filter(g => !g.guild), rootUrl);
+    renderProyectos(data.juegos, rootUrl);
   } catch(e) { console.error("games.json:", e); }
 
   renderMVP();

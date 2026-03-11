@@ -161,7 +161,7 @@ document.querySelectorAll("#catalog-tabs .nav-link").forEach(btn => {
 });
 
 // ── Game selector ──────────────────────────────────────────────────
-const GAME_COVERS = {
+const GAME_COVERS_DEFAULT = {
   ragnarok:        "../../assets/images/games/ragnarok.jpg",
   wow:             "../../assets/images/games/wow.jpg",
   lineage2:        "../../assets/images/games/lineage2.jpg",
@@ -169,10 +169,9 @@ const GAME_COVERS = {
   throneandliberty:"../../assets/images/games/throneandliberty.jpg",
 };
 
-function updateGameCover(game) {
+function setGameCoverImg(src) {
   const img         = document.getElementById("game-cover-img");
   const placeholder = document.getElementById("game-cover-placeholder");
-  const src         = GAME_COVERS[game];
   if (!img || !placeholder) return;
   if (src) {
     img.src = src;
@@ -184,6 +183,37 @@ function updateGameCover(game) {
     placeholder.style.display = "flex";
   }
 }
+
+async function updateGameCover(game) {
+  const urlInput = document.getElementById("game-cover-url");
+  try {
+    const res  = await fetch(`${API}/tl-catalog/${game}/cover`, { headers: authHeaders() });
+    const data = await res.json();
+    const src  = data.image_url || GAME_COVERS_DEFAULT[game] || null;
+    setGameCoverImg(src);
+    if (urlInput) urlInput.value = data.image_url || "";
+  } catch {
+    const src = GAME_COVERS_DEFAULT[game] || null;
+    setGameCoverImg(src);
+    if (urlInput) urlInput.value = "";
+  }
+}
+
+document.getElementById("btn-save-cover")?.addEventListener("click", async () => {
+  const urlInput = document.getElementById("game-cover-url");
+  const src = urlInput?.value?.trim();
+  if (!src) { toast("Ingresa una URL válida", true); return; }
+  try {
+    const res = await fetch(`${API}/tl-catalog/${currentGame}/cover`, {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify({ image_url: src }),
+    });
+    if (!res.ok) throw new Error();
+    setGameCoverImg(src);
+    toast("Imagen guardada");
+  } catch { toast("Error al guardar la imagen", true); }
+});
 
 document.getElementById("adm-game")?.addEventListener("change", e => {
   currentGame = e.target.value;
