@@ -32,72 +32,73 @@
         </div>
         <div class="col-lg-4 text-center">
           <img src="https://i.imgur.com/p7OlADi.gif" alt="Sunshine Squad"
-               style="width:160px;height:160px;object-fit:contain;border-radius:20px;">
+               style="width:160px;height:160px;object-fit:contain;border-radius:20px;" loading="lazy">
           <div style="color:rgba(255,255,255,.25);font-size:.8rem;margin-top:.5rem;letter-spacing:.4px;">SUNSHINE SQUAD</div>
         </div>
       </div>
     </div>
 
-    <!-- ── TWITCH ─────────────────────────────────────────────────── -->
+    <!-- ── TWITCH (click-to-load) ─────────────────────────────────── -->
     <div class="card-dark mb-4">
-      <div class="mb-3">
-        <div style="font-weight:700;">📺 Twitch</div>
-        <div class="text-muted-ss">Cambia de canal sin recargar la página</div>
+      <div class="mb-3 d-flex align-items-center justify-content-between">
+        <div>
+          <div style="font-weight:700;">📺 Twitch</div>
+          <div class="text-muted-ss">Selecciona un canal para ver en vivo</div>
+        </div>
+        <div id="channel-list" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
       </div>
-      <div id="stream-row" style="display:flex;gap:12px;align-items:stretch;">
-        <div id="player-wrap" style="flex:1 1 0;min-width:0;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);position:relative;">
-          <iframe id="stream-iframe" allowfullscreen
-            style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>
-        </div>
-        <div id="chat-wrap" style="width:300px;flex-shrink:0;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);">
-          <iframe id="chat-iframe" style="width:100%;height:100%;border:0;display:block;"></iframe>
-        </div>
-        <div style="width:130px;flex-shrink:0;">
-          <div style="font-weight:600;margin-bottom:.75rem;font-size:.9rem;">Canales</div>
-          <div id="channel-list"></div>
+      <div id="stream-facade" style="position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:.75rem;">
+        <div style="font-size:3rem;opacity:.3;">📺</div>
+        <div style="color:rgba(255,255,255,.5);font-size:.9rem;">Haz clic en un canal para cargar el stream</div>
+      </div>
+      <div id="stream-loaded" style="display:none;">
+        <div style="display:flex;gap:12px;align-items:stretch;">
+          <div id="player-wrap" style="flex:1 1 0;min-width:0;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);position:relative;">
+            <iframe id="stream-iframe" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>
+          </div>
+          <div id="chat-wrap" style="width:300px;flex-shrink:0;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);">
+            <iframe id="chat-iframe" style="width:100%;height:100%;border:0;display:block;"></iframe>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ── FILA: MVP + CUMPLEAÑOS + EVENTOS ──────────────────────── -->
+    <!-- ── FILA: MVP + CUMPLEAÑOS + EVENTOS + RANKING ──────────────── -->
     <div class="row g-3 mb-4">
-      <div class="col-lg-4">
+      <div class="col-lg-3 col-md-6">
         <div class="card-dark h-100" id="mvp-widget">
           <div class="d-flex align-items-center justify-content-between mb-3">
             <div>
               <div style="font-weight:700;">💀 MVP Tracker</div>
-              <div class="text-muted-ss" style="font-size:.8rem;">Próximo spawn · Ragnarok Online</div>
+              <div class="text-muted-ss" style="font-size:.78rem;">Próximo spawn · Ragnarok</div>
             </div>
-            <span id="mvp-live-badge" style="display:none;font-size:.7rem;font-weight:700;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.35);color:#86efac;padding:.2rem .6rem;border-radius:999px;">● LIVE</span>
+            <span id="mvp-live-badge" style="display:none;font-size:.65rem;font-weight:700;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.35);color:#86efac;padding:.15rem .5rem;border-radius:999px;">● LIVE</span>
           </div>
-          <div id="mvp-content">
-            <div class="text-muted-ss" style="font-size:.85rem;">Cargando...</div>
-          </div>
+          <div id="mvp-content"><div class="text-muted-ss" style="font-size:.82rem;">Cargando...</div></div>
         </div>
       </div>
-      <div class="col-lg-4">
+      <div class="col-lg-3 col-md-6">
         <div class="card-dark h-100" id="birthday-widget">
-          <div style="font-weight:700;margin-bottom:.75rem;">🎂 Cumpleaños de la semana</div>
-          <div id="birthday-content">
-            <div class="text-muted-ss" style="font-size:.85rem;">Cargando...</div>
-          </div>
+          <div style="font-weight:700;margin-bottom:.75rem;">🎂 Cumpleaños</div>
+          <div id="birthday-content"><div class="text-muted-ss" style="font-size:.82rem;">Cargando...</div></div>
         </div>
       </div>
-      <div class="col-lg-4">
+      <div class="col-lg-3 col-md-6">
         <div class="card-dark h-100" id="eventos-widget">
           <div class="d-flex align-items-center justify-content-between mb-3">
-            <div>
-              <div style="font-weight:700;">⚡ Próximos eventos</div>
-              <div class="text-muted-ss" style="font-size:.8rem;">En tu hora local</div>
-            </div>
-            <a href="pages/horario/schedule.html"
-               style="font-size:.75rem;color:rgba(255,255,255,.4);text-decoration:none;border:1px solid rgba(255,255,255,.1);padding:.2rem .6rem;border-radius:8px;white-space:nowrap;transition:background .15s;"
-               onmouseover="this.style.background='rgba(255,255,255,.07)'"
-               onmouseout="this.style.background='transparent'">Ver →</a>
+            <div style="font-weight:700;">⚡ Eventos</div>
+            <a href="pages/horario/schedule.html" style="font-size:.72rem;color:rgba(255,255,255,.4);text-decoration:none;border:1px solid rgba(255,255,255,.1);padding:.15rem .5rem;border-radius:6px;">Ver →</a>
           </div>
-          <div id="eventos-content">
-            <div class="text-muted-ss" style="font-size:.85rem;">Cargando...</div>
+          <div id="eventos-content"><div class="text-muted-ss" style="font-size:.82rem;">Cargando...</div></div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card-dark h-100" id="ranking-widget">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div style="font-weight:700;">🏆 Ranking</div>
+            <span class="text-muted-ss" style="font-size:.72rem;">Top 5</span>
           </div>
+          <div id="ranking-content"><div class="text-muted-ss" style="font-size:.82rem;">Cargando...</div></div>
         </div>
       </div>
     </div>
@@ -106,54 +107,54 @@
     <div class="card-dark mb-4" id="blog-section" style="display:none;">
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div style="font-weight:700;">📝 Últimas publicaciones</div>
-        <a href="pages/blog/"
-           style="font-size:.8rem;color:rgba(255,255,255,.4);text-decoration:none;border:1px solid rgba(255,255,255,.1);padding:.25rem .75rem;border-radius:8px;transition:background .15s;"
-           onmouseover="this.style.background='rgba(255,255,255,.07)'"
-           onmouseout="this.style.background='transparent'">Ver todos →</a>
+        <a href="pages/blog/" style="font-size:.8rem;color:rgba(255,255,255,.4);text-decoration:none;border:1px solid rgba(255,255,255,.1);padding:.25rem .75rem;border-radius:8px;transition:background .15s;"
+           onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='transparent'">Ver todos →</a>
       </div>
       <div id="blog-posts-home"></div>
     </div>
 
-    <!-- ── RANKING DEL SQUAD ──────────────────────────────────────── -->
-    <div class="card-dark mb-4" id="ranking-widget">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div style="font-weight:700;">🏆 Ranking del Squad</div>
-        <span class="text-muted-ss" style="font-size:.8rem;">Puntos totales</span>
-      </div>
-      <div id="ranking-content">
-        <div class="text-muted-ss" style="font-size:.85rem;">Cargando...</div>
-      </div>
-    </div>
-
-    <!-- ── NUESTROS JUEGOS (carousel) ────────────────────────────── -->
+    <!-- ── NUESTROS PROYECTOS ─────────────────────────────────────── -->
     <div class="card-dark mb-4">
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
-          <div style="font-weight:700;font-size:1.05rem;">🎮 Nuestros juegos</div>
-          <div class="text-muted-ss" style="font-size:.8rem;">Clanes activos · Haz clic para ver más</div>
-        </div>
-        <div class="d-flex gap-2">
-          <button id="carousel-prev" class="btn-ss" style="padding:.3rem .65rem;font-size:.85rem;">‹</button>
-          <button id="carousel-next" class="btn-ss" style="padding:.3rem .65rem;font-size:.85rem;">›</button>
+          <div style="font-weight:700;font-size:1.05rem;">🚀 Nuestros Proyectos</div>
+          <div class="text-muted-ss" style="font-size:.8rem;">Juegos y servidores propios</div>
         </div>
       </div>
-      <div class="carousel-viewport">
-        <div id="carousel-track" class="carousel-track"></div>
+      <div id="proyectos-content">
+        <div style="text-align:center;padding:2rem;color:rgba(255,255,255,.25);">
+          <div style="font-size:2.5rem;margin-bottom:.5rem;">🚧</div>
+          <div style="font-size:.9rem;font-weight:600;">Próximamente</div>
+          <div style="font-size:.8rem;margin-top:.3rem;">Aquí aparecerán los juegos y servidores propios del Squad.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CLANES EN JUEGOS ───────────────────────────────────────── -->
+    <div class="card-dark mb-4">
+      <div class="mb-3">
+        <div style="font-weight:700;font-size:1.05rem;">⚔️ Clanes en Juegos</div>
+        <div class="text-muted-ss" style="font-size:.8rem;">Servidores donde tenemos clanes activos</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button id="carousel-prev" class="carousel-arrow-btn">‹</button>
+        <div class="carousel-viewport" style="flex:1;min-width:0;">
+          <div id="carousel-track" class="carousel-track"></div>
+        </div>
+        <button id="carousel-next" class="carousel-arrow-btn">›</button>
       </div>
       <div id="carousel-dots" class="carousel-dots mt-3"></div>
     </div>
 
-    <!-- ── OTROS JUEGOS (casual / series) ────────────────────────── -->
+    <!-- ── TAMBIÉN JUGAMOS ────────────────────────────────────────── -->
     <div class="card-dark mb-4" id="otros-juegos-section" style="display:none;">
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
           <div style="font-weight:700;font-size:1.05rem;">🕹️ También jugamos</div>
           <div class="text-muted-ss" style="font-size:.8rem;">Series, diversión y más</div>
         </div>
-        <a href="pages/juegos/juegos.html"
-           style="font-size:.8rem;color:rgba(255,255,255,.4);text-decoration:none;border:1px solid rgba(255,255,255,.1);padding:.25rem .75rem;border-radius:8px;transition:background .15s;"
-           onmouseover="this.style.background='rgba(255,255,255,.07)'"
-           onmouseout="this.style.background='transparent'">Ver todos →</a>
+        <a href="pages/juegos/juegos.html" style="font-size:.8rem;color:rgba(255,255,255,.4);text-decoration:none;border:1px solid rgba(255,255,255,.1);padding:.25rem .75rem;border-radius:8px;transition:background .15s;"
+           onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='transparent'">Ver todos →</a>
       </div>
       <div id="otros-juegos-strip" class="games-strip"></div>
     </div>

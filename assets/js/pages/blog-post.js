@@ -19,16 +19,36 @@ async function loadPost() {
 
     const fecha = new Date(post.created_at).toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
 
+    const user      = getUser();
+    const canEdit   = user && (user.discord_id === post.autor_id || ["admin","moderador"].includes(user.role));
+
     wrap.innerHTML = `
       <div class="card-dark">
-        <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-          ${post.juego ? `<span style="font-size:.72rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:.15rem .55rem;border-radius:999px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;">${post.juego}</span>` : ""}
-          <span style="font-size:.78rem;color:rgba(255,255,255,.3);">${fecha}</span>
+        <div class="d-flex align-items-center justify-content-between gap-2 mb-3 flex-wrap">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            ${post.juego ? `<span style="font-size:.72rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:.15rem .55rem;border-radius:999px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;">${post.juego}</span>` : ""}
+            <span style="font-size:.78rem;color:rgba(255,255,255,.3);">${fecha}</span>
+          </div>
+          ${canEdit ? `<div class="d-flex gap-2">
+            <a href="editor.html?slug=${post.slug}" class="btn-ss active" style="font-size:.75rem;padding:.3rem .7rem;text-decoration:none;">✏️ Editar</a>
+            <button id="btn-delete-post" class="btn-ss" style="font-size:.75rem;padding:.3rem .7rem;color:#fca5a5;border-color:rgba(239,68,68,.35);">🗑️ Eliminar</button>
+          </div>` : ""}
         </div>
         <h1 style="font-weight:900;font-size:clamp(1.5rem,4vw,2.2rem);line-height:1.2;margin-bottom:.75rem;">${post.titulo}</h1>
         <div style="font-size:.85rem;color:rgba(255,255,255,.4);margin-bottom:2rem;">Por <strong style="color:rgba(255,255,255,.6);">${post.autor_nombre}</strong></div>
         <div class="post-content">${post.contenido}</div>
       </div>`;
+
+    if (canEdit) {
+      document.getElementById("btn-delete-post")?.addEventListener("click", async () => {
+        if (!confirm("¿Eliminar este post? Esta acción no se puede deshacer.")) return;
+        try {
+          const r = await apiFetch(`/blog/${slug}`, { method: "DELETE" });
+          if (!r || !r.ok) throw new Error("Error");
+          window.location.href = "index.html";
+        } catch { alert("Error al eliminar el post."); }
+      });
+    }
 
     initRating(post);
     loadComentarios(1);

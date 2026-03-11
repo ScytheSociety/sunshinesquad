@@ -2,22 +2,34 @@ import { loadJson, repoRoot } from "../app.js";
 
 const API = "https://sunshinesquad.es/api";
 
-// ── Twitch embeds ───────────────────────────────────────────────────
+// ── Twitch (click-to-load facade) ───────────────────────────────────
+let streamLoaded = false;
+let activeChannel = null;
+
 function buildPlayer(ch) { return `https://player.twitch.tv/?channel=${ch}&parent=${window.location.hostname}&autoplay=true&muted=false`; }
 function buildChat(ch)   { return `https://www.twitch.tv/embed/${ch}/chat?parent=${window.location.hostname}`; }
-function setStream(ch) {
+
+function loadStream(ch) {
+  const facade = document.getElementById("stream-facade");
+  const loaded = document.getElementById("stream-loaded");
+  const pw     = document.getElementById("player-wrap");
+  if (!facade || !loaded) return;
+  facade.style.display = "none";
+  loaded.style.display = "block";
   document.getElementById("stream-iframe").src = buildPlayer(ch);
   document.getElementById("chat-iframe").src   = buildChat(ch);
+  matchChatHeight();
+  streamLoaded = true;
+  activeChannel = ch;
 }
+
 function matchChatHeight() {
   const p = document.getElementById("player-wrap");
   const c = document.getElementById("chat-wrap");
   if (!p || !c) return;
   const h = p.offsetWidth * 9 / 16;
   c.style.height = h + "px";
-  document.getElementById("chat-iframe").style.height = h + "px";
 }
-window.addEventListener("load",   matchChatHeight);
 window.addEventListener("resize", matchChatHeight);
 
 function renderChannels(channels) {
@@ -27,14 +39,18 @@ function renderChannels(channels) {
     const btn = document.createElement("button");
     btn.className   = "btn-ss";
     btn.textContent = item.name;
-    btn.style.cssText = "display:block;width:100%;margin-bottom:6px;text-align:left;";
+    btn.style.cssText = "font-size:.78rem;padding:.3rem .65rem;";
     btn.addEventListener("click", () => {
       list.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      setStream(item.channel);
+      loadStream(item.channel);
     });
     list.appendChild(btn);
-    if (idx === 0) { btn.classList.add("active"); setStream(item.channel); }
+    if (idx === 0) btn.classList.add("active");
+  });
+  // facade click loads first channel
+  document.getElementById("stream-facade")?.addEventListener("click", () => {
+    if (channels.length) loadStream(channels[0].channel);
   });
 }
 
@@ -59,37 +75,34 @@ function getEstado(inicio, durH) {
   return "pasado";
 }
 
-// ── Próximos Eventos (columna) ──────────────────────────────────────
+// ── Próximos Eventos ────────────────────────────────────────────────
 function renderEventos(eventos) {
   const el = document.getElementById("eventos-content");
   if (!el) return;
-  const ahora   = new Date();
-  const limite  = new Date(ahora.getTime() + 7 * 24 * 3600000);
-  const items = eventos
+  const ahora  = new Date();
+  const limite = new Date(ahora.getTime() + 7 * 24 * 3600000);
+  const items  = eventos
     .map(ev => ({ ...ev, inicio: toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima") }))
     .map(ev => ({ ...ev, estado: getEstado(ev.inicio, ev.duracion) }))
     .filter(ev => ev.estado !== "pasado" && ev.inicio <= limite)
     .sort((a, b) => a.inicio - b.inicio)
     .slice(0, 4);
   if (!items.length) {
-    el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.82rem;">Sin eventos próximos.</div>`;
+    el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin eventos próximos.</div>`;
     return;
   }
-  const cfg = {
-    activo: { dot:"#22c55e", label:"En curso" },
-    futuro: { dot:"#a5b4fc", label:"Próximo"  },
-  };
+  const cfg = { activo: { dot:"#22c55e" }, futuro: { dot:"#a5b4fc" } };
   el.innerHTML = items.map(ev => {
     const c    = cfg[ev.estado] || cfg.futuro;
     const hora = ev.inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
     const fLbl = ev.inicio.toLocaleDateString("es", { weekday:"short", day:"numeric", month:"short" });
     return `
-      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:.65rem;">
-        <div style="width:8px;height:8px;border-radius:50%;background:${c.dot};margin-top:.35rem;flex-shrink:0;"></div>
-        <div style="min-width:0;">
-          <div style="font-size:.82rem;font-weight:700;color:#fff;line-height:1.2;">${ev.juego}</div>
-          <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:.1rem;">${ev.evento}</div>
-          <div style="font-size:.68rem;color:rgba(255,255,255,.3);">${fLbl} · ${hora}</div>
+      <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:.6rem;">
+        <div style="width:7px;height:7px;border-radius:50%;background:${c.dot};margin-top:.35rem;flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:.8rem;font-weight:700;color:#fff;">${ev.juego}</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.5);">${ev.evento}</div>
+          <div style="font-size:.66rem;color:rgba(255,255,255,.3);">${fLbl} · ${hora}</div>
         </div>
       </div>`;
   }).join("");
@@ -111,10 +124,7 @@ async function renderMVP() {
   try {
     const res = await fetch(`${API}/mvp/next`);
     const mvp = await res.json();
-    if (!mvp || !mvp.respawn_at) {
-      el.innerHTML = `<div style="color:rgba(255,255,255,.35);font-size:.82rem;">Sin MVPs próximamente.</div>`;
-      return;
-    }
+    if (!mvp || !mvp.respawn_at) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin MVPs próximamente.</div>`; return; }
     const respawnDate = new Date(mvp.respawn_at);
     if (mvpTimer) clearInterval(mvpTimer);
     mvpTimer = setInterval(() => {
@@ -126,18 +136,15 @@ async function renderMVP() {
     }, 1000);
     const diff = respawnDate - new Date();
     el.innerHTML = `
-      <div class="d-flex align-items-center gap-3">
-        ${mvp.image_url ? `<img src="${mvp.image_url}" alt="${mvp.boss_name}" style="width:56px;height:56px;object-fit:contain;border-radius:10px;background:rgba(255,255,255,.05);">` : ""}
+      <div class="d-flex align-items-center gap-2">
+        ${mvp.image_url ? `<img src="${mvp.image_url}" alt="${mvp.boss_name}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.05);" loading="lazy">` : ""}
         <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:.95rem;color:#fff;margin-bottom:.15rem;">${mvp.boss_name}</div>
-          <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:.4rem;">📍 ${mvp.map || "Desconocido"}</div>
-          <div style="font-size:.7rem;color:rgba(255,255,255,.3);">Spawn en</div>
-          <div id="mvp-countdown" style="font-size:1.3rem;font-weight:900;font-variant-numeric:tabular-nums;color:#fbbf24;">${fmtCountdown(diff)}</div>
+          <div style="font-weight:700;font-size:.88rem;color:#fff;">${mvp.boss_name}</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.35);">📍 ${mvp.map || "?"}</div>
+          <div id="mvp-countdown" style="font-size:1.1rem;font-weight:900;font-variant-numeric:tabular-nums;color:#fbbf24;">${fmtCountdown(diff)}</div>
         </div>
       </div>`;
-  } catch {
-    el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.82rem;">MVP Tracker no disponible.</div>`;
-  }
+  } catch { el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.8rem;">MVP Tracker no disponible.</div>`; }
 }
 
 // ── Cumpleaños ──────────────────────────────────────────────────────
@@ -147,49 +154,43 @@ async function renderBirthdays() {
   try {
     const res   = await fetch(`${API}/birthdays`);
     const items = await res.json();
-    if (!items.length) {
-      el.innerHTML = `<div style="color:rgba(255,255,255,.35);font-size:.82rem;">Sin cumpleaños esta semana.</div>`;
-      return;
-    }
+    if (!items.length) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin cumpleaños esta semana.</div>`; return; }
     el.innerHTML = items.map(b => {
-      const label = b.dias_faltantes === 0 ? "🎉 ¡Hoy!" : `en ${b.dias_faltantes} día${b.dias_faltantes !== 1 ? "s" : ""}`;
-      const color = b.dias_faltantes === 0 ? "#fde047" : "rgba(255,255,255,.55)";
-      return `
-        <div class="d-flex align-items-center gap-2 mb-2">
-          ${b.avatar_url ? `<img src="${b.avatar_url}" alt="${b.username}" width="30" height="30" style="border-radius:50%;object-fit:cover;">` : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;font-size:.75rem;">🎂</div>`}
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:.83rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.username}</div>
-            <div style="font-size:.7rem;color:${color};">${b.birthday} · ${label}</div>
-          </div>
-        </div>`;
+      const label = b.dias_faltantes === 0 ? "🎉 ¡Hoy!" : `en ${b.dias_faltantes}d`;
+      const color = b.dias_faltantes === 0 ? "#fde047" : "rgba(255,255,255,.5)";
+      return `<div class="d-flex align-items-center gap-2 mb-2">
+        ${b.avatar_url ? `<img src="${b.avatar_url}" width="28" height="28" style="border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;font-size:.7rem;">🎂</div>`}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.82rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.username}</div>
+          <div style="font-size:.7rem;color:${color};">${label}</div>
+        </div>
+      </div>`;
     }).join("");
-  } catch {
-    el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.82rem;">Cumpleaños no disponible.</div>`;
-  }
+  } catch { el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.8rem;">No disponible.</div>`; }
 }
 
-// ── Blog posts (últimos 5) ──────────────────────────────────────────
+// ── Blog posts ──────────────────────────────────────────────────────
 async function renderBlogPosts() {
   const section = document.getElementById("blog-section");
   const el      = document.getElementById("blog-posts-home");
   if (!section || !el) return;
   try {
-    const res  = await fetch(`${API}/blog?page=1`);
-    const data = await res.json();
+    const res   = await fetch(`${API}/blog?page=1`);
+    const data  = await res.json();
     const posts = (data.posts || []).slice(0, 5);
     if (!posts.length) return;
     section.style.display = "block";
     el.innerHTML = posts.map(p => `
-      <a class="home-blog-item" href="pages/blog/post.html?slug=${p.slug}" style="display:flex;gap:14px;align-items:flex-start;padding:.7rem .5rem;border-bottom:1px solid rgba(255,255,255,.06);text-decoration:none;border-radius:8px;transition:background .12s;"
+      <a href="pages/blog/post.html?slug=${p.slug}" style="display:flex;gap:12px;align-items:flex-start;padding:.65rem .5rem;border-bottom:1px solid rgba(255,255,255,.06);text-decoration:none;border-radius:8px;transition:background .12s;"
          onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'">
-        ${p.juego ? `<span class="home-blog-tag">${p.juego}</span>` : ""}
+        ${p.juego ? `<span style="font-size:.62rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;background:rgba(99,102,241,.18);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;border-radius:999px;padding:.12rem .5rem;white-space:nowrap;flex-shrink:0;margin-top:.15rem;">${p.juego}</span>` : ""}
         <div style="flex:1;min-width:0;">
-          <div class="home-blog-title">${p.titulo}</div>
-          ${p.resumen ? `<div class="home-blog-summary">${p.resumen}</div>` : ""}
-          <div class="home-blog-meta">${p.autor_nombre} · ${new Date(p.created_at).toLocaleDateString("es",{day:"numeric",month:"short",year:"numeric"})}</div>
+          <div style="font-weight:700;font-size:.88rem;color:#fff;line-height:1.3;margin-bottom:.15rem;">${p.titulo}</div>
+          ${p.resumen ? `<div style="font-size:.76rem;color:rgba(255,255,255,.45);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${p.resumen}</div>` : ""}
+          <div style="font-size:.68rem;color:rgba(255,255,255,.28);margin-top:.2rem;">${p.autor_nombre} · ${new Date(p.created_at).toLocaleDateString("es",{day:"numeric",month:"short",year:"numeric"})}</div>
         </div>
       </a>`).join("");
-  } catch { /* blog no disponible, sección oculta */ }
+  } catch {}
 }
 
 // ── Ranking ─────────────────────────────────────────────────────────
@@ -200,43 +201,23 @@ async function renderRanking() {
   try {
     const res   = await fetch(`${API}/ranking?limit=5`);
     const items = await res.json();
-    if (!items.length) {
-      el.innerHTML = `<div style="color:rgba(255,255,255,.35);font-size:.85rem;">Sin datos de ranking.</div>`;
-      return;
-    }
+    if (!items.length) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin datos.</div>`; return; }
     el.innerHTML = items.map((u, i) => `
-      <div style="border-radius:10px;padding:.6rem .75rem;margin-bottom:.4rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);cursor:pointer;"
-           onclick="this.querySelector('.rk-detail').style.display=this.querySelector('.rk-detail').style.display==='none'?'block':'none'">
-        <div class="d-flex align-items-center gap-3">
-          <div style="font-size:1.1rem;min-width:28px;text-align:center;">${MEDALLAS[i]}</div>
-          ${u.avatar_url ? `<img src="${u.avatar_url}" alt="${u.username}" width="34" height="34" style="border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.1);">` : `<div style="width:34px;height:34px;border-radius:50%;background:rgba(99,102,241,.2);"></div>`}
-          <div style="flex:1;min-width:0;">
-            <div style="font-weight:700;font-size:.88rem;color:#fff;">${u.username}</div>
-            <div style="font-size:.7rem;color:rgba(255,255,255,.4);">${u.logros?.length ? u.logros[0].name : "Sin logros aún"}</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:.95rem;font-weight:900;color:#fbbf24;">${u.puntos_totales?.toLocaleString() ?? 0}</div>
-            <div style="font-size:.68rem;color:rgba(255,255,255,.3);">pts</div>
-          </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.05);">
+        <div style="font-size:.95rem;min-width:22px;text-align:center;">${MEDALLAS[i]}</div>
+        ${u.avatar_url ? `<img src="${u.avatar_url}" width="28" height="28" style="border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.1);" loading="lazy">` : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(99,102,241,.2);"></div>`}
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:.8rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.username}</div>
         </div>
-        <div class="rk-detail" style="display:none;margin-top:.6rem;padding-top:.6rem;border-top:1px solid rgba(255,255,255,.07);">
-          ${u.juegos?.map(j => `
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span style="font-size:.75rem;color:rgba(255,255,255,.5);">${j.game}</span>
-              <span style="font-size:.75rem;color:#a5b4fc;font-weight:600;">${j.points?.toLocaleString()} pts${j.rank_name ? ` · ${j.rank_name}` : ""}</span>
-            </div>`).join("") ?? ""}
-        </div>
+        <div style="font-size:.85rem;font-weight:900;color:#fbbf24;">${u.puntos_totales?.toLocaleString() ?? 0}</div>
       </div>`).join("");
-  } catch {
-    el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.82rem;">Ranking no disponible.</div>`;
-  }
+  } catch { el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.8rem;">No disponible.</div>`; }
 }
 
-// ── Games Carousel (guild:true) ─────────────────────────────────────
-let carouselIndex    = 0;
-let carouselGames    = [];
-let carouselVisible  = 3;
-let carouselTimer    = null;
+// ── Games Carousel ──────────────────────────────────────────────────
+let carouselIndex   = 0;
+let carouselGames   = [];
+let carouselTimer   = null;
 
 function getVisible() {
   const w = window.innerWidth;
@@ -245,35 +226,18 @@ function getVisible() {
   return 3;
 }
 
-function buildCarouselCard(game, rootUrl) {
-  const gameUrl = rootUrl + game.url.replace(/^\//, "");
-  const badges  = [
-    game.guild ? `<span class="carousel-badge carousel-badge-guild">GUILD</span>` : "",
-    game.serie ? `<span class="carousel-badge carousel-badge-serie">SERIE</span>` : "",
-  ].join("");
-  const img = game.imagen
-    ? `<img src="${rootUrl + game.imagen}" alt="${game.nombre}" class="carousel-cover" loading="lazy">`
-    : `<div class="carousel-cover-placeholder">🎮</div>`;
-  return `
-    <a class="carousel-card" href="${gameUrl}">
-      ${img}
-      <div class="carousel-info">
-        <div class="carousel-name">${game.nombre}</div>
-        <div class="carousel-server">${game.servidor || ""}</div>
-        ${badges ? `<div style="margin-top:.3rem;">${badges}</div>` : ""}
-      </div>
-    </a>`;
-}
-
 function updateCarousel() {
   const track = document.getElementById("carousel-track");
   if (!track || !carouselGames.length) return;
-  carouselVisible = getVisible();
-  const cardW  = 180 + 14; // width + gap
+  const cardW = 180 + 14;
+  const max   = Math.max(0, carouselGames.length - getVisible());
+  carouselIndex = Math.max(0, Math.min(carouselIndex, max));
   track.style.transform = `translateX(-${carouselIndex * cardW}px)`;
-  document.querySelectorAll(".carousel-dot").forEach((d, i) => {
-    d.classList.toggle("active", i === carouselIndex);
-  });
+  document.querySelectorAll(".carousel-dot").forEach((d, i) => d.classList.toggle("active", i === carouselIndex));
+  const prev = document.getElementById("carousel-prev");
+  const next = document.getElementById("carousel-next");
+  if (prev) prev.disabled = carouselIndex === 0;
+  if (next) next.disabled = carouselIndex >= max;
 }
 
 function carouselNext() {
@@ -286,7 +250,6 @@ function carouselPrev() {
   carouselIndex = carouselIndex <= 0 ? max : carouselIndex - 1;
   updateCarousel();
 }
-
 function startCarouselTimer() {
   if (carouselTimer) clearInterval(carouselTimer);
   carouselTimer = setInterval(carouselNext, 3500);
@@ -297,27 +260,44 @@ function renderCarousel(games, rootUrl) {
   carouselIndex = 0;
   const track = document.getElementById("carousel-track");
   const dots  = document.getElementById("carousel-dots");
-  if (!track || !dots) return;
+  if (!track) return;
 
-  track.innerHTML = games.map(g => buildCarouselCard(g, rootUrl)).join("");
+  track.innerHTML = games.map(g => {
+    const gameUrl = rootUrl + g.url.replace(/^\//, "");
+    const badges  = [
+      g.guild ? `<span style="font-size:.6rem;font-weight:700;background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.35);color:#fde047;border-radius:999px;padding:.1rem .4rem;">GUILD</span>` : "",
+      g.serie ? `<span style="font-size:.6rem;font-weight:700;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.35);color:#d8b4fe;border-radius:999px;padding:.1rem .4rem;">SERIE</span>` : "",
+    ].join("");
+    const imgSrc = g.imagen ? rootUrl + g.imagen : null;
+    return `
+      <a class="carousel-card" href="${gameUrl}">
+        ${imgSrc ? `<img src="${imgSrc}" alt="${g.nombre}" class="carousel-cover" loading="lazy">` : `<div class="carousel-cover-placeholder">🎮</div>`}
+        <div class="carousel-info">
+          <div class="carousel-name">${g.nombre}</div>
+          <div class="carousel-server">${g.servidor || ""}</div>
+          ${badges ? `<div style="margin-top:.3rem;display:flex;gap:3px;flex-wrap:wrap;">${badges}</div>` : ""}
+        </div>
+      </a>`;
+  }).join("");
 
   const dotsCount = Math.max(1, games.length - getVisible() + 1);
-  dots.innerHTML  = Array.from({ length: dotsCount }, (_, i) =>
-    `<button class="carousel-dot${i === 0 ? " active" : ""}"></button>`
-  ).join("");
-  dots.querySelectorAll(".carousel-dot").forEach((d, i) => {
-    d.addEventListener("click", () => { carouselIndex = i; updateCarousel(); });
-  });
+  if (dots) {
+    dots.innerHTML = Array.from({ length: dotsCount }, (_, i) =>
+      `<button class="carousel-dot${i === 0 ? " active" : ""}"></button>`
+    ).join("");
+    dots.querySelectorAll(".carousel-dot").forEach((d, i) => {
+      d.addEventListener("click", () => { carouselIndex = i; updateCarousel(); startCarouselTimer(); });
+    });
+  }
 
   document.getElementById("carousel-prev")?.addEventListener("click", () => { carouselPrev(); startCarouselTimer(); });
   document.getElementById("carousel-next")?.addEventListener("click", () => { carouselNext(); startCarouselTimer(); });
-
   window.addEventListener("resize", updateCarousel);
   updateCarousel();
   startCarouselTimer();
 }
 
-// ── Other games strip (guild:false) ────────────────────────────────
+// ── Other games ─────────────────────────────────────────────────────
 function renderOtrosJuegos(games, rootUrl) {
   const section = document.getElementById("otros-juegos-section");
   const strip   = document.getElementById("otros-juegos-strip");
@@ -325,43 +305,34 @@ function renderOtrosJuegos(games, rootUrl) {
   section.style.display = "block";
   strip.innerHTML = games.map(g => {
     const gameUrl = rootUrl + g.url.replace(/^\//, "");
-    const img = g.imagen
-      ? `<img src="${rootUrl + g.imagen}" alt="${g.nombre}" class="game-cover" loading="lazy">`
-      : `<div class="game-cover-placeholder">🎮</div>`;
+    const imgSrc  = g.imagen ? rootUrl + g.imagen : null;
     return `
       <a class="game-card" href="${gameUrl}">
-        ${img}
+        ${imgSrc ? `<img src="${imgSrc}" alt="${g.nombre}" class="game-cover" loading="lazy">` : `<div class="game-cover-placeholder">🎮</div>`}
         <div class="game-name">${g.nombre}</div>
       </a>`;
   }).join("");
 }
 
-// ── Init ────────────────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
-  // Streams
   try {
     const streams = await loadJson("data/streams.json");
     renderChannels(streams.channels);
-    setTimeout(matchChatHeight, 100);
   } catch(e) { console.error("streams.json:", e); }
 
-  // Eventos
   try {
     const sched = await loadJson("data/schedule.json");
     renderEventos(sched.eventos);
   } catch(e) { console.error("schedule.json:", e); }
 
-  // Games
   try {
     const data    = await loadJson("data/games.json");
     const rootUrl = repoRoot();
-    const guild   = data.juegos.filter(g => g.guild);
-    const otros   = data.juegos.filter(g => !g.guild);
-    renderCarousel(guild, rootUrl);
-    renderOtrosJuegos(otros, rootUrl);
+    renderCarousel(data.juegos.filter(g => g.guild), rootUrl);
+    renderOtrosJuegos(data.juegos.filter(g => !g.guild), rootUrl);
   } catch(e) { console.error("games.json:", e); }
 
-  // API widgets (no bloquean si fallan)
   renderMVP();
   renderBirthdays();
   renderBlogPosts();

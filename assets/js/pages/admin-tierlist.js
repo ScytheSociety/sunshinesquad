@@ -161,8 +161,33 @@ document.querySelectorAll("#catalog-tabs .nav-link").forEach(btn => {
 });
 
 // ── Game selector ──────────────────────────────────────────────────
+const GAME_COVERS = {
+  ragnarok:        "../../assets/images/games/ragnarok.jpg",
+  wow:             "../../assets/images/games/wow.jpg",
+  lineage2:        "../../assets/images/games/lineage2.jpg",
+  brawlstars:      "../../assets/images/games/brawlstars.jpg",
+  throneandliberty:"../../assets/images/games/throneandliberty.jpg",
+};
+
+function updateGameCover(game) {
+  const img         = document.getElementById("game-cover-img");
+  const placeholder = document.getElementById("game-cover-placeholder");
+  const src         = GAME_COVERS[game];
+  if (!img || !placeholder) return;
+  if (src) {
+    img.src = src;
+    img.style.display = "block";
+    placeholder.style.display = "none";
+    img.onerror = () => { img.style.display = "none"; placeholder.style.display = "flex"; };
+  } else {
+    img.style.display = "none";
+    placeholder.style.display = "flex";
+  }
+}
+
 document.getElementById("adm-game")?.addEventListener("change", e => {
   currentGame = e.target.value;
+  updateGameCover(currentGame);
   resetForms();
   loadAll();
 });
@@ -629,5 +654,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
   currentGame = document.getElementById("adm-game")?.value || "ragnarok";
+  updateGameCover(currentGame);
   loadAll();
 });

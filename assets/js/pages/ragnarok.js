@@ -110,7 +110,22 @@ function buildSlider({ stripId, dotsId, prevId, nextId, visible, gap, dotClass }
   return { addDot, init };
 }
 
-// ── Galería imágenes 9:16 ─────────────────────────────────
+// ── Lightbox ──────────────────────────────────────────────
+function openLightbox(src, caption) {
+  const overlay = document.createElement("div");
+  overlay.className = "lightbox-overlay";
+  overlay.innerHTML = `
+    <button class="lightbox-close">✕</button>
+    <img src="${src}" alt="${caption}" class="lightbox-img">
+    ${caption ? `<div class="lightbox-caption">${caption}</div>` : ""}
+  `;
+  overlay.addEventListener("click", e => {
+    if (e.target === overlay || e.target.classList.contains("lightbox-close")) overlay.remove();
+  });
+  document.body.appendChild(overlay);
+}
+
+// ── Galería imágenes 16:9 ─────────────────────────────────
 function renderGaleria(items) {
   const slider = buildSlider({
     stripId: "galeria-strip", dotsId: "galeria-dots",
@@ -121,13 +136,15 @@ function renderGaleria(items) {
 
   const strip = document.getElementById("galeria-strip");
   items.forEach((item, idx) => {
+    const imgSrc = item.imagen.startsWith("http") ? item.imagen : repoRoot() + item.imagen;
     const div = document.createElement("div");
     div.className = "galeria-item";
+    div.style.cursor = "pointer";
     div.innerHTML = `
-      <img src="${repoRoot() + item.imagen}" alt="${item.titulo}"
-           onerror="this.style.minHeight='150px'">
+      <img src="${imgSrc}" alt="${item.titulo}" onerror="this.style.minHeight='80px'" loading="lazy">
       <div class="galeria-item-titulo">${item.titulo}</div>
     `;
+    div.addEventListener("click", () => openLightbox(imgSrc, item.titulo));
     strip.appendChild(div);
     slider.addDot(idx);
   });
@@ -139,7 +156,7 @@ function renderVideos(videos) {
   const slider = buildSlider({
     stripId: "videos-strip", dotsId: "videos-dots",
     prevId:  "videos-prev",  nextId: "videos-next",
-    visible: 3, gap: 10, dotClass: "videos-dot"
+    visible: 2, gap: 10, dotClass: "videos-dot"
   });
   if (!slider) return;
 
@@ -151,9 +168,11 @@ function renderVideos(videos) {
     const ytMatch = v.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
     if (ytMatch) embedUrl = `https://www.youtube-nocookie.com/embed/${ytMatch[1]}`;
     div.innerHTML = `
-      <iframe src="${embedUrl}" allowfullscreen
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-      </iframe>
+      <div class="video-item-ratio">
+        <iframe src="${embedUrl}" allowfullscreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+        </iframe>
+      </div>
       <div class="video-titulo">${v.titulo}</div>
     `;
     strip.appendChild(div);

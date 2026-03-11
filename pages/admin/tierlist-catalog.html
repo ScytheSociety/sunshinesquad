@@ -26,20 +26,29 @@
 
     <!-- Selector de juego -->
     <div class="card-dark mb-4">
-      <div class="d-flex align-items-center gap-3 flex-wrap">
-        <div style="min-width:200px;max-width:280px;">
+      <div class="d-flex gap-3 flex-wrap align-items-stretch">
+        <!-- Left: selector + buttons -->
+        <div style="flex:1;min-width:200px;">
           <label class="tl-field-label mb-1" style="font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;opacity:.6;">Juego activo</label>
-          <select id="adm-game" class="tl-select" style="font-size:1.05rem;font-weight:700;padding:.55rem .9rem;">
+          <select id="adm-game" class="tl-select" style="font-size:1.05rem;font-weight:700;padding:.55rem .9rem;margin-bottom:.75rem;">
             <option value="ragnarok">Ragnarok Online</option>
             <option value="wow">World of Warcraft</option>
             <option value="lineage2">Lineage 2</option>
             <option value="brawlstars">Brawl Stars</option>
             <option value="throneandliberty">Throne &amp; Liberty</option>
           </select>
+          <div class="d-flex gap-2 flex-wrap">
+            <button id="btn-seed-defaults" class="btn-ss" style="font-size:.78rem;padding:.35rem .75rem;">📦 Importar defaults</button>
+            <button id="btn-reload" class="btn-ss" style="font-size:.78rem;padding:.35rem .75rem;">🔄 Recargar</button>
+          </div>
         </div>
-        <div class="d-flex gap-2 flex-wrap" style="padding-top:1.4rem;">
-          <button id="btn-seed-defaults" class="btn-ss" style="font-size:.78rem;padding:.35rem .75rem;">📦 Importar defaults</button>
-          <button id="btn-reload" class="btn-ss" style="font-size:.78rem;padding:.35rem .75rem;">🔄 Recargar</button>
+        <!-- Right: game cover image -->
+        <div id="game-cover-panel" style="width:160px;flex-shrink:0;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:120px;position:relative;">
+          <img id="game-cover-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;" loading="lazy">
+          <div id="game-cover-placeholder" style="text-align:center;padding:1rem;color:rgba(255,255,255,.3);">
+            <div style="font-size:2rem;margin-bottom:.3rem;">🎮</div>
+            <div style="font-size:.72rem;">Sin imagen</div>
+          </div>
         </div>
       </div>
     </div>
