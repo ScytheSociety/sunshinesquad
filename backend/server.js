@@ -25,6 +25,9 @@ app.use("/api/push",      require("./routes/push"));
 app.use("/api/tierlist",    require("./routes/tierlist"));
 app.use("/api/tl-catalog", require("./routes/tl-catalog"));
 app.use("/api/clan",       require("./routes/clan"));
+app.use("/api/games",      require("./routes/games"));
+app.use("/api/schedule",   require("./routes/schedule"));
+app.use("/api/streams",    require("./routes/streams"));
 
 // ── Health check ─────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {

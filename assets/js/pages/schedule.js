@@ -233,29 +233,33 @@ function render() {
   });
 }
 
-// ── Carga eventos: API primero, JSON como fallback ─────────
-async function fetchEventos() {
+// ── Carga horario: API primero, JSON como fallback ─────────
+async function fetchHorario() {
   try {
-    const res  = await fetch(`${API}/events?semana=${semanaOffset}`);
+    const res = await fetch(`${API}/schedule`, { cache: "no-store" });
     if (!res.ok) throw new Error("API error");
     const data = await res.json();
-    return data.eventos || [];
+    return { eventos: data.eventos || [], actividades: data.actividades || {} };
   } catch {
     // fallback a JSON estático
-    const sched = await loadJson("data/schedule.json");
-    return sched.eventos || [];
+    try {
+      const [sched, acts] = await Promise.all([
+        loadJson("data/schedule.json"),
+        loadJson("data/activities.json"),
+      ]);
+      return { eventos: sched.eventos || [], actividades: acts };
+    } catch {
+      return { eventos: [], actividades: {} };
+    }
   }
 }
 
 // ── Init ───────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const [eventos, acts] = await Promise.all([
-      fetchEventos(),
-      loadJson("data/activities.json")
-    ]);
+    const { eventos, actividades } = await fetchHorario();
     scheduleData   = eventos;
-    activitiesData = acts;
+    activitiesData = actividades;
 
     const tzEl = document.getElementById("schedule-tz");
     if (tzEl) tzEl.innerHTML = `Horario en tu zona horaria: <span>${ZONA_USER}</span>`;
@@ -264,12 +268,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("schedule-prev")?.addEventListener("click", async () => {
       semanaOffset--;
-      scheduleData = await fetchEventos();
+      const h = await fetchHorario();
+      scheduleData = h.eventos; activitiesData = h.actividades;
       render();
     });
     document.getElementById("schedule-next")?.addEventListener("click", async () => {
       semanaOffset++;
-      scheduleData = await fetchEventos();
+      const h = await fetchHorario();
+      scheduleData = h.eventos; activitiesData = h.actividades;
       render();
     });
 

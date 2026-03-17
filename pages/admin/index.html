@@ -59,21 +59,31 @@
 
         <!-- Juegos -->
         <div class="col-md-6 col-lg-4">
-          <div class="admin-card admin-card-soon">
+          <div class="admin-card">
             <div class="admin-card-icon">🎮</div>
-            <h2 class="admin-card-title">Páginas de Juegos</h2>
-            <p class="admin-card-desc">Configura imágenes, descripciones, videos y secciones de cada página de juego.</p>
-            <span class="admin-soon-badge">Próximamente</span>
+            <h2 class="admin-card-title">Juegos</h2>
+            <p class="admin-card-desc">Agrega, edita y reordena los juegos del sitio. Controla qué aparece en el navbar y qué tiene guild/serie activos.</p>
+            <a href="games.html" class="btn-ss active admin-card-btn">Gestionar juegos</a>
           </div>
         </div>
 
         <!-- Horario / Eventos -->
         <div class="col-md-6 col-lg-4">
-          <div class="admin-card admin-card-soon">
+          <div class="admin-card">
             <div class="admin-card-icon">📅</div>
             <h2 class="admin-card-title">Horario & Eventos</h2>
-            <p class="admin-card-desc">Crea y edita eventos del horario semanal del clan.</p>
-            <span class="admin-soon-badge">Próximamente</span>
+            <p class="admin-card-desc">Crea y edita eventos del horario semanal. Agrega descripción, requisitos y links a cada evento.</p>
+            <a href="schedule.html" class="btn-ss active admin-card-btn">Gestionar horario</a>
+          </div>
+        </div>
+
+        <!-- Streams -->
+        <div class="col-md-6 col-lg-4">
+          <div class="admin-card">
+            <div class="admin-card-icon">📺</div>
+            <h2 class="admin-card-title">Streams</h2>
+            <p class="admin-card-desc">Gestiona los canales de Twitch que aparecen en la página de inicio. Activa o desactiva canales fácilmente.</p>
+            <a href="streams.html" class="btn-ss active admin-card-btn">Gestionar streams</a>
           </div>
         </div>
 
@@ -103,28 +113,40 @@
       <div class="card-dark mt-4">
         <div class="tl-field-label mb-3">Vista rápida</div>
         <div class="row g-3" id="admin-stats">
-          <div class="col-6 col-md-3">
+          <div class="col-6 col-md-2">
             <div class="admin-stat">
-              <div class="admin-stat-val" id="stat-items">—</div>
-              <div class="admin-stat-lbl">Clases en catálogo</div>
+              <div class="admin-stat-val" id="stat-games">—</div>
+              <div class="admin-stat-lbl">Juegos</div>
             </div>
           </div>
-          <div class="col-6 col-md-3">
+          <div class="col-6 col-md-2">
             <div class="admin-stat">
-              <div class="admin-stat-val" id="stat-roles">—</div>
-              <div class="admin-stat-lbl">Roles definidos</div>
+              <div class="admin-stat-val" id="stat-events">—</div>
+              <div class="admin-stat-lbl">Eventos</div>
             </div>
           </div>
-          <div class="col-6 col-md-3">
+          <div class="col-6 col-md-2">
             <div class="admin-stat">
-              <div class="admin-stat-val" id="stat-tierlists">—</div>
-              <div class="admin-stat-lbl">Tier Lists guardadas</div>
+              <div class="admin-stat-val" id="stat-streams">—</div>
+              <div class="admin-stat-lbl">Streams</div>
             </div>
           </div>
-          <div class="col-6 col-md-3">
+          <div class="col-6 col-md-2">
             <div class="admin-stat">
               <div class="admin-stat-val" id="stat-posts">—</div>
-              <div class="admin-stat-lbl">Posts del blog</div>
+              <div class="admin-stat-lbl">Posts blog</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-2">
+            <div class="admin-stat">
+              <div class="admin-stat-val" id="stat-items">—</div>
+              <div class="admin-stat-lbl">Clases catálogo</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-2">
+            <div class="admin-stat" id="stat-api-container">
+              <div class="admin-stat-val" id="stat-api">—</div>
+              <div class="admin-stat-lbl">API status</div>
             </div>
           </div>
         </div>

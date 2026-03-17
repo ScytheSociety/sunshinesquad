@@ -1,7 +1,5 @@
 // Admin Dashboard — home
-import { getUser } from "../auth.js";
-
-const API = "https://sunshinesquad.es/api";
+import { getUser, apiFetch } from "../auth.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = getUser();
@@ -19,39 +17,46 @@ document.addEventListener("DOMContentLoaded", async () => {
   const badge = document.getElementById("admin-role-badge");
   if (badge) badge.textContent = roleLabel;
 
-  // Cargar stats
   loadStats();
 });
 
 async function loadStats() {
-  const token = localStorage.getItem("ss_token");
-  const h = token ? { Authorization: `Bearer ${token}` } : {};
+  const results = await Promise.allSettled([
+    apiFetch("/health").then(r => r?.json()),
+    apiFetch("/games").then(r => r?.json()),
+    apiFetch("/schedule/all").then(r => r?.json()),
+    apiFetch("/streams").then(r => r?.json()),
+    apiFetch("/blog?page=1&limit=1").then(r => r?.json()),
+    // Catalog items (sum across games)
+    Promise.all(["ragnarok","wow","lineage2","brawlstars","throneandliberty"].map(g =>
+      apiFetch(`/tl-catalog/${g}/items`).then(r => r?.json()).catch(() => [])
+    )),
+  ]);
 
-  const games = ["ragnarok","wow","lineage2","brawlstars","throneandliberty"];
+  const [health, games, schedule, streams, blog, catalogs] = results.map(r => r.status === "fulfilled" ? r.value : null);
 
-  // Contar items de catálogo
-  let totalItems = 0, totalRoles = 0;
-  await Promise.all(games.map(async g => {
-    try {
-      const [ir, rr] = await Promise.all([
-        fetch(`${API}/tl-catalog/${g}/items`).then(r => r.json()),
-        fetch(`${API}/tl-catalog/${g}/roles`).then(r => r.json()),
-      ]);
-      totalItems += ir.length || 0;
-      totalRoles += rr.length || 0;
-    } catch {}
-  }));
+  // API status
+  const apiEl = document.getElementById("stat-api");
+  const apiCont = document.getElementById("stat-api-container");
+  if (health?.ok) {
+    if (apiEl) apiEl.textContent = "OK";
+    if (apiCont) apiCont.style.borderColor = "rgba(34,197,94,.35)";
+    if (apiEl) apiEl.style.color = "#86efac";
+  } else {
+    if (apiEl) apiEl.textContent = "ERR";
+    if (apiCont) apiCont.style.borderColor = "rgba(239,68,68,.35)";
+    if (apiEl) apiEl.style.color = "#fca5a5";
+  }
 
-  setVal("stat-items", totalItems);
-  setVal("stat-roles", totalRoles);
+  setVal("stat-games",   Array.isArray(games) ? games.length : "?");
+  setVal("stat-events",  schedule?.eventos?.length ?? "?");
+  setVal("stat-streams", streams?.channels?.length ?? "?");
+  setVal("stat-posts",   blog?.total ?? "?");
 
-  // Blog posts
-  try {
-    const br = await fetch(`${API}/blog?page=1&limit=1`).then(r => r.json());
-    setVal("stat-posts", br.total ?? "?");
-  } catch { setVal("stat-posts", "?"); }
-
-  setVal("stat-tierlists", "–");
+  if (Array.isArray(catalogs)) {
+    const total = catalogs.flat().reduce((s, items) => s + (Array.isArray(items) ? items.length : 0), 0);
+    setVal("stat-items", total);
+  }
 }
 
 function setVal(id, v) {

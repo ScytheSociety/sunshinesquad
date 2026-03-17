@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · Horario · Sunshine Squad</title>
+  <link rel="icon" href="https://em-content.zobj.net/source/twitter/376/sun_2600-fe0f.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/pages/admin.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="container py-4">
+
+    <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+      <a href="index.html" class="btn-ss" style="width:auto;padding:.4rem .9rem;font-size:.82rem;">← Dashboard</a>
+      <div>
+        <h1 style="font-size:1.6rem;font-weight:900;margin:0;">📅 Horario & Eventos</h1>
+        <p class="text-muted-ss mb-0" style="font-size:.82rem;">Gestiona el horario semanal del clan</p>
+      </div>
+      <div id="admin-role-badge" class="admin-role-badge ms-auto"></div>
+    </div>
+
+    <div id="access-denied" class="card-dark text-center py-5" style="display:none;">
+      <div style="font-size:3rem;">🔒</div>
+      <h3 style="color:#ef4444;margin:.75rem 0 .5rem;">Acceso denegado</h3>
+      <p class="text-muted-ss">Necesitas ser Moderador o Admin.</p>
+    </div>
+
+    <div id="admin-content" style="display:none;">
+      <div class="row g-4">
+
+        <!-- Lista -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="admin-form-title mb-0">Eventos registrados</div>
+              <button class="btn-ss active" style="width:auto;padding:.35rem .9rem;font-size:.8rem;" id="btn-new-ev">+ Nuevo evento</button>
+            </div>
+            <div id="events-list"><div class="admin-loading">Cargando...</div></div>
+          </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="col-lg-6">
+          <div class="card-dark">
+            <div class="admin-form-title mb-3" id="form-title">Nuevo evento</div>
+            <form id="event-form" autocomplete="off">
+              <input type="hidden" id="f-editing">
+
+              <div class="row g-2 mb-2">
+                <div class="col-5">
+                  <label class="admin-form-title" style="font-size:.72rem;">ID único *</label>
+                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-id" placeholder="woe-ro-1" required>
+                </div>
+                <div class="col-7">
+                  <label class="admin-form-title" style="font-size:.72rem;">Nombre del evento *</label>
+                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-evento" required>
+                </div>
+              </div>
+
+              <div class="row g-2 mb-2">
+                <div class="col-7">
+                  <label class="admin-form-title" style="font-size:.72rem;">Juego *</label>
+                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-juego" list="juegos-list" required>
+                  <datalist id="juegos-list"></datalist>
+                </div>
+                <div class="col-5">
+                  <label class="admin-form-title" style="font-size:.72rem;">Duración (horas)</label>
+                  <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-duracion" value="2" min="0.5" step="0.5">
+                </div>
+              </div>
+
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="admin-form-title" style="font-size:.72rem;">Fecha</label>
+                  <input type="date" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-fecha">
+                </div>
+                <div class="col-3">
+                  <label class="admin-form-title" style="font-size:.72rem;">Hora *</label>
+                  <input type="time" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-hora" required>
+                </div>
+                <div class="col-3">
+                  <label class="admin-form-title" style="font-size:.72rem;">Timezone</label>
+                  <select class="form-select form-select-sm bg-dark text-light border-secondary" id="f-timezone">
+                    <option value="UTC">UTC</option>
+                    <option value="America/Lima">Lima</option>
+                    <option value="America/Los_Angeles">LA</option>
+                    <option value="America/New_York">NY</option>
+                    <option value="America/Mexico_City">México</option>
+                    <option value="Europe/Madrid">Madrid</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Detalles del evento (actividad) -->
+              <div style="border-top:1px solid rgba(255,255,255,.07);margin:.75rem 0;padding-top:.75rem;">
+                <div class="admin-form-title" style="font-size:.72rem;margin-bottom:.5rem;">Detalles del evento (opcional)</div>
+                <div class="mb-2">
+                  <textarea class="form-control form-control-sm bg-dark text-light border-secondary" id="f-descripcion" rows="2" placeholder="Descripción del evento..."></textarea>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-nivel" placeholder="Nivel mínimo">
+                  </div>
+                  <div class="col-6">
+                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-link-info" placeholder="URL info (opcional)">
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-clases" placeholder="Clases separadas por coma">
+                </div>
+                <div class="mb-2">
+                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-items" placeholder="Items requeridos por coma">
+                </div>
+                <div class="mb-2">
+                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-consumibles" placeholder="Consumibles por coma">
+                </div>
+              </div>
+
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="f-activo" checked>
+                <label class="form-check-label text-light" style="font-size:.82rem;" for="f-activo">Evento activo</label>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn-ss active flex-fill" style="padding:.45rem;">Guardar</button>
+                <button type="button" class="btn-ss flex-fill" style="padding:.45rem;" id="btn-cancel-ev">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div id="footer-container"></div>
+  <div id="admin-toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../../assets/js/components.js"></script>
+  <script type="module" src="../../assets/js/pages/admin-schedule.js"></script>
+</body>
+</html>
