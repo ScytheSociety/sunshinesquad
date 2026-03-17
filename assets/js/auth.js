@@ -62,11 +62,30 @@ export function renderAuthButton(containerId = "auth-btn-container") {
   const user = getUser();
   if (user) {
     container.innerHTML = `
-      <div class="auth-user d-flex align-items-center gap-2">
-        <img src="${user.avatar}" alt="${user.username}" width="32" height="32"
-             style="border-radius:50%;border:2px solid #6366f1;">
-        <span class="text-light small d-none d-md-inline">${user.username}</span>
-        <button class="btn btn-sm btn-outline-secondary ms-1" id="logout-btn">Salir</button>
+      <div class="dropdown">
+        <button class="btn btn-sm d-flex align-items-center gap-2 dropdown-toggle"
+          style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:.35rem .75rem;"
+          data-bs-toggle="dropdown" aria-expanded="false">
+          <img src="${user.avatar}" alt="${user.username}" width="24" height="24"
+               style="border-radius:50%;border:1.5px solid #6366f1;flex-shrink:0;">
+          <span class="d-none d-md-inline" style="font-size:.85rem;">${user.username}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end"
+            style="background:rgba(10,13,20,.97);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:.5rem;min-width:170px;backdrop-filter:blur(12px);">
+          <li>
+            <a class="dropdown-item" href="/pages/perfil/perfil.html?id=${user.id}"
+               style="border-radius:8px;color:rgba(255,255,255,.75);font-size:.85rem;padding:.4rem .75rem;text-decoration:none;">
+              👤 Mi perfil
+            </a>
+          </li>
+          <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,.08);margin:.3rem 0;"></li>
+          <li>
+            <button class="dropdown-item" id="logout-btn"
+              style="border-radius:8px;color:rgba(255,100,100,.8);font-size:.85rem;padding:.4rem .75rem;background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+              Cerrar sesión
+            </button>
+          </li>
+        </ul>
       </div>`;
     document.getElementById("logout-btn")?.addEventListener("click", logout);
   } else {

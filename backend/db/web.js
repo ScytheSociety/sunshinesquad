@@ -122,6 +122,13 @@ function initSchema(db) {
       orden   INTEGER DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS discord_users (
+      discord_id   TEXT PRIMARY KEY,
+      username     TEXT NOT NULL,
+      avatar       TEXT,
+      last_seen    TEXT DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS uploads (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       filename        TEXT NOT NULL,

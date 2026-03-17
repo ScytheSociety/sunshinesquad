@@ -73,6 +73,16 @@ router.get("/callback", async (req, res) => {
       ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
       : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(discordUser.id) % 6n)}.png`;
 
+    // Cachear datos de Discord para perfiles web
+    try {
+      const { webDB } = require("../db/web");
+      webDB().prepare(
+        `INSERT INTO discord_users (discord_id, username, avatar, last_seen)
+         VALUES (?, ?, ?, datetime('now'))
+         ON CONFLICT(discord_id) DO UPDATE SET username=excluded.username, avatar=excluded.avatar, last_seen=excluded.last_seen`
+      ).run(discordUser.id, discordUser.username, avatar);
+    } catch(e) { console.error("discord_users upsert:", e.message); }
+
     const payload = { id: discordUser.id, username: discordUser.username, avatar, role };
     const token   = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
 

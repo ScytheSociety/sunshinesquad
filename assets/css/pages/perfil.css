@@ -1,0 +1,238 @@
+/* ── Perfil — header ───────────────────────────────────────── */
+.perfil-header {
+  background: linear-gradient(135deg, rgba(99,102,241,.12) 0%, rgba(7,10,15,0) 60%);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 20px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+}
+.perfil-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid rgba(99,102,241,.5);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.perfil-name {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 .2rem;
+  line-height: 1.1;
+}
+.perfil-sub {
+  font-size: .82rem;
+  color: rgba(255,255,255,.4);
+  margin-bottom: .5rem;
+}
+.perfil-role-badge {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: .2rem .75rem;
+  border-radius: 999px;
+  background: rgba(99,102,241,.15);
+  border: 1px solid rgba(99,102,241,.35);
+  color: #a5b4fc;
+}
+
+/* ── Stats strip ───────────────────────────────────────────── */
+.perfil-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.perfil-stat {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: .75rem 1.2rem;
+  text-align: center;
+  min-width: 90px;
+  flex: 1;
+}
+.perfil-stat-val {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #a5b4fc;
+  line-height: 1;
+}
+.perfil-stat-lbl {
+  font-size: .68rem;
+  color: rgba(255,255,255,.35);
+  font-weight: 600;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  margin-top: .2rem;
+}
+
+/* ── Sección título ────────────────────────────────────────── */
+.perfil-section-title {
+  font-size: .78rem;
+  font-weight: 800;
+  color: rgba(255,255,255,.45);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin-bottom: .9rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+/* ── Juegos grid ───────────────────────────────────────────── */
+.game-stat-card {
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  transition: border-color .15s, transform .12s;
+}
+.game-stat-card:hover { border-color: rgba(99,102,241,.3); transform: translateY(-1px); }
+.game-stat-emoji { font-size: 1.6rem; flex-shrink: 0; }
+.game-stat-name { font-size: .9rem; font-weight: 700; color: #fff; }
+.game-stat-pts  { font-size: .78rem; color: rgba(255,255,255,.4); margin-top: .1rem; }
+.game-stat-pts span { color: #a5b4fc; font-weight: 700; }
+
+/* ── Personajes ────────────────────────────────────────────── */
+.char-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px;
+  padding: .8rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  position: relative;
+}
+.char-main-badge {
+  position: absolute;
+  top: .4rem; right: .6rem;
+  font-size: .58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  background: rgba(234,179,8,.15);
+  border: 1px solid rgba(234,179,8,.3);
+  color: #fde047;
+  border-radius: 999px;
+  padding: .1rem .45rem;
+}
+.char-avatar {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: rgba(99,102,241,.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  color: #a5b4fc;
+  font-weight: 900;
+}
+.char-name  { font-size: .9rem; font-weight: 700; color: #fff; }
+.char-meta  { font-size: .72rem; color: rgba(255,255,255,.35); margin-top: .1rem; }
+
+/* ── Logros ────────────────────────────────────────────────── */
+.achievement-badge {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: .9rem;
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+}
+.achievement-emoji { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+.achievement-name  { font-size: .85rem; font-weight: 700; color: #fff; }
+.achievement-desc  { font-size: .72rem; color: rgba(255,255,255,.35); margin-top: .15rem; }
+.achievement-pts   { font-size: .68rem; color: #a5b4fc; font-weight: 700; }
+
+/* ── Eventos ───────────────────────────────────────────────── */
+.event-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .6rem .75rem;
+  border-radius: 10px;
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.05);
+}
+.event-game-tag {
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  background: rgba(99,102,241,.15);
+  color: #a5b4fc;
+  flex-shrink: 0;
+}
+.event-name { font-size: .82rem; color: rgba(255,255,255,.75); flex: 1; }
+.event-date { font-size: .7rem; color: rgba(255,255,255,.3); flex-shrink: 0; }
+
+/* ── Members directory ─────────────────────────────────────── */
+.member-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .6rem;
+  transition: border-color .15s, transform .12s;
+  text-decoration: none;
+  color: inherit;
+}
+.member-card:hover {
+  border-color: rgba(99,102,241,.35);
+  transform: translateY(-3px);
+  text-decoration: none;
+  color: inherit;
+}
+.member-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(99,102,241,.3);
+}
+.member-name {
+  font-size: .9rem;
+  font-weight: 700;
+  color: #fff;
+}
+.member-pts {
+  font-size: .75rem;
+  color: #a5b4fc;
+  font-weight: 700;
+}
+.member-games {
+  display: flex;
+  gap: .25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: .9rem;
+}
+.member-card-empty {
+  text-align: center;
+  color: rgba(255,255,255,.25);
+  padding: 3rem;
+  font-size: .9rem;
+  grid-column: 1 / -1;
+}
+
+/* ── Not found ─────────────────────────────────────────────── */
+.perfil-not-found {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+.perfil-not-found-icon { font-size: 3rem; margin-bottom: .75rem; }
