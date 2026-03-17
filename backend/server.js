@@ -27,6 +27,7 @@ app.use("/api/tl-catalog", require("./routes/tl-catalog"));
 app.use("/api/clan",       require("./routes/clan"));
 app.use("/api/games",      require("./routes/games"));
 app.use("/api/schedule",   require("./routes/schedule"));
+app.use("/api/bank",       require("./routes/bank"));
 app.use("/api/streams",    require("./routes/streams"));
 app.use("/api/images",     require("./routes/images"));
 app.use("/api/profile",   require("./routes/profile"));

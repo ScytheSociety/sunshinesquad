@@ -1,37 +1,57 @@
 const express  = require("express");
 const router   = express.Router();
 const { botDB } = require("../db/bot");
+const { webDB } = require("../db/web");
 
-// GET /api/ranking?limit=5
+// GET /api/ranking?limit=20&game=ro
 router.get("/", (req, res) => {
   try {
     const db    = botDB();
-    const limit = Math.min(parseInt(req.query.limit) || 5, 50);
+    const web   = webDB();
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const game  = req.query.game || null;
 
-    const top = db.prepare(`
-      SELECT
-        u.id            AS uid,
-        u.discord_user_id,
-        u.display_name  AS username,
-        SUM(ugs.points) AS puntos_totales
-      FROM user_game_stats ugs
-      JOIN users u ON ugs.user_id = u.id
-      GROUP BY ugs.user_id
-      ORDER BY puntos_totales DESC
-      LIMIT ?
-    `).all(limit);
+    let top;
+    if (game) {
+      top = db.prepare(`
+        SELECT
+          u.id            AS uid,
+          u.discord_user_id,
+          u.display_name  AS username,
+          ugs.points      AS puntos_totales
+        FROM user_game_stats ugs
+        JOIN users u     ON ugs.user_id = u.id
+        JOIN game_info g ON ugs.game_id = g.id
+        WHERE g.command_key = ?
+        ORDER BY puntos_totales DESC
+        LIMIT ?
+      `).all(game, limit);
+    } else {
+      top = db.prepare(`
+        SELECT
+          u.id            AS uid,
+          u.discord_user_id,
+          u.display_name  AS username,
+          SUM(ugs.points) AS puntos_totales
+        FROM user_game_stats ugs
+        JOIN users u ON ugs.user_id = u.id
+        GROUP BY ugs.user_id
+        ORDER BY puntos_totales DESC
+        LIMIT ?
+      `).all(limit);
+    }
 
     const result = top.map((u, i) => {
       const juegos = db.prepare(`
-        SELECT g.name AS game, ugs.points
+        SELECT g.name AS game, g.command_key, COALESCE(g.emoji,'🎮') as emoji, ugs.points
         FROM user_game_stats ugs
         JOIN game_info g ON ugs.game_id = g.id
-        WHERE ugs.user_id = ?
+        WHERE ugs.user_id = ? AND g.is_active = 1
         ORDER BY ugs.points DESC
       `).all(u.uid);
 
       const logros = db.prepare(`
-        SELECT a.name, a.description, a.emoji AS icon
+        SELECT a.name, a.description, COALESCE(a.emoji,'🏆') AS icon
         FROM user_achievements ua
         JOIN achievements a ON ua.achievement_id = a.id
         WHERE ua.user_id = ?
@@ -39,11 +59,23 @@ router.get("/", (req, res) => {
         LIMIT 5
       `).all(u.uid);
 
+      // Try to get cached avatar from web.db
+      const cached = web.prepare(
+        "SELECT avatar FROM discord_users WHERE discord_id = ?"
+      ).get(u.discord_user_id);
+
+      let avatar_url = cached?.avatar || null;
+      if (!avatar_url) {
+        try {
+          avatar_url = `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(u.discord_user_id) % 6n)}.png`;
+        } catch { avatar_url = "https://cdn.discordapp.com/embed/avatars/0.png"; }
+      }
+
       return {
         posicion:       i + 1,
         discord_id:     u.discord_user_id,
         username:       u.username,
-        avatar_url:     null,   // bot DB no almacena avatar; el frontend puede resolverlo
+        avatar_url,
         puntos_totales: u.puntos_totales,
         juegos,
         logros,

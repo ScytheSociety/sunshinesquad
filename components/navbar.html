@@ -63,11 +63,40 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="{{ROOT}}pages/miembros/miembros.html"
+        <!-- DROPDOWN COMUNIDAD -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
+            data-bs-auto-close="outside"
             style="text-decoration:none !important;color:rgba(255,255,255,.6);transition:color .15s;">
-            Miembros
+            Comunidad
           </a>
+          <ul class="dropdown-menu dropdown-menu-end"
+            style="background:rgba(10,13,20,.97);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:.5rem;min-width:200px;backdrop-filter:blur(12px);">
+            <li>
+              <a class="dropdown-item" href="{{ROOT}}pages/miembros/miembros.html"
+                style="border-radius:8px;color:rgba(255,255,255,.75);font-size:.85rem;padding:.4rem .75rem;text-decoration:none;">
+                👥 Miembros
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ROOT}}pages/ranking/ranking.html"
+                style="border-radius:8px;color:rgba(255,255,255,.75);font-size:.85rem;padding:.4rem .75rem;text-decoration:none;">
+                🏆 Ranking
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ROOT}}pages/cumpleanos/cumpleanos.html"
+                style="border-radius:8px;color:rgba(255,255,255,.75);font-size:.85rem;padding:.4rem .75rem;text-decoration:none;">
+                🎂 Cumpleaños
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ROOT}}pages/banco/banco.html"
+                style="border-radius:8px;color:rgba(255,255,255,.75);font-size:.85rem;padding:.4rem .75rem;text-decoration:none;">
+                🏦 Banco del Clan
+              </a>
+            </li>
+          </ul>
         </li>
 
         <li class="nav-item">

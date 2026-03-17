@@ -59,4 +59,39 @@ router.get("/", (req, res) => {
   }
 });
 
+// GET /api/birthdays/all — todos los cumpleaños del año, ordenados por MM-DD
+router.get("/all", (req, res) => {
+  try {
+    const db = botDB();
+    const rows = db.prepare(`
+      SELECT
+        discord_user_id,
+        display_name AS username,
+        birthday_date
+      FROM birthdays
+      ORDER BY
+        CASE WHEN length(birthday_date) = 5 THEN birthday_date ELSE substr(birthday_date,6) END ASC
+    `).all();
+
+    const today = new Date();
+    const todayMD = String(today.getMonth()+1).padStart(2,"0") + "-" + String(today.getDate()).padStart(2,"0");
+
+    const result = rows.map(r => {
+      const mmdd = r.birthday_date.length === 5
+        ? r.birthday_date
+        : r.birthday_date.substring(5);
+      const [mm, dd] = mmdd.split("-").map(Number);
+      const bDate = new Date(today.getFullYear(), mm - 1, dd);
+      if (bDate < today) bDate.setFullYear(today.getFullYear() + 1);
+      const diff = Math.round((bDate - today) / 86400000);
+      return { ...r, mmdd, dias_faltantes: diff, es_hoy: mmdd === todayMD };
+    });
+
+    res.json(result.sort((a, b) => a.dias_faltantes - b.dias_faltantes));
+  } catch (err) {
+    console.error("birthdays/all:", err);
+    res.status(500).json({ error: "Error al obtener cumpleaños" });
+  }
+});
+
 module.exports = router;
