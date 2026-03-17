@@ -56,8 +56,15 @@
                 <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-nombre" required>
               </div>
               <div class="mb-2">
-                <label class="admin-form-title" style="font-size:.75rem;">URL imagen (assets/images/games/...)</label>
-                <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-imagen" placeholder="assets/images/games/nombre.jpg">
+                <label class="admin-form-title" style="font-size:.75rem;">URL imagen</label>
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control bg-dark text-light border-secondary" id="f-imagen" placeholder="assets/images/games/nombre.jpg">
+                  <a href="images.html" target="_blank" class="input-group-text bg-dark border-secondary text-secondary" title="Abrir galería de imágenes" style="font-size:.75rem;cursor:pointer;text-decoration:none;">🖼️</a>
+                </div>
+                <div style="font-size:.7rem;color:rgba(255,255,255,.3);margin-top:.2rem;">Pega una URL de la galería o usa la ruta relativa del repo</div>
+                <div id="f-imagen-preview" style="margin-top:.4rem;display:none;">
+                  <img id="img-preview-el" src="" style="max-height:60px;border-radius:6px;border:1px solid rgba(255,255,255,.1);">
+                </div>
               </div>
               <div class="mb-2">
                 <label class="admin-form-title" style="font-size:.75rem;">Descripción</label>

@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await loadGames();
   bindForm();
+  bindImagePreview();
 
   document.getElementById("btn-new-game").addEventListener("click", () => resetForm());
   document.getElementById("btn-cancel-game").addEventListener("click", () => resetForm());
@@ -51,7 +52,7 @@ function renderGames(games) {
     row.dataset.id = g.id;
     row.innerHTML = `
       <div class="admin-row-icon" style="background:rgba(99,102,241,.12);color:#a5b4fc;font-size:.7rem;width:42px;height:42px;">
-        ${g.imagen ? `<img src="../../${g.imagen}" style="width:42px;height:42px;object-fit:cover;border-radius:6px;" onerror="this.parentNode.textContent='🎮'">` : "🎮"}
+        ${g.imagen ? `<img src="${g.imagen.startsWith("http")||g.imagen.startsWith("/") ? g.imagen : "../../"+g.imagen}" style="width:42px;height:42px;object-fit:cover;border-radius:6px;" onerror="this.parentNode.textContent='🎮'">` : "🎮"}
       </div>
       <div style="flex:1;min-width:0;">
         <div class="admin-row-name" style="font-size:.85rem;">${g.nombre}</div>
@@ -134,6 +135,23 @@ function bindForm() {
     } else {
       const err = await res?.json();
       toast(err?.error || "Error al guardar", true);
+    }
+  });
+}
+
+function bindImagePreview() {
+  const input = document.getElementById("f-imagen");
+  input.addEventListener("input", () => {
+    const val = input.value.trim();
+    const previewWrap = document.getElementById("f-imagen-preview");
+    const previewImg  = document.getElementById("img-preview-el");
+    if (val) {
+      const src = val.startsWith("http") || val.startsWith("/") ? val : `../../${val}`;
+      previewImg.src = src;
+      previewWrap.style.display = "block";
+      previewImg.onerror = () => previewWrap.style.display = "none";
+    } else {
+      previewWrap.style.display = "none";
     }
   });
 }

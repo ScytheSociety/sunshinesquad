@@ -121,6 +121,18 @@ function initSchema(db) {
       activo  INTEGER DEFAULT 1,
       orden   INTEGER DEFAULT 0
     );
+
+    CREATE TABLE IF NOT EXISTS uploads (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      filename        TEXT NOT NULL,
+      originalname    TEXT NOT NULL,
+      mimetype        TEXT NOT NULL,
+      size            INTEGER NOT NULL,
+      categoria       TEXT DEFAULT 'general',
+      uploader_id     TEXT,
+      uploader_nombre TEXT,
+      created_at      TEXT DEFAULT (datetime('now'))
+    );
   `);
 
   seedSiteData(db);

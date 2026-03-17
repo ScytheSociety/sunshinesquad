@@ -28,6 +28,7 @@ app.use("/api/clan",       require("./routes/clan"));
 app.use("/api/games",      require("./routes/games"));
 app.use("/api/schedule",   require("./routes/schedule"));
 app.use("/api/streams",    require("./routes/streams"));
+app.use("/api/images",     require("./routes/images"));
 
 // ── Health check ─────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
