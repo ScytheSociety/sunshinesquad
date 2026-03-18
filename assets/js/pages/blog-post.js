@@ -30,16 +30,19 @@ async function loadPost() {
     const user      = getUser();
     const canEdit   = user && (user.discord_id === post.autor_id || ["admin","moderador"].includes(user.role));
 
+    const btnStyle = "width:90px;padding:.4rem 0;text-align:center;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;display:inline-block;";
+
     wrap.innerHTML = `
       <div class="card-dark">
+        ${post.portada_url ? `<img src="${post.portada_url}" alt="${post.titulo}" style="width:100%;max-height:400px;object-fit:cover;border-radius:10px;margin-bottom:1.5rem;" loading="lazy">` : ""}
         <div class="d-flex align-items-center justify-content-between gap-2 mb-3 flex-wrap">
           <div class="d-flex align-items-center gap-2 flex-wrap">
             ${post.juego ? `<span style="font-size:.72rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:.15rem .55rem;border-radius:999px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;">${post.juego}</span>` : ""}
             <span style="font-size:.78rem;color:rgba(255,255,255,.3);">${fecha}</span>
           </div>
           ${canEdit ? `<div class="d-flex gap-2">
-            <a href="editor.html?slug=${post.slug}" class="btn-ss active" style="font-size:.75rem;padding:.3rem .7rem;text-decoration:none;">✏️ Editar</a>
-            <button id="btn-delete-post" class="btn-ss" style="font-size:.75rem;padding:.3rem .7rem;color:#fca5a5;border-color:rgba(239,68,68,.35);">🗑️ Eliminar</button>
+            <a href="editor.html?slug=${post.slug}" style="${btnStyle}border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;text-decoration:none;">Editar</a>
+            <button id="btn-delete-post" style="${btnStyle}border:1px solid rgba(239,68,68,.4);background:rgba(239,68,68,.1);color:#fca5a5;">Eliminar</button>
           </div>` : ""}
         </div>
         <h1 style="font-weight:900;font-size:clamp(1.5rem,4vw,2.2rem);line-height:1.2;margin-bottom:.75rem;">${post.titulo}</h1>

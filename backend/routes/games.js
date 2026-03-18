@@ -5,6 +5,28 @@ const { botDB } = require("../db/bot");
 
 const router = Router();
 
+// Migrations for new site_games columns
+(function migrate() {
+  const cols = [
+    "mostrar_en_carrusel INTEGER DEFAULT 1",
+    "mostrar_en_juegos   INTEGER DEFAULT 1",
+    "bot_command_key     TEXT",
+  ];
+  cols.forEach(col => {
+    try { webDB().prepare(`ALTER TABLE site_games ADD COLUMN ${col}`).run(); } catch {}
+  });
+})();
+
+// GET /api/games/bot-games — bot games available for linking (must be BEFORE /:id)
+router.get("/bot-games", (_req, res) => {
+  try {
+    const list = botDB().prepare(
+      "SELECT id, name, command_key, COALESCE(emoji,'🎮') as emoji FROM game_info WHERE is_active=1 ORDER BY name ASC"
+    ).all();
+    res.json(list);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // GET all (public)
 router.get("/", (req, res) => {
   try {
@@ -46,13 +68,15 @@ router.get("/:id", (req, res) => {
 // POST create (editor+)
 router.post("/", requireRole("editor"), (req, res) => {
   try {
-    const { nombre, imagen, descripcion, guild, serie, sss, servidor, url, activo, orden } = req.body;
+    const { nombre, imagen, descripcion, guild, serie, sss, servidor, url, activo, orden,
+            mostrar_en_carrusel, mostrar_en_juegos, bot_command_key } = req.body;
     if (!nombre) return res.status(400).json({ error: "nombre requerido" });
     const r = webDB().prepare(
-      `INSERT INTO site_games (nombre,imagen,descripcion,guild,serie,sss,servidor,url,activo,orden)
-       VALUES (?,?,?,?,?,?,?,?,?,?)`
+      `INSERT INTO site_games (nombre,imagen,descripcion,guild,serie,sss,servidor,url,activo,orden,mostrar_en_carrusel,mostrar_en_juegos,bot_command_key)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(nombre, imagen||"", descripcion||"", guild?1:0, serie?1:0, sss?1:0,
-          servidor||"", url||"", activo!==false?1:0, orden||0);
+          servidor||"", url||"", activo!==false?1:0, orden||0,
+          mostrar_en_carrusel!==false?1:0, mostrar_en_juegos!==false?1:0, bot_command_key||null);
     res.status(201).json(webDB().prepare("SELECT * FROM site_games WHERE id=?").get(r.lastInsertRowid));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -60,12 +84,16 @@ router.post("/", requireRole("editor"), (req, res) => {
 // PUT update (editor+)
 router.put("/:id", requireRole("editor"), (req, res) => {
   try {
-    const { nombre, imagen, descripcion, guild, serie, sss, servidor, url, activo, orden } = req.body;
+    const { nombre, imagen, descripcion, guild, serie, sss, servidor, url, activo, orden,
+            mostrar_en_carrusel, mostrar_en_juegos, bot_command_key } = req.body;
     const r = webDB().prepare(
-      `UPDATE site_games SET nombre=?,imagen=?,descripcion=?,guild=?,serie=?,sss=?,servidor=?,url=?,activo=?,orden=?,updated_at=datetime('now')
+      `UPDATE site_games SET nombre=?,imagen=?,descripcion=?,guild=?,serie=?,sss=?,servidor=?,url=?,activo=?,orden=?,
+       mostrar_en_carrusel=?,mostrar_en_juegos=?,bot_command_key=?,updated_at=datetime('now')
        WHERE id=?`
     ).run(nombre, imagen||"", descripcion||"", guild?1:0, serie?1:0, sss?1:0,
-          servidor||"", url||"", activo!==false?1:0, orden||0, req.params.id);
+          servidor||"", url||"", activo!==false?1:0, orden||0,
+          mostrar_en_carrusel!==false?1:0, mostrar_en_juegos!==false?1:0, bot_command_key||null,
+          req.params.id);
     if (!r.changes) return res.status(404).json({ error: "No encontrado" });
     res.json(webDB().prepare("SELECT * FROM site_games WHERE id=?").get(req.params.id));
   } catch (e) { res.status(500).json({ error: e.message }); }

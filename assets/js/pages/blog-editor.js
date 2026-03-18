@@ -38,11 +38,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     else previewWrap.style.display = "none";
   });
 
-  // Si es edición, carga el post
+  // Si es edición, carga el post (con auth para ver borradores)
   if (slugParam) {
     document.getElementById("editor-title").textContent = "Editar post";
     try {
-      const res  = await fetch(`${API}/blog/${slugParam}`);
+      const res  = await apiFetch(`/blog/${slugParam}`);
       const post = await res.json();
       titulo.value                              = post.titulo;
       slugEl.value                              = post.slug;

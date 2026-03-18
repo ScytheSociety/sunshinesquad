@@ -11,17 +11,21 @@ try {
   webDB().exec("ALTER TABLE blog_posts ADD COLUMN portada_url TEXT");
 } catch (_) { /* columna ya existe */ }
 
-// GET /api/blog?page=1&juego=ragnarok
+// GET /api/blog?page=1&juego=ragnarok&q=keyword
 router.get("/", (req, res) => {
   const db    = webDB();
   const page  = Math.max(1, parseInt(req.query.page) || 1);
   const juego = req.query.juego || null;
+  const q     = req.query.q?.trim() || null;
   const offset = (page - 1) * POR_PAGINA;
 
-  const where = juego ? "WHERE publicado=1 AND juego=?" : "WHERE publicado=1";
-  const args  = juego ? [juego, POR_PAGINA, offset] : [POR_PAGINA, offset];
+  const conditions = ["publicado=1"];
+  const filterArgs = [];
+  if (juego) { conditions.push("bp.juego=?"); filterArgs.push(juego); }
+  if (q)     { conditions.push("(bp.titulo LIKE ? OR bp.resumen LIKE ? OR bp.autor_nombre LIKE ?)"); const like = `%${q}%`; filterArgs.push(like, like, like); }
+  const where = "WHERE " + conditions.join(" AND ");
 
-  const total = db.prepare(`SELECT COUNT(*) as n FROM blog_posts ${where}`).get(...(juego ? [juego] : [])).n;
+  const total = db.prepare(`SELECT COUNT(*) as n FROM blog_posts bp ${where}`).get(...filterArgs).n;
   const posts = db.prepare(`
     SELECT bp.id, bp.slug, bp.titulo, bp.resumen, bp.juego, bp.autor_id, bp.autor_nombre,
            bp.portada_url, bp.created_at,
@@ -33,15 +37,28 @@ router.get("/", (req, res) => {
     ${where}
     ORDER BY bp.created_at DESC
     LIMIT ? OFFSET ?
-  `).all(...args);
+  `).all(...filterArgs, POR_PAGINA, offset);
 
   res.json({ posts, total, page, paginas: Math.ceil(total / POR_PAGINA) });
 });
 
-// GET /api/blog/:slug
+// GET /api/blog/:slug  (editors can view unpublished via auth header)
 router.get("/:slug", (req, res) => {
-  const db   = webDB();
-  const post = db.prepare("SELECT * FROM blog_posts WHERE slug=? AND publicado=1").get(req.params.slug);
+  const db = webDB();
+  let canSeeUnpublished = false;
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith("Bearer ")) {
+    try {
+      const jwt = require("jsonwebtoken");
+      const payload = jwt.verify(authHeader.slice(7), process.env.JWT_SECRET);
+      canSeeUnpublished = ["editor","moderador","admin"].includes(payload.role);
+    } catch {}
+  }
+  const post = db.prepare(
+    canSeeUnpublished
+      ? "SELECT * FROM blog_posts WHERE slug=?"
+      : "SELECT * FROM blog_posts WHERE slug=? AND publicado=1"
+  ).get(req.params.slug);
   if (!post) return res.status(404).json({ error: "Post no encontrado" });
 
   const rating = db.prepare("SELECT ROUND(AVG(estrellas),1) AS avg, COUNT(*) AS votos FROM blog_ratings WHERE post_id=?").get(post.id);

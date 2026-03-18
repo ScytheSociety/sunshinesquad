@@ -130,13 +130,14 @@ async function renderBirthdays() {
   const el = document.getElementById("birthday-content");
   if (!el) return;
   try {
-    const items = await fetch(`${API}/birthdays`).then(r => r.json());
-    if (!items.length) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin cumpleaños esta semana.</div>`; return; }
+    const all   = await fetch(`${API}/birthdays/all`).then(r => r.json());
+    const items = all.slice(0, 5);
+    if (!items.length) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin cumpleaños próximos.</div>`; return; }
     el.innerHTML = items.map(b => {
       const label = b.dias_faltantes === 0 ? "🎉 ¡Hoy!" : `en ${b.dias_faltantes}d`;
       const color = b.dias_faltantes === 0 ? "#fde047" : "rgba(255,255,255,.5)";
       return `<div class="d-flex align-items-center gap-2 mb-2">
-        ${b.avatar_url ? `<img src="${b.avatar_url}" width="28" height="28" style="border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;font-size:.7rem;">🎂</div>`}
+        ${(b.avatar || b.avatar_url) ? `<img src="${b.avatar || b.avatar_url}" width="28" height="28" style="border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;font-size:.7rem;">🎂</div>`}
         <div style="flex:1;min-width:0;">
           <div style="font-size:.82rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.username}</div>
           <div style="font-size:.7rem;color:${color};">${label}</div>
@@ -278,7 +279,7 @@ async function renderBlogPosts() {
 // ── Juegos carousel (todos: guild + serie + sss) ──────────────────────
 function renderJuegos(games, rootUrl) {
   const section = document.getElementById("juegos-section");
-  const tagged  = games.filter(g => g.guild || g.serie || g.sss);
+  const tagged  = games.filter(g => (g.guild || g.serie || g.sss) && g.mostrar_en_carrusel !== 0);
   if (!tagged.length || !section) return;
   section.style.display = "block";
   buildCarousel({

@@ -3,12 +3,39 @@
   background: rgba(255,255,255,.03);
   border: 1px solid rgba(255,255,255,.08);
   border-radius: 14px;
-  padding: 1.25rem;
+  padding: 0;
+  overflow: hidden;
   transition: border-color .15s, background .15s;
   cursor: pointer;
   text-decoration: none;
-  display: block;
+  display: flex;
+  flex-direction: column;
   color: inherit;
+}
+.blog-card-img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  background: rgba(255,255,255,.05);
+  flex-shrink: 0;
+}
+.blog-card-img-placeholder {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: rgba(255,255,255,.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,.12);
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+.blog-card-body {
+  padding: .85rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 .blog-card:hover {
   border-color: rgba(99,102,241,.4);
@@ -51,6 +78,8 @@
   align-items: center;
   gap: .75rem;
   flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: .5rem;
 }
 
 /* ── Stars ──────────────────────────────────────────────────────── */

@@ -78,19 +78,39 @@
                 <label class="admin-label">URL de la página</label>
                 <input type="text" class="form-control" id="f-url" placeholder="pages/juegos/nombre/nombre.html">
               </div>
-              <div class="mb-3 d-flex gap-3 flex-wrap">
+              <div class="mb-2 d-flex gap-3 flex-wrap">
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="f-guild">
-                  <label class="form-check-label" for="f-guild">Guild activo</label>
+                  <label class="form-check-label" for="f-guild">⭐ Guild activo</label>
                 </div>
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="f-serie">
-                  <label class="form-check-label" for="f-serie">Serie stream</label>
+                  <label class="form-check-label" for="f-serie">🎬 Serie stream</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="f-sss">
+                  <label class="form-check-label" for="f-sss">🎮 SSS (juego propio)</label>
                 </div>
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="f-activo" checked>
-                  <label class="form-check-label" for="f-activo">Activo</label>
+                  <label class="form-check-label" for="f-activo">✓ Activo</label>
                 </div>
+              </div>
+              <div class="mb-2 d-flex gap-3 flex-wrap">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="f-carrusel" checked>
+                  <label class="form-check-label" for="f-carrusel">Mostrar en carrusel</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="f-en-juegos" checked>
+                  <label class="form-check-label" for="f-en-juegos">Mostrar en /juegos</label>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="admin-label">Juego del bot Discord</label>
+                <select class="form-select" id="f-bot-key" style="background:#1a1d27;color:#fff;border-color:rgba(255,255,255,.15);">
+                  <option value="">— Sin vincular —</option>
+                </select>
               </div>
               <div class="d-flex gap-2">
                 <button type="submit" class="btn-indigo flex-fill">Guardar</button>
