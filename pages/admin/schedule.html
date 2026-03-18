@@ -14,11 +14,11 @@
 
   <main class="container py-4">
 
-    <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-      <a href="index.html" class="btn-ss" style="width:auto;padding:.4rem .9rem;font-size:.82rem;">← Dashboard</a>
+    <div class="admin-page-header">
+      <a href="index.html" class="btn-ss" style="width:auto;">← Dashboard</a>
       <div>
-        <h1 style="font-size:1.6rem;font-weight:900;margin:0;">📅 Horario & Eventos</h1>
-        <p class="text-muted-ss mb-0" style="font-size:.82rem;">Gestiona el horario semanal del clan</p>
+        <h1>📅 Horario & Eventos</h1>
+        <p class="subtitle">Gestiona el horario semanal del clan</p>
       </div>
       <div id="admin-role-badge" class="admin-role-badge ms-auto"></div>
     </div>
@@ -32,12 +32,12 @@
     <div id="admin-content" style="display:none;">
       <div class="row g-4">
 
-        <!-- Lista -->
+        <!-- Lista de eventos -->
         <div class="col-lg-6">
-          <div class="card-dark">
+          <div class="card-dark h-100">
             <div class="d-flex align-items-center justify-content-between mb-3">
-              <div class="admin-form-title mb-0">Eventos registrados</div>
-              <button class="btn-ss active" style="width:auto;padding:.35rem .9rem;font-size:.8rem;" id="btn-new-ev">+ Nuevo evento</button>
+              <span class="admin-form-title mb-0">Eventos registrados</span>
+              <button class="btn-indigo" style="font-size:.8125rem;padding:.35rem .8rem;" id="btn-new-ev">+ Nuevo evento</button>
             </div>
             <div id="events-list"><div class="admin-loading">Cargando...</div></div>
           </div>
@@ -47,87 +47,79 @@
         <div class="col-lg-6">
           <div class="card-dark">
             <div class="admin-form-title mb-3" id="form-title">Nuevo evento</div>
+
             <form id="event-form" autocomplete="off">
               <input type="hidden" id="f-editing">
+              <input type="hidden" id="f-id">
 
-              <div class="row g-2 mb-2">
-                <div class="col-5">
-                  <label class="admin-form-title" style="font-size:.72rem;">ID único *</label>
-                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-id" placeholder="woe-ro-1" required>
-                </div>
+              <!-- Nombre -->
+              <div class="mb-3">
+                <label class="admin-label" for="f-evento">Nombre del evento <span style="color:#ef4444;">*</span></label>
+                <input type="text" class="form-control" id="f-evento" placeholder="War of Emperium, Raid Semanal…" required>
+              </div>
+
+              <!-- Juego + Duración -->
+              <div class="row g-3 mb-3">
                 <div class="col-7">
-                  <label class="admin-form-title" style="font-size:.72rem;">Nombre del evento *</label>
-                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-evento" required>
+                  <label class="admin-label" for="f-juego">Juego <span style="color:#ef4444;">*</span></label>
+                  <select class="form-select" id="f-juego" required>
+                    <option value="">— Selecciona un juego —</option>
+                  </select>
+                </div>
+                <div class="col-5">
+                  <label class="admin-label" for="f-duracion">Duración (horas)</label>
+                  <input type="number" class="form-control" id="f-duracion" value="2" min="0.5" step="0.5">
                 </div>
               </div>
 
-              <div class="row g-2 mb-2">
-                <div class="col-7">
-                  <label class="admin-form-title" style="font-size:.72rem;">Juego *</label>
-                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-juego" list="juegos-list" required>
-                  <datalist id="juegos-list"></datalist>
-                </div>
+              <!-- Fecha + Hora + Timezone -->
+              <div class="row g-3 mb-3">
                 <div class="col-5">
-                  <label class="admin-form-title" style="font-size:.72rem;">Duración (horas)</label>
-                  <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-duracion" value="2" min="0.5" step="0.5">
-                </div>
-              </div>
-
-              <div class="row g-2 mb-2">
-                <div class="col-6">
-                  <label class="admin-form-title" style="font-size:.72rem;">Fecha</label>
-                  <input type="date" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-fecha">
+                  <label class="admin-label" for="f-fecha">Fecha</label>
+                  <input type="date" class="form-control" id="f-fecha">
                 </div>
                 <div class="col-3">
-                  <label class="admin-form-title" style="font-size:.72rem;">Hora *</label>
-                  <input type="time" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-hora" required>
+                  <label class="admin-label" for="f-hora">Hora <span style="color:#ef4444;">*</span></label>
+                  <input type="time" class="form-control" id="f-hora" required>
                 </div>
-                <div class="col-3">
-                  <label class="admin-form-title" style="font-size:.72rem;">Timezone</label>
-                  <select class="form-select form-select-sm bg-dark text-light border-secondary" id="f-timezone">
+                <div class="col-4">
+                  <label class="admin-label" for="f-timezone">Zona horaria</label>
+                  <select class="form-select" id="f-timezone">
                     <option value="UTC">UTC</option>
-                    <option value="America/Lima">Lima</option>
-                    <option value="America/Los_Angeles">LA</option>
-                    <option value="America/New_York">NY</option>
-                    <option value="America/Mexico_City">México</option>
-                    <option value="Europe/Madrid">Madrid</option>
+                    <option value="America/Lima">Lima (PET)</option>
+                    <option value="America/Los_Angeles">Los Ángeles (PST)</option>
+                    <option value="America/New_York">Nueva York (EST)</option>
+                    <option value="America/Mexico_City">México (CST)</option>
+                    <option value="America/Bogota">Bogotá (COT)</option>
+                    <option value="America/Buenos_Aires">Buenos Aires (ART)</option>
+                    <option value="Europe/Madrid">Madrid (CET)</option>
                   </select>
                 </div>
               </div>
 
-              <!-- Detalles del evento (actividad) -->
-              <div style="border-top:1px solid rgba(255,255,255,.07);margin:.75rem 0;padding-top:.75rem;">
-                <div class="admin-form-title" style="font-size:.72rem;margin-bottom:.5rem;">Detalles del evento (opcional)</div>
-                <div class="mb-2">
-                  <textarea class="form-control form-control-sm bg-dark text-light border-secondary" id="f-descripcion" rows="2" placeholder="Descripción del evento..."></textarea>
-                </div>
-                <div class="row g-2 mb-2">
-                  <div class="col-6">
-                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-nivel" placeholder="Nivel mínimo">
-                  </div>
-                  <div class="col-6">
-                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-link-info" placeholder="URL info (opcional)">
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-clases" placeholder="Clases separadas por coma">
-                </div>
-                <div class="mb-2">
-                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-items" placeholder="Items requeridos por coma">
-                </div>
-                <div class="mb-2">
-                  <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-consumibles" placeholder="Consumibles por coma">
-                </div>
+              <!-- Descripción -->
+              <div class="mb-3">
+                <label class="admin-label" for="f-descripcion">Descripción <small>(opcional)</small></label>
+                <textarea class="form-control" id="f-descripcion" rows="3" placeholder="¿De qué trata este evento?"></textarea>
               </div>
 
-              <div class="form-check form-switch mb-3">
-                <input class="form-check-input" type="checkbox" id="f-activo" checked>
-                <label class="form-check-label text-light" style="font-size:.82rem;" for="f-activo">Evento activo</label>
+              <!-- Visible en horario -->
+              <div class="d-flex align-items-center gap-2 p-3 mb-3"
+                   style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;">
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" id="f-activo" checked>
+                </div>
+                <div>
+                  <label class="form-check-label fw-semibold" for="f-activo">Visible en el horario</label>
+                  <div style="font-size:.78rem;color:rgba(255,255,255,.35);margin-top:1px;">
+                    Si está desactivado, el evento no aparece en la página de horario
+                  </div>
+                </div>
               </div>
 
               <div class="d-flex gap-2">
-                <button type="submit" class="btn-ss active flex-fill" style="padding:.45rem;">Guardar</button>
-                <button type="button" class="btn-ss flex-fill" style="padding:.45rem;" id="btn-cancel-ev">Cancelar</button>
+                <button type="submit" class="btn-indigo flex-fill" style="padding:.55rem;">Guardar evento</button>
+                <button type="button" class="btn-ss flex-fill" style="padding:.55rem;" id="btn-cancel-ev">Cancelar</button>
               </div>
             </form>
           </div>

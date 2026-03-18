@@ -28,6 +28,21 @@ function buildProfile(discord_id) {
     ORDER BY ugs.points DESC
   `).all(user.id);
 
+  // Añadir juegos donde tiene personajes pero no stats
+  const charGames = bot.prepare(`
+    SELECT DISTINCT gi.id, gi.name, gi.abbreviation, gi.command_key,
+           COALESCE(gi.emoji,'🎮') as emoji, gi.color, gi.icon_url
+    FROM characters c
+    JOIN game_info gi ON gi.id = c.game_id
+    WHERE c.discord_user_id = ? AND c.is_active = 1 AND gi.is_active = 1
+  `).all(discord_id);
+
+  charGames.forEach(cg => {
+    if (!gameStats.some(gs => gs.id === cg.id)) {
+      gameStats.push({ ...cg, points: 0 });
+    }
+  });
+
   const characters = bot.prepare(`
     SELECT c.character_name, c.level, c.is_main, c.points,
            COALESCE(cl.name,'') as class_name, COALESCE(cl.emoji,'') as class_emoji,

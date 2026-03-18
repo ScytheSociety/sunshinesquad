@@ -34,19 +34,26 @@ router.get("/:game", (req, res) => {
     const placeholders = matchIds.map(() => "?").join(",");
 
     const rows = db.prepare(`
-      SELECT
+      SELECT DISTINCT
         u.discord_user_id,
         u.display_name   AS username,
-        SUM(ugs.points)  AS puntos,
-        g.name           AS game_name
-      FROM user_game_stats ugs
-      JOIN users u     ON ugs.user_id = u.id
-      JOIN game_info g ON ugs.game_id = g.id
-      WHERE ugs.game_id IN (${placeholders})
-      GROUP BY ugs.user_id
+        COALESCE(pts.puntos, 0) AS puntos
+      FROM (
+        -- Usuarios con stats del juego
+        SELECT ugs.user_id FROM user_game_stats ugs WHERE ugs.game_id IN (${placeholders})
+        UNION
+        -- Usuarios con personajes del juego (aunque no tengan stats)
+        SELECT u2.id FROM characters c JOIN users u2 ON u2.discord_user_id = c.discord_user_id
+        WHERE c.game_id IN (${placeholders}) AND c.is_active = 1
+      ) combined
+      JOIN users u ON u.id = combined.user_id
+      LEFT JOIN (
+        SELECT user_id, SUM(points) as puntos FROM user_game_stats
+        WHERE game_id IN (${placeholders}) GROUP BY user_id
+      ) pts ON pts.user_id = u.id
       ORDER BY puntos DESC
       LIMIT 50
-    `).all(...matchIds);
+    `).all(...matchIds, ...matchIds, ...matchIds);
 
     const result = rows.map(r => {
       const characters = db.prepare(`

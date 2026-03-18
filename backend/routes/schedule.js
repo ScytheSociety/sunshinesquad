@@ -28,9 +28,25 @@ function getOne(id) {
 // GET all (public) — formato compatible con schedule.js
 router.get("/", (req, res) => {
   try {
-    const eventos = webDB().prepare(
+    const rawEventos = webDB().prepare(
       "SELECT * FROM site_schedule WHERE activo=1 ORDER BY fecha ASC, hora ASC"
     ).all();
+
+    // Auto-avanzar fechas pasadas (recurrencia semanal)
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    const eventos = rawEventos.map(ev => {
+      if (!ev.fecha) return ev;
+      let d = new Date(ev.fecha + 'T00:00:00');
+      let iterations = 0;
+      while (d < now && iterations < 52) {
+        d.setDate(d.getDate() + 7);
+        iterations++;
+      }
+      const newFecha = d.toISOString().split('T')[0];
+      return { ...ev, fecha: newFecha };
+    });
 
     const actividades = {};
     webDB().prepare("SELECT * FROM site_activities").all()
