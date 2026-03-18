@@ -12,11 +12,11 @@
     "descarga": "",
     "discord": "",
     "info": [
-      { "label": "Versión", "valor": "Burning Crusade 20th Anniversary" },
+      { "label": "Versión", "valor": "BC 20th Anniversary" },
       { "label": "Servidor", "valor": "DreamScythe" },
       { "label": "Región", "valor": "US" },
-      { "label": "Facción", "valor": "Horde / Alliance" },
-      { "label": "Tipo", "valor": "PvE + PvP" },
+      { "label": "Facción", "valor": "Horda" },
+      { "label": "Tipo", "valor": "PvE" },
       { "label": "Idioma", "valor": "Español / Inglés" }
     ]
   },
@@ -24,7 +24,8 @@
     { "imagen": "https://picsum.photos/seed/wow1/800/450", "titulo": "Raids" },
     { "imagen": "https://picsum.photos/seed/wow2/800/450", "titulo": "Dungeons" },
     { "imagen": "https://picsum.photos/seed/wow3/800/450", "titulo": "PvP" },
-    { "imagen": "https://picsum.photos/seed/wow4/800/450", "titulo": "Guild" }
+    { "imagen": "https://picsum.photos/seed/wow4/800/450", "titulo": "Guild" },
+    { "imagen": "https://picsum.photos/seed/wow5/800/450", "titulo": "Comunidad" }
   ],
   "videos": [
     { "titulo": "Guía de inicio BC 20th", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },

@@ -28,6 +28,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!slugParam) slugEl.value = toSlug(titulo.value);
   });
 
+  // Preview de imagen de portada
+  const portadaEl = document.getElementById("f-portada");
+  const previewWrap = document.getElementById("f-portada-preview");
+  const previewImg  = document.getElementById("f-portada-img");
+  portadaEl?.addEventListener("input", () => {
+    const url = portadaEl.value.trim();
+    if (url) { previewImg.src = url; previewWrap.style.display = "block"; }
+    else previewWrap.style.display = "none";
+  });
+
   // Si es edición, carga el post
   if (slugParam) {
     document.getElementById("editor-title").textContent = "Editar post";
@@ -40,6 +50,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("f-resumen").value  = post.resumen || "";
       document.getElementById("f-contenido").value = post.contenido;
       document.getElementById("f-publicado").checked = !!post.publicado;
+      if (post.portada_url) {
+        document.getElementById("f-portada").value = post.portada_url;
+        document.getElementById("f-portada-img").src = post.portada_url;
+        document.getElementById("f-portada-preview").style.display = "block";
+      }
     } catch {
       alert("No se pudo cargar el post para editar.");
     }
@@ -51,10 +66,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const body = {
       slug:      document.getElementById("f-slug").value.trim(),
       titulo:    document.getElementById("f-titulo").value.trim(),
-      resumen:   document.getElementById("f-resumen").value.trim(),
-      contenido: document.getElementById("f-contenido").value.trim(),
-      juego:     document.getElementById("f-juego").value || null,
-      publicado: document.getElementById("f-publicado").checked,
+      resumen:     document.getElementById("f-resumen").value.trim(),
+      contenido:   document.getElementById("f-contenido").value.trim(),
+      juego:       document.getElementById("f-juego").value || null,
+      portada_url: document.getElementById("f-portada")?.value.trim() || null,
+      publicado:   document.getElementById("f-publicado").checked,
     };
 
     if (!body.slug || !body.titulo || !body.contenido) {
