@@ -330,16 +330,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch(e) { console.error("streams.json:", e); }
 
   try {
-    const sched = await loadJson("data/schedule.json");
-    renderEventos(sched.eventos);
-  } catch(e) { console.error("schedule.json:", e); }
+    const res = await fetch(`${API}/schedule`);
+    if (res.ok) {
+      const data = await res.json();
+      renderEventos(data.eventos || []);
+    }
+  } catch(e) { console.error("schedule API:", e); }
 
   try {
-    const data    = await loadJson("data/games.json");
+    const res     = await fetch(`${API}/games`);
+    const juegos  = res.ok ? await res.json() : [];
     const rootUrl = repoRoot();
-    renderCarousel(data.juegos.filter(g => g.guild), rootUrl);
-    renderProyectos(data.juegos, rootUrl);
-  } catch(e) { console.error("games.json:", e); }
+    renderCarousel(juegos.filter(g => g.guild), rootUrl);
+    renderProyectos(juegos, rootUrl);
+  } catch(e) { console.error("games API:", e); }
 
   renderMVP();
   renderBirthdays();

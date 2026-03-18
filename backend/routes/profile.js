@@ -144,7 +144,7 @@ router.get("/members", (req, res) => {
       };
     });
 
-    res.json(enriched);
+    res.json(enriched.filter(m => !/^User\d+$/.test(m.username)));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

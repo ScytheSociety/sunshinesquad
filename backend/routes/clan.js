@@ -48,13 +48,27 @@ router.get("/:game", (req, res) => {
       LIMIT 50
     `).all(...matchIds);
 
-    const result = rows.map(r => ({
-      discord_id: r.discord_user_id,
-      username:   r.username,
-      puntos:     r.puntos,
-      avatar_url: null,
-      rank_name:  null,
-    }));
+    const result = rows.map(r => {
+      const characters = db.prepare(`
+        SELECT c.character_name, c.level, c.is_main, c.points,
+               COALESCE(cl.name,'') as class_name, COALESCE(cl.emoji,'') as class_emoji,
+               COALESCE(ro.name,'') as role_name, COALESCE(ro.emoji,'') as role_emoji
+        FROM characters c
+        LEFT JOIN classes cl ON cl.id = c.class_id
+        LEFT JOIN roles ro   ON ro.id = c.role_id
+        WHERE c.discord_user_id = ? AND c.game_id IN (${placeholders}) AND c.is_active = 1
+        ORDER BY c.is_main DESC, c.points DESC
+        LIMIT 5
+      `).all(r.discord_user_id, ...matchIds);
+      return {
+        discord_id: r.discord_user_id,
+        username:   r.username,
+        puntos:     r.puntos,
+        avatar_url: null,
+        rank_name:  null,
+        characters,
+      };
+    });
 
     res.json(result);
   } catch (err) {

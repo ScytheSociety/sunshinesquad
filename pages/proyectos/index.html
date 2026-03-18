@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proyectos · Sunshine Squad</title>
+
+  <!-- ===================== NO TOCAR (BASE) ===================== -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <!-- =================== /NO TOCAR (BASE) ===================== -->
+</head>
+<body>
+
+  <!-- ===================== NO TOCAR (BASE) ===================== -->
+  <div id="navbar-container"></div>
+  <!-- =================== /NO TOCAR (BASE) ===================== -->
+
+  <main class="container py-5">
+
+    <div class="mb-4">
+      <h1 style="font-weight:800;">Proyectos</h1>
+      <p class="text-muted-ss">Series de contenido y proyectos especiales de Sunshine Squad.</p>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="d-flex gap-2 flex-wrap mb-4" id="filtros-proyectos">
+      <button class="btn btn-sm btn-indigo active" data-filtro="todos">🎮 Todos</button>
+      <button class="btn btn-sm" style="background:rgba(20,184,166,.12);border:1px solid rgba(20,184,166,.35);color:#5eead4;" data-filtro="sss">SSS</button>
+      <button class="btn btn-sm" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.35);color:#d8b4fe;" data-filtro="serie">Series</button>
+    </div>
+
+    <!-- GRID -->
+    <div id="proyectos-grid" class="row g-3">
+      <div class="col-12 text-center py-5" style="color:rgba(255,255,255,.3);">Cargando…</div>
+    </div>
+
+  </main>
+
+  <!-- ===================== NO TOCAR (BASE) ===================== -->
+  <div id="footer-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../../assets/js/components.js"></script>
+  <!-- =================== /NO TOCAR (BASE) ===================== -->
+
+  <script type="module">
+    import { repoRoot } from "../../assets/js/app.js";
+
+    const API = "https://sunshinesquad.es/api";
+    let allProyectos = [];
+    let activeFiltro = "todos";
+
+    function renderGrid(items) {
+      const grid = document.getElementById("proyectos-grid");
+      if (!items.length) {
+        grid.innerHTML = `<div class="col-12 text-center py-5" style="color:rgba(255,255,255,.3);">No hay proyectos en este filtro.</div>`;
+        return;
+      }
+      const root = repoRoot();
+      grid.innerHTML = items.map(g => {
+        const imgSrc = g.imagen ? root + g.imagen.replace(/^\//, "") : null;
+        const gameUrl = root + g.url.replace(/^\//, "");
+        const badges = [
+          g.sss   ? `<span style="font-size:.68rem;font-weight:700;background:rgba(20,184,166,.15);border:1px solid rgba(20,184,166,.35);color:#5eead4;border-radius:999px;padding:.15rem .55rem;">SSS</span>` : "",
+          g.serie ? `<span style="font-size:.68rem;font-weight:700;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.35);color:#d8b4fe;border-radius:999px;padding:.15rem .55rem;">SERIE</span>` : "",
+          g.guild ? `<span style="font-size:.68rem;font-weight:700;background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.35);color:#fde047;border-radius:999px;padding:.15rem .55rem;">GUILD</span>` : "",
+        ].filter(Boolean).join(" ");
+        return `
+          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="${gameUrl}" style="display:block;text-decoration:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;transition:border-color .15s,transform .15s;"
+               onmouseover="this.style.borderColor='rgba(255,255,255,.18)';this.style.transform='translateY(-2px)'"
+               onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.transform=''">
+              ${imgSrc
+                ? `<img src="${imgSrc}" alt="${g.nombre}" style="width:100%;aspect-ratio:16/9;object-fit:cover;" loading="lazy">`
+                : `<div style="width:100%;aspect-ratio:16/9;background:rgba(99,102,241,.1);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🎮</div>`
+              }
+              <div style="padding:.9rem 1rem;">
+                <div style="font-weight:800;font-size:.95rem;color:#fff;margin-bottom:.25rem;">${g.nombre}</div>
+                ${g.servidor ? `<div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:.4rem;">${g.servidor}</div>` : ""}
+                ${g.descripcion ? `<div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:.5rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${g.descripcion}</div>` : ""}
+                <div style="display:flex;gap:.35rem;flex-wrap:wrap;">${badges}</div>
+              </div>
+            </a>
+          </div>`;
+      }).join("");
+    }
+
+    function applyFiltro(filtro) {
+      activeFiltro = filtro;
+      document.querySelectorAll("#filtros-proyectos button").forEach(b => {
+        const on = b.dataset.filtro === filtro;
+        b.classList.toggle("btn-indigo", on);
+        b.classList.toggle("active", on);
+        if (!on) b.style.cssText = b.dataset.filtro === "sss"
+          ? "background:rgba(20,184,166,.12);border:1px solid rgba(20,184,166,.35);color:#5eead4;"
+          : "background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.35);color:#d8b4fe;";
+        else b.style.cssText = "";
+      });
+      const filtered = filtro === "todos" ? allProyectos
+        : filtro === "sss"   ? allProyectos.filter(g => g.sss)
+        : allProyectos.filter(g => g.serie);
+      renderGrid(filtered);
+    }
+
+    document.getElementById("filtros-proyectos").addEventListener("click", e => {
+      const btn = e.target.closest("[data-filtro]");
+      if (btn) applyFiltro(btn.dataset.filtro);
+    });
+
+    async function init() {
+      try {
+        const res = await fetch(`${API}/games`);
+        if (!res.ok) throw new Error();
+        const games = await res.json();
+        allProyectos = games.filter(g => g.activo !== 0 && (g.sss || g.serie));
+        applyFiltro("todos");
+      } catch {
+        document.getElementById("proyectos-grid").innerHTML =
+          `<div class="col-12 text-center py-5" style="color:rgba(255,255,255,.3);">Error al cargar proyectos.</div>`;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

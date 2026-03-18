@@ -40,7 +40,7 @@ function renderMembers(members) {
       <div class="member-name">${m.display_name || m.username}</div>
       <div class="member-pts">${fmtPts(m.total_points)} pts</div>
       <div class="member-games">
-        ${(m.games || []).map(g => `<span title="${g.name}">${g.emoji}</span>`).join("")}
+        ${(m.games || []).map(g => `<span title="${g.name}" style="cursor:pointer;" data-game-key="${g.command_key}">${g.emoji}</span>`).join("")}
       </div>
     </a>
   `).join("");
@@ -92,6 +92,22 @@ function renderMiPerfilBtn() {
     wrap.innerHTML = `<a href="../../pages/perfil/perfil.html?id=${user.id}" class="btn btn-indigo btn-sm">👤 Mi perfil</a>`;
   }
 }
+
+document.getElementById("members-grid")?.addEventListener("click", e => {
+  const span = e.target.closest("[data-game-key]");
+  if (!span) return;
+  const key = span.dataset.gameKey;
+  if (!key) return;
+  activeGame = key;
+  document.querySelectorAll("#filtros-juego [data-game]").forEach(b => {
+    const on = b.dataset.game === key;
+    b.classList.toggle("btn-indigo", on);
+    b.classList.toggle("active", on);
+    if (!on) b.style.cssText = "background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);";
+    else b.style.cssText = "";
+  });
+  loadMembers(key);
+});
 
 buildFilters();
 loadMembers();
