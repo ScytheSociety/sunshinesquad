@@ -169,7 +169,45 @@ function renderVideos(rawItems) {
   slider.init();
 }
 
-// ── Grid de guías / builds ─────────────────────────────────────────
+// ── Grid de guías / builds con búsqueda ───────────────────────────
+function drawGridCards(items, el, q) {
+  const filtered = q
+    ? items.filter(item =>
+        item.nombre?.toLowerCase().includes(q) ||
+        item.descripcion?.toLowerCase().includes(q) ||
+        item.autor?.toLowerCase().includes(q) ||
+        item.tags?.some(t => t.toLowerCase().includes(q))
+      )
+    : items;
+
+  if (!filtered.length) {
+    el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.85rem;padding:1rem 0;">Sin resultados.</div>`;
+    return;
+  }
+
+  el.innerHTML = filtered.map(item => {
+    const imgSrc = item.imagen ? (item.imagen.startsWith("http") ? item.imagen : ROOT + item.imagen) : null;
+    const href   = item.url   ? (item.url.startsWith("http")    ? item.url    : ROOT + item.url)    : "#";
+    const tags   = item.tags?.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.4rem;">${item.tags.map(t =>
+          `<span style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;
+                        background:rgba(99,102,241,.18);color:#a5b4fc;border-radius:20px;padding:.1rem .45rem;">${t}</span>`
+        ).join("")}</div>` : "";
+    const autor = item.autor
+      ? `<div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.3rem;">Por ${item.autor}</div>` : "";
+    return `
+      <a href="${href}" class="ro-card" style="text-decoration:none;">
+        ${imgSrc ? `<img src="${imgSrc}" alt="${item.nombre}" onerror="this.style.display='none'" loading="lazy">` : ""}
+        <div class="ro-card-body">
+          ${tags}
+          <div class="ro-card-title">${item.nombre}</div>
+          <div class="ro-card-desc">${item.descripcion || ""}</div>
+          ${autor}
+        </div>
+      </a>`;
+  }).join("");
+}
+
 function renderGrid(items, containerId) {
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -177,14 +215,20 @@ function renderGrid(items, containerId) {
     el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.85rem;padding:1rem 0;">Próximamente.</div>`;
     return;
   }
-  el.innerHTML = items.map(item => `
-    <a href="${ROOT}${item.url}" class="ro-card" style="text-decoration:none;">
-      <img src="${ROOT}${item.imagen}" alt="${item.nombre}" onerror="this.style.display='none'" loading="lazy">
-      <div class="ro-card-body">
-        <div class="ro-card-title">${item.nombre}</div>
-        <div class="ro-card-desc">${item.descripcion || ""}</div>
-      </div>
-    </a>`).join("");
+
+  // Add search input once
+  const searchId = containerId + "-search";
+  if (!document.getElementById(searchId)) {
+    const inp = document.createElement("input");
+    inp.id = searchId;
+    inp.type = "search";
+    inp.placeholder = "Buscar por título, tags o autor...";
+    inp.style.cssText = "width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.5rem 1rem;color:#fff;font-size:.83rem;outline:none;margin-bottom:.75rem;";
+    el.parentElement.insertBefore(inp, el);
+    inp.addEventListener("input", () => drawGridCards(items, el, inp.value.toLowerCase().trim()));
+  }
+
+  drawGridCards(items, el, "");
 }
 
 // ── Clan ────────────────────────────────────────────────────────────

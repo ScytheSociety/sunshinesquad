@@ -5,23 +5,53 @@ const MONTH_NAMES = [
   "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
 ];
 
-function defaultAvatar(discordId) {
-  try { return `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(discordId) % 6n)}.png`; }
+function defaultAvatar(id) {
+  try { return `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(id) % 6n)}.png`; }
   catch { return "https://cdn.discordapp.com/embed/avatars/0.png"; }
 }
 
-function avatarEl(b, size = 40) {
-  const src = b.avatar || defaultAvatar(b.discord_user_id);
-  return `<img src="${src}" alt="${b.username}" width="${size}" height="${size}"
-               style="border-radius:50%;object-fit:cover;border:2px solid rgba(99,102,241,.3);"
-               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
-               loading="lazy">`;
+function buildCard(b, isToday, isNext) {
+  const src  = b.avatar || defaultAvatar(b.discord_user_id);
+  const [mm, dd] = b.mmdd.split("-").map(Number);
+  const dateStr  = `${String(dd).padStart(2,"0")} ${MONTH_NAMES[mm - 1]}`;
+
+  let ringClass  = isToday ? "bday-avatar-ring-today" : isNext ? "bday-avatar-ring-soon" : "bday-avatar-ring";
+  let cardExtra  = isToday ? " bday-today-card" : "";
+  let borderColor = isToday ? "rgba(250,204,21,.3)" : isNext ? "rgba(165,180,252,.2)" : "rgba(255,255,255,.08)";
+
+  let badge = "";
+  if (isToday) badge = `<div class="bday-badge bday-badge-today">🎂 Hoy</div>`;
+  else if (isNext) badge = `<div class="bday-badge bday-badge-next">⭐ Próximo</div>`;
+
+  let daysEl = "";
+  if (isToday) {
+    daysEl = `<div style="font-size:.72rem;font-weight:800;color:#fde047;">🎉 ¡Feliz cumpleaños!</div>`;
+  } else if (b.dias_faltantes <= 7) {
+    daysEl = `<div style="font-size:.72rem;color:#a5b4fc;">en ${b.dias_faltantes} día${b.dias_faltantes === 1 ? "" : "s"}</div>`;
+  } else {
+    daysEl = `<div style="font-size:.72rem;color:rgba(255,255,255,.3);">${dateStr}</div>`;
+  }
+
+  return `
+    <a href="../../pages/perfil/perfil.html?id=${b.discord_user_id}"
+       class="bday-card${cardExtra}" style="border-color:${borderColor};">
+      ${badge}
+      <img src="${src}" alt="${b.username}" width="56" height="56"
+           class="${ringClass}" style="border-radius:50%;object-fit:cover;flex-shrink:0;"
+           onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" loading="lazy">
+      <div style="font-size:.85rem;font-weight:700;color:#fff;text-align:center;
+                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">
+        ${b.username}
+      </div>
+      ${daysEl}
+    </a>
+  `;
 }
 
 async function load() {
-  const listEl  = document.getElementById("birthday-list");
-  const todayEl = document.getElementById("birthday-today");
-  const todayList = document.getElementById("birthday-today-list");
+  const listEl   = document.getElementById("birthday-list");
+  const bannerEl = document.getElementById("birthday-banner");
+  const namesEl  = document.getElementById("birthday-banner-names");
 
   let data = [];
   try {
@@ -38,75 +68,46 @@ async function load() {
     return;
   }
 
-  // Show "today" section
+  // Banner for today's birthdays
   const hoy = data.filter(b => b.es_hoy);
   if (hoy.length) {
-    todayEl.style.display = "";
-    todayList.innerHTML = hoy.map(b => `
-      <div style="display:flex;align-items:center;gap:.6rem;">
-        ${avatarEl(b, 44)}
-        <div>
-          <div style="font-weight:700;font-size:.9rem;color:#fff;">${b.username}</div>
-          <div style="font-size:.72rem;color:#fde047;">🎉 ¡Hoy!</div>
-        </div>
-      </div>
-    `).join("");
+    bannerEl.style.display = "";
+    namesEl.textContent = hoy.map(b => b.username).join(", ");
   }
+
+  // Identify the next upcoming (first with dias_faltantes > 0)
+  const nextPerson = data.find(b => !b.es_hoy && b.dias_faltantes > 0);
 
   // Group by month
   const groups = {};
   data.forEach(b => {
-    const [mm] = b.mmdd.split("-");
-    const monthIdx = parseInt(mm) - 1;
-    if (!groups[monthIdx]) groups[monthIdx] = [];
-    groups[monthIdx].push(b);
+    const mm = parseInt(b.mmdd.split("-")[0]) - 1;
+    if (!groups[mm]) groups[mm] = [];
+    groups[mm].push(b);
   });
 
-  // Build list sorted by dias_faltantes (already sorted by API)
   let html = "";
-  let lastMonth = -1;
-
-  data.forEach(b => {
-    const [mm, dd] = b.mmdd.split("-").map(Number);
-    const monthIdx = mm - 1;
-
-    if (monthIdx !== lastMonth) {
-      if (lastMonth !== -1) html += "</div></div>"; // close previous month
-      html += `
-        <div class="mb-3">
-          <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
-                      color:rgba(255,255,255,.3);padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.06);
-                      margin-bottom:.6rem;">
-            ${MONTH_NAMES[monthIdx]}
-          </div>
-          <div class="d-flex flex-column gap-2">
-      `;
-      lastMonth = monthIdx;
-    }
-
-    const isSoon = b.dias_faltantes <= 7 && !b.es_hoy;
-    const isToday = b.es_hoy;
-    const dayLabel = isToday
-      ? "<span style='color:#fde047;font-weight:800;'>🎉 Hoy</span>"
-      : isSoon
-        ? `<span style='color:#a5b4fc;'>en ${b.dias_faltantes} día${b.dias_faltantes === 1 ? "" : "s"}</span>`
-        : `<span style='color:rgba(255,255,255,.25);'>${String(dd).padStart(2,"0")}/${String(mm).padStart(2,"0")}</span>`;
-
+  Object.keys(groups).sort((a, b) => {
+    // Sort months by proximity (already sorted by API via dias_faltantes)
+    const firstA = groups[a][0].dias_faltantes;
+    const firstB = groups[b][0].dias_faltantes;
+    return firstA - firstB;
+  }).forEach(monthIdx => {
+    const monthBdays = groups[monthIdx];
     html += `
-      <div style="display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;
-                  border-radius:10px;background:${isToday ? "rgba(234,179,8,.06)" : "rgba(255,255,255,.02)"};
-                  border:1px solid ${isToday ? "rgba(234,179,8,.2)" : "transparent"};">
-        ${avatarEl(b, 36)}
-        <div style="flex:1;min-width:0;">
-          <a href="../../pages/perfil/perfil.html?id=${b.discord_user_id}"
-             style="font-weight:700;font-size:.88rem;color:#fff;text-decoration:none;">${b.username}</a>
+      <div class="mb-4">
+        <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                    color:rgba(255,255,255,.3);padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.06);
+                    margin-bottom:.75rem;">
+          ${MONTH_NAMES[monthIdx]}
         </div>
-        <div style="font-size:.78rem;flex-shrink:0;">${dayLabel}</div>
+        <div class="bday-grid">
+          ${monthBdays.map(b => buildCard(b, b.es_hoy, b === nextPerson)).join("")}
+        </div>
       </div>
     `;
   });
 
-  if (data.length) html += "</div></div>";
   listEl.innerHTML = html;
 }
 
