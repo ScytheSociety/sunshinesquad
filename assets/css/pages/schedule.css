@@ -143,6 +143,10 @@
 .st-activo { background: rgba(34,197,94,.22);  border-left-color: #22c55e; color: #bbf7d0; animation: evpulse 2s infinite; }
 .st-pasado { background: rgba(100,116,139,.14); border-left-color: #64748b; color: rgba(255,255,255,.28); }
 
+/* Bot events — borde derecho doble para distinguirlos */
+.ev-bot { border-right: 2px solid rgba(255,255,255,.15); }
+.ev-bot-badge { display:inline; font-size:.55rem; opacity:.6; margin-left:2px; }
+
 @keyframes evpulse {
   0%,100% { border-left-color: #22c55e; }
   50%      { border-left-color: #86efac; }

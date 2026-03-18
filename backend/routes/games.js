@@ -1,14 +1,36 @@
 const { Router } = require("express");
 const { requireRole } = require("../middleware/auth");
 const { webDB } = require("../db/web");
+const { botDB } = require("../db/bot");
 
 const router = Router();
 
 // GET all (public)
 router.get("/", (req, res) => {
   try {
+    res.set("Cache-Control", "public, max-age=300"); // 5 min
     const games = webDB().prepare("SELECT * FROM site_games ORDER BY orden ASC, id ASC").all();
-    res.json(games);
+
+    // Enriquecer con command_key, emoji, abbreviation desde el bot
+    const botGames = botDB().prepare(
+      "SELECT name, command_key, abbreviation, COALESCE(emoji,'🎮') as emoji, timezone FROM game_info WHERE is_active=1"
+    ).all();
+    const botByName = {};
+    botGames.forEach(g => { botByName[g.name.toLowerCase()] = g; });
+
+    const enriched = games.map(g => {
+      const bot = botByName[g.nombre.toLowerCase()];
+      return {
+        ...g,
+        command_key:   bot?.command_key  || null,
+        abbreviation:  bot?.abbreviation || null,
+        emoji:         bot?.emoji        || "🎮",
+        game_timezone: bot?.timezone     || "UTC",
+        in_bot: !!bot,
+      };
+    });
+
+    res.json(enriched);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

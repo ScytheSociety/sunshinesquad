@@ -51,14 +51,15 @@ async function buildFilters() {
     const res = await fetch(`${API}/games`);
     if (!res.ok) return;
     const games = await res.json();
-    const active = games.filter(g => g.activo !== 0);
+    // Solo juegos registrados en el bot (tienen command_key)
+    const active = games.filter(g => g.activo !== 0 && g.command_key);
 
     const bar = document.getElementById("filtros-juego");
     active.forEach(g => {
       const btn = document.createElement("button");
       btn.className = "btn btn-sm";
       btn.style.cssText = "background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);";
-      btn.dataset.game = g.command_key || "";
+      btn.dataset.game = g.command_key;
       btn.innerHTML = `${g.emoji || "🎮"} ${g.nombre}`;
       bar.appendChild(btn);
     });

@@ -126,6 +126,7 @@ function initSchema(db) {
       discord_id   TEXT PRIMARY KEY,
       username     TEXT NOT NULL,
       avatar       TEXT,
+      banner_url   TEXT,
       last_seen    TEXT DEFAULT (datetime('now'))
     );
 
@@ -175,6 +176,19 @@ function initSchema(db) {
       key   TEXT PRIMARY KEY,
       value TEXT NOT NULL,
       updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS bot_event_rsvp (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      event_id        INTEGER NOT NULL,
+      user_id         TEXT NOT NULL,
+      username        TEXT,
+      character_name  TEXT,
+      character_id    INTEGER,
+      role_name       TEXT,
+      character_level INTEGER DEFAULT 1,
+      created_at      TEXT DEFAULT (datetime('now')),
+      UNIQUE(event_id, user_id)
     );
   `);
 

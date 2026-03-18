@@ -168,52 +168,125 @@ async function showPopup(ev, inicio, est) {
   document.body.appendChild(el);
 
   // Load RSVP async
-  loadRSVP(ev.id, est, el);
+  loadRSVP(ev.id, est, el, ev);
 }
 
-async function loadRSVP(eventId, est, popupEl) {
+async function loadRSVP(eventId, est, popupEl, ev) {
   const countEl   = popupEl.querySelector("#rsvp-count");
   const sectionEl = popupEl.querySelector("#rsvp-section");
   if (!countEl || !sectionEl) return;
 
+  const isBotEvent = ev && ev.source === "bot";
+  const botId      = ev?.bot_id;
+  const rsvpUrl    = isBotEvent
+    ? `${API}/schedule/bot/${botId}/rsvp`
+    : `${API}/schedule/${eventId}/rsvp`;
+
   try {
-    const res = await fetch(`${API}/schedule/${eventId}/rsvp`);
+    const headers = {};
+    const token = localStorage.getItem("ss_token");
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(rsvpUrl, { headers });
     if (!res.ok) { countEl.textContent = "No disponible"; return; }
     const data = await res.json();
 
-    const names = data.users.slice(0, 8).map(u => u.username).join(", ");
-    const extra = data.count > 8 ? ` +${data.count - 8} más` : "";
+    const names = data.users.slice(0, 8).map(u => {
+      const extra = isBotEvent && u.character_name ? ` (${u.character_name})` : "";
+      return u.username + extra;
+    }).join(", ");
+    const extraCount = data.count > 8 ? ` +${data.count - 8} más` : "";
     countEl.innerHTML = data.count
       ? `<span style="color:#a5b4fc;font-weight:700;">${data.count}</span> <span style="color:rgba(255,255,255,.4);">asistiré${data.count === 1 ? "" : "n"}</span>
-         ${names ? `<span style="color:rgba(255,255,255,.3);font-size:.75rem;"> · ${names}${extra}</span>` : ""}`
+         ${names ? `<span style="color:rgba(255,255,255,.3);font-size:.75rem;"> · ${names}${extraCount}</span>` : ""}`
       : `<span style="color:rgba(255,255,255,.35);">Nadie confirmó aún</span>`;
 
-    // RSVP button (only for future events, logged in)
     const user = getUser();
     if (!user || est === "pasado") return;
 
-    const myRsvp = data.users.some(u => u.user_id === user.id);
-    const btn = document.createElement("button");
-    btn.id = "rsvp-btn";
-    btn.className = "popup-btn";
-    btn.style.cssText = myRsvp
-      ? "background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4);color:#86efac;"
-      : "background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#a5b4fc;";
-    btn.textContent = myRsvp ? "✅ Asistiré (cancelar)" : "🙋 Confirmar asistencia";
-    sectionEl.appendChild(btn);
+    const myRsvp = isBotEvent ? !!data.myRsvp : data.users.some(u => u.user_id === user.id);
 
-    btn.addEventListener("click", async () => {
-      btn.disabled = true;
-      btn.textContent = "…";
-      const method = myRsvp ? "DELETE" : "POST";
-      const res2 = await apiFetch(`/schedule/${eventId}/rsvp`, { method });
-      if (!res2) return; // redirect to login
-      const d2 = await res2.json();
-      if (d2.ok !== undefined) loadRSVP(eventId, est, popupEl); // reload
-    });
+    if (isBotEvent && !myRsvp && data.characters && data.characters.length > 0) {
+      // Mostrar selector de personaje
+      renderCharacterSelector(data.characters, sectionEl, botId, est, popupEl, ev);
+    } else {
+      const btn = document.createElement("button");
+      btn.id = "rsvp-btn";
+      btn.className = "popup-btn";
+      btn.style.cssText = myRsvp
+        ? "background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4);color:#86efac;"
+        : "background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#a5b4fc;";
+      btn.textContent = myRsvp ? "✅ Inscrito (cancelar)" : "🙋 Confirmar asistencia";
+      sectionEl.appendChild(btn);
+
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        btn.textContent = "…";
+        const method = myRsvp ? "DELETE" : "POST";
+        const url    = isBotEvent ? `/schedule/bot/${botId}/rsvp` : `/schedule/${eventId}/rsvp`;
+        const res2   = await apiFetch(url, { method });
+        if (!res2) return;
+        const d2 = await res2.json();
+        if (d2.ok !== undefined) loadRSVP(eventId, est, popupEl, ev);
+      });
+    }
   } catch {
     countEl.textContent = "No disponible";
   }
+}
+
+function renderCharacterSelector(characters, sectionEl, botId, est, popupEl, ev) {
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "width:100%;margin-top:.4rem;";
+  wrap.innerHTML = `
+    <div style="font-size:.78rem;color:rgba(255,255,255,.45);margin-bottom:.4rem;">Elige tu personaje:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.5rem;">
+      ${characters.map(c => `
+        <button class="char-pick popup-btn" data-id="${c.id}" data-name="${c.character_name}" data-level="${c.level}" data-role="${c.role_name}"
+          style="font-size:.78rem;padding:.3rem .7rem;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);">
+          ${c.class_emoji || "⚔️"} ${c.character_name} <span style="opacity:.5;font-size:.7rem;">lv${c.level}</span>
+        </button>`).join("")}
+    </div>
+    <button id="rsvp-confirm" class="popup-btn" style="background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#a5b4fc;opacity:.4;" disabled>
+      🙋 Confirmar asistencia
+    </button>`;
+  sectionEl.appendChild(wrap);
+
+  let selected = null;
+  wrap.querySelectorAll(".char-pick").forEach(btn => {
+    btn.addEventListener("click", () => {
+      wrap.querySelectorAll(".char-pick").forEach(b => {
+        b.style.background = "rgba(255,255,255,.05)";
+        b.style.borderColor = "rgba(255,255,255,.15)";
+        b.style.color = "";
+      });
+      btn.style.background = "rgba(99,102,241,.2)";
+      btn.style.borderColor = "rgba(99,102,241,.5)";
+      btn.style.color = "#a5b4fc";
+      selected = { id: btn.dataset.id, name: btn.dataset.name, level: btn.dataset.level, role: btn.dataset.role };
+      const confirmBtn = wrap.querySelector("#rsvp-confirm");
+      confirmBtn.disabled = false;
+      confirmBtn.style.opacity = "1";
+    });
+  });
+
+  wrap.querySelector("#rsvp-confirm")?.addEventListener("click", async () => {
+    const confirmBtn = wrap.querySelector("#rsvp-confirm");
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "…";
+    const res = await apiFetch(`/schedule/bot/${botId}/rsvp`, {
+      method: "POST",
+      body: JSON.stringify({
+        character_id:    selected?.id,
+        character_name:  selected?.name,
+        character_level: selected?.level,
+        role_name:       selected?.role,
+      }),
+    });
+    if (!res) return;
+    const d = await res.json();
+    if (d.ok !== undefined) loadRSVP(`bot-${botId}`, est, popupEl, ev);
+  });
 }
 
 // ── Vista SEMANA ───────────────────────────────────────────────────
@@ -278,10 +351,11 @@ function render() {
         const ev   = f.ev;
         const est  = estado(toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima"), ev.duracion);
         const hora = f.hora.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
-        return `<div class="sched-ev ${gj(ev.juego)} st-${est}"
+        const botBadge = ev.source === "bot" ? `<div class="ev-bot-badge">🤖</div>` : "";
+        return `<div class="sched-ev ${gj(ev.juego)} st-${est}${ev.source === "bot" ? " ev-bot" : ""}"
                      style="top:${f.topPx}px;height:${f.altPx}px;"
                      data-evid="${ev.id}">
-          ${!f.esCont ? `<div class="ev-hora">${hora}</div>` : `<div class="ev-cont">↑ continúa</div>`}
+          ${!f.esCont ? `<div class="ev-hora">${hora}${botBadge}</div>` : `<div class="ev-cont">↑ continúa</div>`}
           <div class="ev-juego">${ev.juego}</div>
           ${f.altPx > 38 ? `<div class="ev-nombre">${ev.evento}</div>` : ""}
         </div>`;
@@ -437,7 +511,8 @@ async function populateGameFilter() {
     const res = await fetch(`${API}/games`);
     if (!res.ok) return;
     const games = await res.json();
-    games.filter(g => g.activo !== 0).forEach(g => {
+    // Solo juegos del bot (tienen command_key)
+    games.filter(g => g.activo !== 0 && g.command_key).forEach(g => {
       const opt = document.createElement("option");
       opt.value = g.nombre;
       opt.textContent = `${g.emoji || "🎮"} ${g.nombre}`;

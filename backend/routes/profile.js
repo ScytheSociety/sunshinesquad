@@ -123,22 +123,39 @@ router.put("/banner", requireAuth, (req, res) => {
 // GET /api/profile/members — directorio público
 router.get("/members", (req, res) => {
   try {
+    res.set("Cache-Control", "public, max-age=30");
     const bot = botDB();
     const web = webDB();
     const game = req.query.game || null;
 
     let users;
     if (game) {
+      // Incluir tanto usuarios con stats como con personajes para este juego
       users = bot.prepare(`
-        SELECT u.discord_user_id, u.display_name, u.created_at,
-               COALESCE(SUM(ugs.points),0) as total_points,
-               COUNT(DISTINCT ugs.game_id) as game_count
-        FROM users u
-        JOIN user_game_stats ugs ON ugs.user_id = u.id
-        JOIN game_info gi ON gi.id = ugs.game_id
-        WHERE gi.command_key = ?
-        GROUP BY u.id ORDER BY total_points DESC
-      `).all(game);
+        SELECT DISTINCT u.discord_user_id, u.display_name, u.created_at,
+               COALESCE(pts.total_points, 0) as total_points,
+               COALESCE(pts.game_count, 0) as game_count
+        FROM (
+          SELECT ugs.user_id
+          FROM user_game_stats ugs
+          JOIN game_info gi ON gi.id = ugs.game_id
+          WHERE gi.command_key = ?
+          UNION
+          SELECT u2.id
+          FROM characters c
+          JOIN users u2 ON u2.discord_user_id = c.discord_user_id
+          JOIN game_info gi ON gi.id = c.game_id
+          WHERE gi.command_key = ? AND c.is_active = 1
+        ) src
+        JOIN users u ON u.id = src.user_id
+        LEFT JOIN (
+          SELECT user_id,
+                 COALESCE(SUM(points), 0) as total_points,
+                 COUNT(DISTINCT game_id) as game_count
+          FROM user_game_stats GROUP BY user_id
+        ) pts ON pts.user_id = u.id
+        ORDER BY total_points DESC
+      `).all(game, game);
     } else {
       users = bot.prepare(`
         SELECT u.discord_user_id, u.display_name, u.created_at,
@@ -149,16 +166,40 @@ router.get("/members", (req, res) => {
       `).all();
     }
 
+    // Obtener avatares en batch
+    const discordIds = users.map(u => u.discord_user_id);
+    const webUsers = {};
+    if (discordIds.length) {
+      web.prepare(
+        `SELECT discord_id, username, avatar FROM discord_users WHERE discord_id IN (${discordIds.map(() => "?").join(",")})`
+      ).all(...discordIds).forEach(d => { webUsers[d.discord_id] = d; });
+    }
+
+    // Obtener juegos de todos los usuarios en una sola query
+    const allGames = bot.prepare(`
+      SELECT ugs.user_id, gi.name, gi.command_key, COALESCE(gi.emoji,'🎮') as emoji, ugs.points
+      FROM user_game_stats ugs
+      JOIN game_info gi ON gi.id = ugs.game_id
+      WHERE gi.is_active = 1
+      ORDER BY ugs.points DESC
+    `).all();
+    const gamesByUserId = {};
+    allGames.forEach(g => {
+      if (!gamesByUserId[g.user_id]) gamesByUserId[g.user_id] = [];
+      if (gamesByUserId[g.user_id].length < 4) gamesByUserId[g.user_id].push(g);
+    });
+
+    // Mapa discord_user_id → user.id (batch)
+    const userIdMap = {};
+    if (discordIds.length) {
+      bot.prepare(
+        `SELECT id, discord_user_id FROM users WHERE discord_user_id IN (${discordIds.map(() => "?").join(",")})`
+      ).all(...discordIds).forEach(r => { userIdMap[r.discord_user_id] = r.id; });
+    }
+
     const enriched = users.map(u => {
-      const d = web.prepare("SELECT username, avatar FROM discord_users WHERE discord_id=?").get(u.discord_user_id);
-      // Juegos activos del usuario
-      const games = bot.prepare(`
-        SELECT gi.name, gi.command_key, COALESCE(gi.emoji,'🎮') as emoji, ugs.points
-        FROM user_game_stats ugs
-        JOIN game_info gi ON gi.id = ugs.game_id
-        WHERE ugs.user_id = (SELECT id FROM users WHERE discord_user_id=?) AND gi.is_active=1
-        ORDER BY ugs.points DESC LIMIT 4
-      `).all(u.discord_user_id);
+      const d = webUsers[u.discord_user_id];
+      const uid = userIdMap[u.discord_user_id];
       return {
         discord_id:   u.discord_user_id,
         username:     d?.username || u.display_name || `User${u.discord_user_id.slice(-4)}`,
@@ -167,7 +208,7 @@ router.get("/members", (req, res) => {
         joined_bot:   u.created_at,
         total_points: u.total_points,
         game_count:   u.game_count,
-        games,
+        games:        uid ? (gamesByUserId[uid] || []) : [],
       };
     });
 
@@ -187,6 +228,7 @@ router.get("/me", requireAuth, (req, res) => {
 // GET /api/profile/:discord_id — perfil público
 router.get("/:discord_id", (req, res) => {
   try {
+    res.set("Cache-Control", "public, max-age=30");
     const profile = buildProfile(req.params.discord_id);
     if (!profile) return res.status(404).json({ error: "Usuario no encontrado" });
     res.json(profile);

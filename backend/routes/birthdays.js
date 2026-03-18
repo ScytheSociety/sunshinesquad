@@ -5,6 +5,7 @@ const { botDB } = require("../db/bot");
 // GET /api/birthdays
 router.get("/", (req, res) => {
   try {
+    res.set("Cache-Control", "public, max-age=300");
     const db = botDB();
 
     // Próximos 7 días como strings MM-DD para comparar con birthday_date

@@ -6,6 +6,7 @@ const { webDB } = require("../db/web");
 // GET /api/ranking?limit=20&game=ro
 router.get("/", (req, res) => {
   try {
+    res.set("Cache-Control", "public, max-age=60");
     const db    = botDB();
     const web   = webDB();
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
