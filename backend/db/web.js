@@ -129,6 +129,14 @@ function initSchema(db) {
       last_seen    TEXT DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS site_event_rsvp (
+      event_id   TEXT NOT NULL,
+      user_id    TEXT NOT NULL,
+      username   TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (event_id, user_id)
+    );
+
     CREATE TABLE IF NOT EXISTS uploads (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       filename        TEXT NOT NULL,

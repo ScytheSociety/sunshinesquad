@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { requireRole } = require("../middleware/auth");
+const { requireRole, requireAuth } = require("../middleware/auth");
 const { webDB } = require("../db/web");
 
 const router = Router();
@@ -120,6 +120,49 @@ router.delete("/:id", requireRole("moderador"), (req, res) => {
     const r = webDB().prepare("DELETE FROM site_schedule WHERE id=?").run(req.params.id);
     if (!r.changes) return res.status(404).json({ error: "No encontrado" });
     res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── RSVP ──────────────────────────────────────────────────────────────
+// GET /api/schedule/:id/rsvp — conteo público
+router.get("/:id/rsvp", (req, res) => {
+  try {
+    const rows = webDB().prepare(
+      "SELECT user_id, username FROM site_event_rsvp WHERE event_id=? ORDER BY created_at ASC"
+    ).all(req.params.id);
+    res.json({ count: rows.length, users: rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/schedule/:id/rsvp — confirmar asistencia
+router.post("/:id/rsvp", requireAuth, (req, res) => {
+  try {
+    const ev = webDB().prepare("SELECT id FROM site_schedule WHERE id=?").get(req.params.id);
+    if (!ev) return res.status(404).json({ error: "Evento no encontrado" });
+
+    webDB().prepare(
+      `INSERT OR REPLACE INTO site_event_rsvp (event_id, user_id, username, created_at)
+       VALUES (?, ?, ?, datetime('now'))`
+    ).run(req.params.id, req.user.id, req.user.username);
+
+    const rows = webDB().prepare(
+      "SELECT user_id, username FROM site_event_rsvp WHERE event_id=?"
+    ).all(req.params.id);
+    res.json({ ok: true, count: rows.length, users: rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /api/schedule/:id/rsvp — cancelar asistencia
+router.delete("/:id/rsvp", requireAuth, (req, res) => {
+  try {
+    webDB().prepare(
+      "DELETE FROM site_event_rsvp WHERE event_id=? AND user_id=?"
+    ).run(req.params.id, req.user.id);
+
+    const rows = webDB().prepare(
+      "SELECT user_id, username FROM site_event_rsvp WHERE event_id=?"
+    ).all(req.params.id);
+    res.json({ ok: true, count: rows.length, users: rows });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
