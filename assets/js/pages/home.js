@@ -70,7 +70,7 @@ function renderEventos(eventos) {
     .map(ev => ({ ...ev, estado: getEstado(ev.inicio, ev.duracion) }))
     .filter(ev => ev.estado !== "pasado" && ev.inicio <= limite)
     .sort((a, b) => a.inicio - b.inicio)
-    .slice(0, 4);
+    .slice(0, 3);
   if (!items.length) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin eventos próximos.</div>`; return; }
   const cfg = { activo:{ dot:"#22c55e" }, futuro:{ dot:"#a5b4fc" } };
   el.innerHTML = items.map(ev => {
@@ -228,94 +228,81 @@ function getVisibleDefault() {
   return 5;
 }
 
-// ── Blog carousel ────────────────────────────────────────────────────
+// ── Blog grid (home) ─────────────────────────────────────────────────
+function defaultAvatarUrl(id) {
+  try { return `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(id) % 6n)}.png`; }
+  catch { return `https://cdn.discordapp.com/embed/avatars/0.png`; }
+}
+
 async function renderBlogPosts() {
   const section = document.getElementById("blog-section");
-  if (!section) return;
+  const grid    = document.getElementById("blog-grid");
+  if (!section || !grid) return;
   try {
     const data  = await fetch(`${API}/blog?page=1`).then(r => r.json());
-    const posts = (data.posts || []).slice(0, 10);
+    const posts = (data.posts || []).slice(0, 3);
     if (!posts.length) return;
     section.style.display = "block";
-    buildCarousel({
-      prevId: "blog-carousel-prev", nextId: "blog-carousel-next",
-      trackId: "blog-carousel-track", dotsId: "blog-carousel-dots",
-      viewportSelector: ".blog-carousel-viewport",
-      items: posts,
-      getVisible: getVisibleDefault,
-      renderCard: p => {
-        const date = new Date(p.created_at).toLocaleDateString("es", { day:"numeric", month:"short", year:"numeric" });
-        return `
-          <a class="carousel-card" href="pages/blog/post.html?slug=${p.slug}" style="flex-shrink:0;text-decoration:none;">
+
+    grid.innerHTML = posts.map(p => {
+      const date    = new Date(p.created_at).toLocaleDateString("es", { day:"numeric", month:"long", year:"numeric" });
+      const summary = p.resumen
+        ? p.resumen.slice(0, 150) + (p.resumen.length > 150 ? "…" : "")
+        : "";
+      const avatar  = p.autor_avatar || defaultAvatarUrl(p.autor_id || "0");
+      return `
+        <a class="blog-home-card" href="pages/blog/post.html?slug=${p.slug}">
+          <div class="blog-home-img-wrap">
             ${p.portada_url
-              ? `<img src="${p.portada_url}" alt="${p.titulo}" class="carousel-cover" loading="lazy">`
-              : `<div class="carousel-cover-placeholder">📝</div>`
-            }
-            <div class="carousel-info">
-              <div class="carousel-name">${p.titulo}</div>
-              <div class="carousel-server">${p.autor_nombre} · ${date}</div>
-              ${p.juego ? `<div style="margin-top:.3rem;"><span style="font-size:.6rem;font-weight:700;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;border-radius:999px;padding:.1rem .4rem;">${p.juego}</span></div>` : ""}
+              ? `<img src="${p.portada_url}" alt="${p.titulo}" class="blog-home-img" loading="lazy">`
+              : `<div class="blog-home-img-placeholder">📝</div>`}
+          </div>
+          <div class="blog-home-body">
+            ${p.juego ? `<span class="blog-home-tag">${p.juego}</span>` : ""}
+            <div class="blog-home-title">${p.titulo}</div>
+            ${summary ? `<div class="blog-home-summary">${summary}</div>` : ""}
+            <div class="blog-home-meta">
+              <img src="${avatar}" width="20" height="20"
+                   style="border-radius:50%;object-fit:cover;flex-shrink:0;"
+                   onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+              <span>${p.autor_nombre}</span>
+              <span style="opacity:.4;">·</span>
+              <span>${date}</span>
             </div>
-          </a>`;
-      }
-    });
+          </div>
+        </a>`;
+    }).join("");
   } catch {}
 }
 
-// ── Proyectos carousel (sss + serie) ─────────────────────────────────
-function renderProyectos(games, rootUrl) {
-  const section   = document.getElementById("proyectos-section");
-  const proyectos = games.filter(g => g.sss || g.serie);
-  if (!proyectos.length || !section) return;
+// ── Juegos carousel (todos: guild + serie + sss) ──────────────────────
+function renderJuegos(games, rootUrl) {
+  const section = document.getElementById("juegos-section");
+  const tagged  = games.filter(g => g.guild || g.serie || g.sss);
+  if (!tagged.length || !section) return;
   section.style.display = "block";
   buildCarousel({
-    prevId: "proy-carousel-prev", nextId: "proy-carousel-next",
-    trackId: "proy-carousel-track", dotsId: "proy-carousel-dots",
-    viewportSelector: ".proy-carousel-viewport",
-    items: proyectos,
-    getVisible: getVisibleDefault,
-    renderCard: g => {
-      const gameUrl = rootUrl + g.url.replace(/^\//, "");
-      const imgSrc  = g.imagen ? rootUrl + g.imagen : null;
-      const badge   = g.sss
-        ? `<span style="font-size:.6rem;font-weight:700;background:rgba(20,184,166,.15);border:1px solid rgba(20,184,166,.35);color:#5eead4;border-radius:999px;padding:.1rem .4rem;">SSS</span>`
-        : `<span style="font-size:.6rem;font-weight:700;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.35);color:#d8b4fe;border-radius:999px;padding:.1rem .4rem;">SERIE</span>`;
-      return `
-        <a class="carousel-card" href="${gameUrl}" style="flex-shrink:0;">
-          ${imgSrc ? `<img src="${imgSrc}" alt="${g.nombre}" class="carousel-cover" loading="lazy">` : `<div class="carousel-cover-placeholder">🎮</div>`}
-          <div class="carousel-info">
-            <div class="carousel-name">${g.nombre}</div>
-            <div class="carousel-server">${g.servidor || ""}</div>
-            <div style="margin-top:.3rem;">${badge}</div>
-          </div>
-        </a>`;
-    }
-  });
-}
-
-// ── Clanes en Juegos carousel ────────────────────────────────────────
-function renderCarousel(games, rootUrl) {
-  buildCarousel({
-    prevId: "carousel-prev", nextId: "carousel-next",
-    trackId: "carousel-track", dotsId: "carousel-dots",
-    viewportSelector: ".clanes-carousel-viewport",
-    items: games,
+    prevId: "juegos-carousel-prev", nextId: "juegos-carousel-next",
+    trackId: "juegos-carousel-track", dotsId: null,
+    viewportSelector: ".juegos-carousel-viewport",
+    items: tagged,
     getVisible: getVisibleDefault,
     renderCard: g => {
       const gameUrl = rootUrl + g.url.replace(/^\//, "");
       const imgSrc  = g.imagen ? rootUrl + g.imagen : null;
       const badges  = [
-        g.guild ? `<span style="font-size:.6rem;font-weight:700;background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.35);color:#fde047;border-radius:999px;padding:.1rem .4rem;">GUILD</span>` : "",
-        g.serie ? `<span style="font-size:.6rem;font-weight:700;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.35);color:#d8b4fe;border-radius:999px;padding:.1rem .4rem;">SERIE</span>` : "",
-        g.sss   ? `<span style="font-size:.6rem;font-weight:700;background:rgba(20,184,166,.15);border:1px solid rgba(20,184,166,.35);color:#5eead4;border-radius:999px;padding:.1rem .4rem;">SSS</span>` : "",
-      ].join("");
+        g.guild ? `<span class="carousel-badge carousel-badge-guild">GUILD</span>` : "",
+        g.serie ? `<span class="carousel-badge carousel-badge-serie">SERIE</span>` : "",
+        g.sss   ? `<span class="carousel-badge" style="background:rgba(20,184,166,.15);border:1px solid rgba(20,184,166,.35);color:#5eead4;">SSS</span>` : "",
+      ].filter(Boolean).join("");
       return `
         <a class="carousel-card" href="${gameUrl}" style="flex-shrink:0;">
-          ${imgSrc ? `<img src="${imgSrc}" alt="${g.nombre}" class="carousel-cover" loading="lazy">` : `<div class="carousel-cover-placeholder">🎮</div>`}
+          ${imgSrc
+            ? `<img src="${imgSrc}" alt="${g.nombre}" class="carousel-cover" loading="lazy">`
+            : `<div class="carousel-cover-placeholder">🎮</div>`}
           <div class="carousel-info">
             <div class="carousel-name">${g.nombre}</div>
-            <div class="carousel-server">${g.servidor || ""}</div>
-            ${badges ? `<div style="margin-top:.3rem;display:flex;gap:3px;flex-wrap:wrap;">${badges}</div>` : ""}
+            ${badges ? `<div class="carousel-badges">${badges}</div>` : ""}
           </div>
         </a>`;
     }
@@ -338,11 +325,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch(e) { console.error("schedule API:", e); }
 
   try {
-    const res     = await fetch(`${API}/games`);
-    const juegos  = res.ok ? await res.json() : [];
-    const rootUrl = repoRoot();
-    renderCarousel(juegos.filter(g => g.guild), rootUrl);
-    renderProyectos(juegos, rootUrl);
+    const res    = await fetch(`${API}/games`);
+    const juegos = res.ok ? await res.json() : [];
+    renderJuegos(juegos, repoRoot());
   } catch(e) { console.error("games API:", e); }
 
   renderMVP();

@@ -23,11 +23,15 @@ router.get("/", (req, res) => {
 
   const total = db.prepare(`SELECT COUNT(*) as n FROM blog_posts ${where}`).get(...(juego ? [juego] : [])).n;
   const posts = db.prepare(`
-    SELECT id, slug, titulo, resumen, juego, autor_nombre, portada_url, created_at,
-           (SELECT ROUND(AVG(estrellas),1) FROM blog_ratings WHERE post_id=blog_posts.id) AS rating,
-           (SELECT COUNT(*) FROM blog_ratings WHERE post_id=blog_posts.id) AS votos
-    FROM blog_posts ${where}
-    ORDER BY created_at DESC
+    SELECT bp.id, bp.slug, bp.titulo, bp.resumen, bp.juego, bp.autor_id, bp.autor_nombre,
+           bp.portada_url, bp.created_at,
+           du.avatar AS autor_avatar,
+           (SELECT ROUND(AVG(estrellas),1) FROM blog_ratings WHERE post_id=bp.id) AS rating,
+           (SELECT COUNT(*) FROM blog_ratings WHERE post_id=bp.id) AS votos
+    FROM blog_posts bp
+    LEFT JOIN discord_users du ON du.discord_id = bp.autor_id
+    ${where}
+    ORDER BY bp.created_at DESC
     LIMIT ? OFFSET ?
   `).all(...args);
 
