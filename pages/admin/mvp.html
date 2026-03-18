@@ -14,15 +14,13 @@
 
   <main class="container py-4">
 
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div class="admin-page-header">
+      <a href="index.html" class="btn-ss" style="width:auto;">← Dashboard</a>
       <div>
-        <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:.25rem;">💀 MVP Tracker Admin</h1>
-        <p class="text-muted-ss mb-0">Gestiona los registros de MVPs y el catálogo de bosses.</p>
+        <h1>💀 MVP Tracker Admin</h1>
+        <p class="subtitle">Gestiona los registros de MVPs y el catálogo de bosses.</p>
       </div>
-      <a href="index.html" class="btn btn-sm"
-        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);">
-        ← Dashboard
-      </a>
+      <div id="admin-role-badge" class="admin-role-badge ms-auto"></div>
     </div>
 
     <div id="access-denied" class="card-dark text-center py-5" style="display:none;">
@@ -73,7 +71,7 @@
           <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
             <div class="tl-field-label mb-0">Historial de kills</div>
             <div class="d-flex gap-2 flex-wrap">
-              <select id="filter-status" class="form-select form-select-sm"
+              <select id="filter-status" class="form-select"
                 style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:8px;width:auto;">
                 <option value="all">Todos</option>
                 <option value="active">Activos</option>

@@ -77,6 +77,20 @@ function renderProfile(p) {
   const me = getUser();
   const isOwn = !!(me && me.id === p.discord_id);
 
+  // Apply banner
+  const headerEl = document.getElementById("perfil-header");
+  if (p.banner_url && headerEl) {
+    headerEl.style.backgroundImage = `url('${p.banner_url}')`;
+    headerEl.classList.add("has-banner");
+  }
+
+  // Banner edit button (own profile only)
+  const bannerBtn = document.getElementById("p-banner-btn");
+  if (isOwn && bannerBtn) {
+    bannerBtn.style.display = "";
+    bannerBtn.addEventListener("click", () => showBannerModal(p.banner_url));
+  }
+
   // Init push section if own profile
   initPushSection(isOwn);
 
@@ -172,6 +186,72 @@ function renderProfile(p) {
 }
 
 loadProfile();
+
+// ── Banner modal ───────────────────────────────────────────────────
+function showBannerModal(currentUrl) {
+  const existing = document.getElementById("banner-modal-overlay");
+  if (existing) existing.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "banner-modal-overlay";
+  overlay.className = "banner-modal-overlay";
+  overlay.innerHTML = `
+    <div class="banner-modal-box">
+      <div class="banner-modal-title">🖼️ Banner de perfil</div>
+      <div class="banner-modal-sub">Pega la URL de una imagen para usar como fondo de tu perfil. Se recomienda 1200×300 px o similar.</div>
+      <input id="banner-url-input" type="url" class="form-control mb-3" placeholder="https://ejemplo.com/imagen.jpg" value="${currentUrl || ''}">
+      <div id="banner-preview-wrap" style="display:${currentUrl ? 'block' : 'none'};margin-bottom:.75rem;border-radius:10px;overflow:hidden;height:80px;background-size:cover;background-position:center;border:1px solid rgba(255,255,255,.1);background-image:url('${currentUrl || ''}');"></div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button id="banner-save-btn" class="btn-indigo flex-fill">Guardar</button>
+        ${currentUrl ? '<button id="banner-remove-btn" class="btn-ss flex-fill" style="color:#fca5a5;border-color:rgba(239,68,68,.3);">Quitar banner</button>' : ''}
+        <button id="banner-cancel-btn" class="btn-ss" style="width:auto;padding:.45rem .9rem;">✕</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.querySelector("#banner-cancel-btn").onclick = () => overlay.remove();
+
+  // Live preview
+  const input = overlay.querySelector("#banner-url-input");
+  const preview = overlay.querySelector("#banner-preview-wrap");
+  input.addEventListener("input", () => {
+    const v = input.value.trim();
+    if (v) { preview.style.backgroundImage = `url('${v}')`; preview.style.display = "block"; }
+    else    { preview.style.display = "none"; }
+  });
+
+  overlay.querySelector("#banner-save-btn").onclick = async () => {
+    const url = input.value.trim();
+    await saveBanner(url);
+    overlay.remove();
+  };
+
+  const removeBtn = overlay.querySelector("#banner-remove-btn");
+  if (removeBtn) removeBtn.onclick = async () => {
+    await saveBanner("");
+    overlay.remove();
+  };
+}
+
+async function saveBanner(url) {
+  const res = await apiFetch("/profile/banner", {
+    method: "PUT",
+    body: JSON.stringify({ banner_url: url || null }),
+  });
+  if (res?.ok) {
+    const headerEl = document.getElementById("perfil-header");
+    if (!headerEl) return;
+    if (url) {
+      headerEl.style.backgroundImage = `url('${url}')`;
+      headerEl.classList.add("has-banner");
+    } else {
+      headerEl.style.backgroundImage = "";
+      headerEl.classList.remove("has-banner");
+    }
+  }
+}
 
 // ── Push preferences (own profile only) ───────────────────────────
 const PREFS_DEF = [

@@ -14,7 +14,7 @@
   <main class="container py-4">
     <div class="mb-4">
       <div class="text-muted-ss mb-1">Juegos</div>
-      <h1 style="font-weight:800;">World of Warcraft</h1>
+      <h1>World of Warcraft</h1>
       <p id="game-descripcion" class="text-muted-ss"></p>
     </div>
     <div class="mb-4" style="border-bottom:1px solid rgba(255,255,255,.10);">
@@ -36,18 +36,18 @@
             </div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a id="btn-descarga" href="#" target="_blank" style="display:none;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#e5e7eb;font-size:.8rem;text-decoration:none;">⬇️ Descargar</a>
-            <a id="btn-discord" href="#" target="_blank" style="display:none;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:8px;border:1px solid rgba(88,101,242,.4);background:rgba(88,101,242,.12);color:#e5e7eb;font-size:.8rem;text-decoration:none;">💬 Discord</a>
-            <a id="btn-web" href="#" target="_blank" style="display:none;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#e5e7eb;font-size:.8rem;text-decoration:none;">🌐 Web</a>
-            <a id="btn-wiki" href="#" target="_blank" style="display:none;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#e5e7eb;font-size:.8rem;text-decoration:none;">📚 Wiki</a>
+            <a id="btn-descarga" href="#" target="_blank" class="btn-ss" style="display:none;width:auto;">⬇️ Descargar</a>
+            <a id="btn-discord" href="#" target="_blank" class="btn-indigo" style="display:none;width:auto;">💬 Discord</a>
+            <a id="btn-web" href="#" target="_blank" class="btn-ss" style="display:none;width:auto;">🌐 Web</a>
+            <a id="btn-wiki" href="#" target="_blank" class="btn-ss" style="display:none;width:auto;">📚 Wiki</a>
           </div>
         </div>
         <p id="servidor-descripcion" style="color:rgba(255,255,255,.55);font-size:.88rem;line-height:1.6;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(255,255,255,.07);"></p>
-        <div style="font-weight:700;margin-bottom:.85rem;font-size:.9rem;">⚙️ Configuración del servidor</div>
+        <div class="section-title mb-3">⚙️ Configuración del servidor</div>
         <div id="servidor-tabla" class="ro-tabla"></div>
       </div>
       <div class="card-dark mb-4">
-        <div style="font-weight:700;margin-bottom:1rem;">📸 Galería</div>
+        <div class="section-title mb-3">📸 Galería</div>
         <div class="galeria-outer">
           <button id="galeria-prev" class="galeria-arrow">←</button>
           <div class="galeria-strip-wrap"><div id="galeria-strip" class="galeria-strip"></div></div>
@@ -56,7 +56,7 @@
         <div id="galeria-dots" class="galeria-dots"></div>
       </div>
       <div class="card-dark">
-        <div style="font-weight:700;margin-bottom:1rem;">🎬 Videos</div>
+        <div class="section-title mb-3">🎬 Videos</div>
         <div class="videos-outer">
           <button id="videos-prev" class="videos-arrow">←</button>
           <div class="videos-strip-wrap"><div id="videos-strip" class="videos-strip"></div></div>
@@ -67,7 +67,7 @@
     </div>
     <div id="tab-clan" class="tab-content" style="display:none;">
       <div class="card-dark">
-        <div style="font-weight:700;margin-bottom:1rem;">👥 Miembros del clan</div>
+        <div class="section-title mb-3">👥 Miembros del clan</div>
         <div id="clan-content"><div class="text-muted-ss" style="font-size:.85rem;">Cargando...</div></div>
       </div>
     </div>

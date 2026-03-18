@@ -14,11 +14,11 @@
 
   <main class="container py-4">
 
-    <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-      <a href="index.html" class="btn-ss" style="width:auto;padding:.4rem .9rem;font-size:.82rem;">← Dashboard</a>
+    <div class="admin-page-header">
+      <a href="index.html" class="btn-ss" style="width:auto;">← Dashboard</a>
       <div>
-        <h1 style="font-size:1.6rem;font-weight:900;margin:0;">📺 Streams</h1>
-        <p class="text-muted-ss mb-0" style="font-size:.82rem;">Gestiona los canales de Twitch en la home</p>
+        <h1>📺 Streams</h1>
+        <p class="subtitle">Gestiona los canales de Twitch en la home</p>
       </div>
       <div id="admin-role-badge" class="admin-role-badge ms-auto"></div>
     </div>
@@ -37,7 +37,7 @@
           <div class="card-dark">
             <div class="d-flex align-items-center justify-content-between mb-3">
               <div class="admin-form-title mb-0">Canales registrados</div>
-              <button class="btn-ss active" style="width:auto;padding:.35rem .9rem;font-size:.8rem;" id="btn-new-stream">+ Agregar canal</button>
+              <button class="btn-indigo" style="font-size:.8125rem;" id="btn-new-stream">+ Agregar canal</button>
             </div>
             <div id="streams-list"><div class="admin-loading">Cargando...</div></div>
           </div>
@@ -50,24 +50,24 @@
             <form id="stream-form" autocomplete="off">
               <input type="hidden" id="f-id">
               <div class="mb-3">
-                <label class="admin-form-title" style="font-size:.75rem;">Nombre a mostrar *</label>
-                <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="f-name" placeholder="ElXokas" required>
+                <label class="admin-label">Nombre a mostrar *</label>
+                <input type="text" class="form-control" id="f-name" placeholder="ElXokas" required>
               </div>
               <div class="mb-3">
-                <label class="admin-form-title" style="font-size:.75rem;">Username de Twitch *</label>
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text bg-dark text-secondary border-secondary" style="font-size:.8rem;">twitch.tv/</span>
-                  <input type="text" class="form-control bg-dark text-light border-secondary" id="f-channel" placeholder="elxokas" required>
+                <label class="admin-label">Username de Twitch *</label>
+                <div class="input-group">
+                  <span class="input-group-text" style="font-size:.8rem;">twitch.tv/</span>
+                  <input type="text" class="form-control" id="f-channel" placeholder="elxokas" required>
                 </div>
                 <div style="font-size:.72rem;color:rgba(255,255,255,.3);margin-top:.25rem;">Solo el nombre del canal, sin la URL completa</div>
               </div>
               <div class="form-check form-switch mb-3">
                 <input class="form-check-input" type="checkbox" id="f-activo" checked>
-                <label class="form-check-label text-light" style="font-size:.82rem;" for="f-activo">Canal activo</label>
+                <label class="form-check-label" for="f-activo">Canal activo</label>
               </div>
               <div class="d-flex gap-2">
-                <button type="submit" class="btn-ss active flex-fill" style="padding:.45rem;">Guardar</button>
-                <button type="button" class="btn-ss flex-fill" style="padding:.45rem;" id="btn-cancel-stream">Cancelar</button>
+                <button type="submit" class="btn-indigo flex-fill">Guardar</button>
+                <button type="button" class="btn-ss flex-fill" id="btn-cancel-stream">Cancelar</button>
               </div>
             </form>
           </div>

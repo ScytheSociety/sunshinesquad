@@ -14,15 +14,13 @@
 
   <main class="container py-4">
 
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div class="admin-page-header">
+      <a href="index.html" class="btn-ss" style="width:auto;">← Dashboard</a>
       <div>
-        <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:.25rem;">🔔 Notificaciones Push</h1>
-        <p class="text-muted-ss mb-0">Envía notificaciones a los suscriptores de la comunidad.</p>
+        <h1>🔔 Notificaciones Push</h1>
+        <p class="subtitle">Envía notificaciones a los suscriptores de la comunidad.</p>
       </div>
-      <a href="index.html" class="btn btn-sm"
-        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);">
-        ← Dashboard
-      </a>
+      <div id="admin-role-badge" class="admin-role-badge ms-auto"></div>
     </div>
 
     <div id="access-denied" class="card-dark text-center py-5" style="display:none;">
@@ -69,24 +67,24 @@
             <div class="tl-field-label mb-3">Enviar notificación</div>
 
             <div class="mb-3">
-              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Título *</label>
+              <label class="admin-label">Título *</label>
               <input type="text" id="push-title" class="form-control" placeholder="Ej: ¡Raid esta noche!"
                 style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
             </div>
             <div class="mb-3">
-              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Mensaje *</label>
+              <label class="admin-label">Mensaje *</label>
               <textarea id="push-body" rows="3" class="form-control" placeholder="Descripción breve..."
                 style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;resize:none;"></textarea>
             </div>
             <div class="mb-3">
-              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">URL al hacer click</label>
+              <label class="admin-label">URL al hacer click</label>
               <input type="url" id="push-url" class="form-control" placeholder="https://sunshinesquad.es/..."
                 style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
             </div>
 
             <div id="push-result" style="display:none;margin-bottom:.75rem;padding:.6rem .9rem;border-radius:10px;font-size:.84rem;font-weight:600;"></div>
 
-            <button id="send-btn" class="btn-ss active w-100">🔔 Enviar a todos</button>
+            <button id="send-btn" class="btn-indigo w-100">🔔 Enviar a todos</button>
           </div>
         </div>
 

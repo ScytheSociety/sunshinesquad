@@ -17,7 +17,7 @@ function buildProfile(discord_id) {
   const user = bot.prepare("SELECT * FROM users WHERE discord_user_id=?").get(discord_id);
   if (!user) return null;
 
-  const cached = web.prepare("SELECT username, avatar FROM discord_users WHERE discord_id=?").get(discord_id);
+  const cached = web.prepare("SELECT username, avatar, banner_url FROM discord_users WHERE discord_id=?").get(discord_id);
 
   const gameStats = bot.prepare(`
     SELECT gi.id, gi.name, gi.abbreviation, gi.command_key,
@@ -97,6 +97,7 @@ function buildProfile(discord_id) {
     username:        cached?.username || user.display_name || `User${discord_id.slice(-4)}`,
     display_name:    user.display_name,
     avatar:          cached?.avatar   || defaultAvatar(discord_id),
+    banner_url:      cached?.banner_url || null,
     timezone:        user.timezone,
     joined_bot:      user.created_at,
     total_points:    totalPoints,
@@ -107,6 +108,17 @@ function buildProfile(discord_id) {
     events_attended: eventsAttended,
   };
 }
+
+// PUT /api/profile/banner — actualizar banner (requiere auth)
+router.put("/banner", requireAuth, (req, res) => {
+  try {
+    const { banner_url } = req.body;
+    webDB().prepare(
+      "UPDATE discord_users SET banner_url=? WHERE discord_id=?"
+    ).run(banner_url || null, req.user.id);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
 
 // GET /api/profile/members — directorio público
 router.get("/members", (req, res) => {

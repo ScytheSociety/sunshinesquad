@@ -96,11 +96,11 @@
 
   <main class="container py-4">
 
-    <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-      <a href="index.html" class="btn-ss" style="width:auto;padding:.4rem .9rem;font-size:.82rem;">← Dashboard</a>
+    <div class="admin-page-header">
+      <a href="index.html" class="btn-ss" style="width:auto;">← Dashboard</a>
       <div>
-        <h1 style="font-size:1.6rem;font-weight:900;margin:0;">🖼️ Gestión de Imágenes</h1>
-        <p class="text-muted-ss mb-0" style="font-size:.82rem;">Sube y gestiona las imágenes del sitio</p>
+        <h1>🖼️ Gestión de Imágenes</h1>
+        <p class="subtitle">Sube y gestiona las imágenes del sitio</p>
       </div>
       <div id="admin-role-badge" class="admin-role-badge ms-auto"></div>
     </div>
@@ -139,8 +139,8 @@
             </div>
 
             <div class="mb-3 mt-3">
-              <label class="admin-form-title" style="font-size:.75rem;">Categoría</label>
-              <select class="form-select form-select-sm bg-dark text-light border-secondary" id="upload-cat">
+              <label class="admin-label">Categoría</label>
+              <select class="form-select" id="upload-cat">
                 <option value="general">General</option>
                 <option value="games">Juegos</option>
                 <option value="blog">Blog</option>
@@ -149,7 +149,7 @@
               </select>
             </div>
 
-            <button class="btn-ss active w-100" style="padding:.5rem;" id="btn-upload" disabled>Subir imagen</button>
+            <button class="btn-indigo w-100" id="btn-upload" disabled>Subir imagen</button>
           </div>
 
           <!-- Stats -->
@@ -165,7 +165,7 @@
             <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
               <div class="admin-form-title mb-0">Galería</div>
               <div class="d-flex gap-2 flex-wrap">
-                <select class="form-select form-select-sm bg-dark text-light border-secondary" style="width:auto;" id="filter-cat">
+                <select class="form-select" style="width:auto;" id="filter-cat">
                   <option value="">Todas</option>
                   <option value="general">General</option>
                   <option value="games">Juegos</option>
@@ -192,8 +192,8 @@
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:.6rem .8rem;font-size:.8rem;word-break:break-all;margin-bottom:.75rem;" id="modal-url"></div>
       <img id="modal-img" src="" style="width:100%;border-radius:8px;max-height:160px;object-fit:contain;background:rgba(255,255,255,.03);margin-bottom:.75rem;">
       <div class="d-flex gap-2">
-        <button class="btn-ss active flex-fill" style="padding:.4rem;" id="btn-copy-url">Copiar URL</button>
-        <button class="btn-ss flex-fill" style="padding:.4rem;" id="btn-close-modal">Cerrar</button>
+        <button class="btn-indigo flex-fill" id="btn-copy-url">Copiar URL</button>
+        <button class="btn-ss flex-fill" id="btn-close-modal">Cerrar</button>
       </div>
     </div>
   </div>

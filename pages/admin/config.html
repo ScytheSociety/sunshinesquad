@@ -14,15 +14,13 @@
 
   <main class="container py-4">
 
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div class="admin-page-header">
+      <a href="index.html" class="btn-ss" style="width:auto;">← Dashboard</a>
       <div>
-        <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:.25rem;">🔧 Configuración del Sitio</h1>
-        <p class="text-muted-ss mb-0">Ajustes generales del clan: nombre, redes sociales y anuncios.</p>
+        <h1>🔧 Configuración del Sitio</h1>
+        <p class="subtitle">Ajustes generales del clan: nombre, redes sociales y anuncios.</p>
       </div>
-      <a href="index.html" class="btn btn-sm"
-        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);">
-        ← Dashboard
-      </a>
+      <div id="admin-role-badge" class="admin-role-badge ms-auto"></div>
     </div>
 
     <div id="access-denied" class="card-dark text-center py-5" style="display:none;">
@@ -43,12 +41,12 @@
             <div class="tl-field-label mb-3">🌐 Identidad del clan</div>
 
             <div class="mb-3">
-              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Nombre del clan</label>
+              <label class="admin-label">Nombre del clan</label>
               <input type="text" id="cfg-clan_name" class="form-control"
                 style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
             </div>
             <div class="mb-3">
-              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Descripción (hero section)</label>
+              <label class="admin-label">Descripción (hero section)</label>
               <textarea id="cfg-clan_description" rows="3" class="form-control"
                 style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;resize:none;"></textarea>
             </div>
@@ -61,28 +59,28 @@
             <div class="tl-field-label mb-3">🔗 Redes sociales</div>
 
             <div class="mb-3">
-              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Discord (URL invite)</label>
+              <label class="admin-label">Discord (URL invite)</label>
               <input type="url" id="cfg-clan_discord" class="form-control" placeholder="https://discord.gg/..."
                 style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
             </div>
             <div class="mb-3">
-              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Twitch (URL canal)</label>
+              <label class="admin-label">Twitch (URL canal)</label>
               <input type="url" id="cfg-clan_twitch" class="form-control" placeholder="https://twitch.tv/..."
                 style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
             </div>
             <div class="mb-3">
-              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">YouTube (URL canal)</label>
+              <label class="admin-label">YouTube (URL canal)</label>
               <input type="url" id="cfg-clan_youtube" class="form-control" placeholder="https://youtube.com/@..."
                 style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
             </div>
             <div class="row g-3">
               <div class="col-6">
-                <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Twitter / X</label>
+                <label class="admin-label">Twitter / X</label>
                 <input type="url" id="cfg-clan_twitter" class="form-control" placeholder="https://x.com/..."
                   style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
               </div>
               <div class="col-6">
-                <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">TikTok</label>
+                <label class="admin-label">TikTok</label>
                 <input type="url" id="cfg-clan_tiktok" class="form-control" placeholder="https://tiktok.com/@..."
                   style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
               </div>
@@ -100,12 +98,12 @@
 
             <div class="row g-3 mb-3">
               <div class="col-md-8">
-                <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Texto del anuncio</label>
+                <label class="admin-label">Texto del anuncio</label>
                 <input type="text" id="cfg-announcement" class="form-control" placeholder="Ej: ¡WoE esta noche a las 8 PM! ☀️"
                   style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
               </div>
               <div class="col-md-2">
-                <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Tipo</label>
+                <label class="admin-label">Tipo</label>
                 <select id="cfg-announcement_type" class="form-select"
                   style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
                   <option value="info">ℹ️ Info</option>
@@ -131,7 +129,7 @@
       </div><!-- /row -->
 
       <div class="mt-4 d-flex justify-content-end">
-        <button id="save-btn" class="btn-ss active" style="min-width:160px;">💾 Guardar cambios</button>
+        <button id="save-btn" class="btn-indigo" style="min-width:160px;">💾 Guardar cambios</button>
       </div>
 
     </div>
