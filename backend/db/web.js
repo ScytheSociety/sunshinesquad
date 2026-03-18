@@ -129,6 +129,28 @@ function initSchema(db) {
       last_seen    TEXT DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS push_preferences (
+      user_id      TEXT PRIMARY KEY,
+      pref_blog    INTEGER DEFAULT 1,
+      pref_event   INTEGER DEFAULT 1,
+      pref_birthday INTEGER DEFAULT 1,
+      pref_tierlist INTEGER DEFAULT 0,
+      updated_at   TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS push_log (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      sent_by      TEXT,
+      type         TEXT DEFAULT 'manual',
+      title        TEXT,
+      body         TEXT,
+      url          TEXT,
+      target       TEXT DEFAULT 'all',
+      sent_count   INTEGER DEFAULT 0,
+      failed_count INTEGER DEFAULT 0,
+      created_at   TEXT DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS site_event_rsvp (
       event_id   TEXT NOT NULL,
       user_id    TEXT NOT NULL,

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notificaciones Push · Admin · Sunshine Squad</title>
+  <link rel="icon" href="https://em-content.zobj.net/source/twitter/376/sun_2600-fe0f.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/pages/admin.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="container py-4">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+      <div>
+        <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:.25rem;">🔔 Notificaciones Push</h1>
+        <p class="text-muted-ss mb-0">Envía notificaciones a los suscriptores de la comunidad.</p>
+      </div>
+      <a href="index.html" class="btn btn-sm"
+        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);">
+        ← Dashboard
+      </a>
+    </div>
+
+    <div id="access-denied" class="card-dark text-center py-5" style="display:none;">
+      <div style="font-size:3rem;">🔒</div>
+      <h3 style="color:#ef4444;margin:.75rem 0 .5rem;">Acceso denegado</h3>
+      <p class="text-muted-ss">Necesitas ser Moderador o Admin para acceder a este panel.</p>
+    </div>
+
+    <div id="push-content" style="display:none;">
+
+      <!-- Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card-dark text-center py-3">
+            <div style="font-size:1.6rem;font-weight:900;color:#a5b4fc;" id="stat-subs">—</div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.4px;margin-top:.2rem;">Suscriptores</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-dark text-center py-3">
+            <div style="font-size:1.6rem;font-weight:900;color:#6ee7b7;" id="stat-logged">—</div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.4px;margin-top:.2rem;">Con cuenta</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-dark text-center py-3">
+            <div style="font-size:1.6rem;font-weight:900;color:#fbbf24;" id="stat-sent">—</div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.4px;margin-top:.2rem;">Envíos totales</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-dark text-center py-3">
+            <div style="font-size:1.6rem;font-weight:900;color:#f472b6;" id="stat-delivered">—</div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.4px;margin-top:.2rem;">Entregas</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+
+        <!-- Enviar notificación -->
+        <div class="col-lg-5">
+          <div class="card-dark">
+            <div class="tl-field-label mb-3">Enviar notificación</div>
+
+            <div class="mb-3">
+              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Título *</label>
+              <input type="text" id="push-title" class="form-control" placeholder="Ej: ¡Raid esta noche!"
+                style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">Mensaje *</label>
+              <textarea id="push-body" rows="3" class="form-control" placeholder="Descripción breve..."
+                style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;resize:none;"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="font-size:.82rem;color:rgba(255,255,255,.6);">URL al hacer click</label>
+              <input type="url" id="push-url" class="form-control" placeholder="https://sunshinesquad.es/..."
+                style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;">
+            </div>
+
+            <div id="push-result" style="display:none;margin-bottom:.75rem;padding:.6rem .9rem;border-radius:10px;font-size:.84rem;font-weight:600;"></div>
+
+            <button id="send-btn" class="btn-ss active w-100">🔔 Enviar a todos</button>
+          </div>
+        </div>
+
+        <!-- Historial -->
+        <div class="col-lg-7">
+          <div class="card-dark">
+            <div class="tl-field-label mb-3">Historial de envíos</div>
+            <div id="push-log">
+              <div class="text-center py-4" style="color:rgba(255,255,255,.3);">Cargando…</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../../assets/js/components.js"></script>
+  <script type="module" src="../../assets/js/pages/admin-push.js"></script>
+</body>
+</html>

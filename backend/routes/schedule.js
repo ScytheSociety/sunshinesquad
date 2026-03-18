@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { requireRole, requireAuth } = require("../middleware/auth");
 const { webDB } = require("../db/web");
+const { sendPush } = require("../utils/pushHelper");
 
 const router = Router();
 
@@ -81,7 +82,16 @@ router.post("/", requireRole("moderador"), (req, res) => {
             JSON.stringify(actividad.items_requeridos||[]), JSON.stringify(actividad.consumibles||[]),
             actividad.link_info||"#", actividad.link_registro||"#");
     }
-    res.status(201).json(getOne(id));
+    const created = getOne(id);
+    if (activo !== false) {
+      sendPush({
+        type: "event", title: `📅 Nuevo evento: ${evento}`,
+        body: `${juego}${fecha ? ` · ${fecha}` : ""} ${hora || ""}`.trim(),
+        url:  `https://sunshinesquad.es/pages/horario/schedule.html`,
+        sentBy: req.user?.id || "system",
+      }).catch(() => {});
+    }
+    res.status(201).json(created);
   } catch (e) {
     if (e.code === "SQLITE_CONSTRAINT_PRIMARYKEY")
       return res.status(409).json({ error: "Ya existe un evento con ese ID" });

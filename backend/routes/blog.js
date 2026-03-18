@@ -2,6 +2,7 @@ const express  = require("express");
 const router   = express.Router();
 const { webDB } = require("../db/web");
 const { requireAuth, requireRole } = require("../middleware/auth");
+const { sendPush } = require("../utils/pushHelper");
 
 const POR_PAGINA = 10;
 
@@ -105,6 +106,15 @@ router.post("/", requireRole("editor"), (req, res) => {
       INSERT INTO blog_posts (slug, titulo, contenido, resumen, juego, portada_url, autor_id, autor_nombre, publicado)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(slug, titulo, contenido, resumen || "", juego || null, portada_url || null, req.user.id, req.user.username, publicado ? 1 : 0);
+
+    if (publicado) {
+      sendPush({
+        type: "blog", title: `📝 Nuevo post: ${titulo}`,
+        body: resumen || `Por ${req.user.username}`,
+        url:  `https://sunshinesquad.es/pages/blog/post.html?slug=${slug}`,
+        sentBy: req.user.id,
+      }).catch(() => {});
+    }
     res.json({ id: info.lastInsertRowid });
   } catch (err) {
     if (err.message.includes("UNIQUE")) return res.status(409).json({ error: "El slug ya existe" });
@@ -117,11 +127,21 @@ router.put("/:slug", requireRole("editor"), (req, res) => {
   const db = webDB();
   const { titulo, contenido, resumen, juego, portada_url, publicado } = req.body;
 
+  const before = db.prepare("SELECT publicado, titulo, resumen FROM blog_posts WHERE slug=?").get(req.params.slug);
   db.prepare(`
     UPDATE blog_posts SET titulo=?, contenido=?, resumen=?, juego=?, portada_url=?, publicado=?,
     updated_at=datetime('now') WHERE slug=?
   `).run(titulo, contenido, resumen, juego, portada_url || null, publicado ? 1 : 0, req.params.slug);
 
+  // Send push only when transitioning from unpublished → published
+  if (publicado && before && !before.publicado) {
+    sendPush({
+      type: "blog", title: `📝 Nuevo post: ${titulo || before.titulo}`,
+      body: resumen || before.resumen || `Por ${req.user.username}`,
+      url:  `https://sunshinesquad.es/pages/blog/post.html?slug=${req.params.slug}`,
+      sentBy: req.user.id,
+    }).catch(() => {});
+  }
   res.json({ ok: true });
 });
 

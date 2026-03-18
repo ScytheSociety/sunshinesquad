@@ -1,4 +1,5 @@
 import { getUser, apiFetch } from "/assets/js/auth.js";
+import { isPushSupported, isPushSubscribed, subscribeToPush, unsubscribeFromPush } from "/assets/js/push-manager.js";
 
 const API = "https://sunshinesquad.es/api";
 
@@ -68,6 +69,11 @@ function renderProfile(p) {
 
   // Role badge from logged-in user comparison
   const me = getUser();
+  const isOwn = !!(me && me.id === p.discord_id);
+
+  // Init push section if own profile
+  initPushSection(isOwn);
+
   if (me && me.id === p.discord_id && me.role && me.role !== "visitante") {
     const roleBadge = document.getElementById("p-role");
     const roleLabels = { admin:"Admin", moderador:"Moderador", editor:"Editor", miembro:"Miembro" };
@@ -160,3 +166,100 @@ function renderProfile(p) {
 }
 
 loadProfile();
+
+// ── Push preferences (own profile only) ───────────────────────────
+const PREFS_DEF = [
+  { key: "pref_blog",     label: "📝 Blog",          desc: "Nuevos posts publicados" },
+  { key: "pref_event",    label: "📅 Eventos",        desc: "Nuevos eventos en el horario" },
+  { key: "pref_birthday", label: "🎂 Cumpleaños",     desc: "Cumpleaños de miembros" },
+  { key: "pref_tierlist", label: "🏅 Tier Lists",     desc: "Nuevas tier lists" },
+];
+
+async function initPushSection(isOwn) {
+  if (!isOwn) return;
+  const section = document.getElementById("p-push-section");
+  if (!section) return;
+  section.style.display = "";
+
+  const statusEl  = document.getElementById("p-push-status");
+  const prefsEl   = document.getElementById("p-push-prefs");
+  const togglesEl = document.getElementById("p-prefs-toggles");
+  const btnWrap   = document.getElementById("p-push-btn-wrap");
+
+  if (!isPushSupported()) {
+    statusEl.textContent = "Tu navegador no soporta notificaciones push.";
+    return;
+  }
+
+  const perm      = Notification.permission;
+  const subscribed = await isPushSubscribed();
+  const user       = getUser();
+
+  // Status label
+  if (perm === "denied") {
+    statusEl.innerHTML = `<span style="color:#fca5a5;">🚫 Notificaciones bloqueadas en tu navegador. Habilítalas en Configuración.</span>`;
+  } else if (subscribed) {
+    statusEl.innerHTML = `<span style="color:#86efac;">✅ Notificaciones activadas en este dispositivo.</span>`;
+  } else {
+    statusEl.innerHTML = `<span style="color:rgba(255,255,255,.4);">🔕 Notificaciones desactivadas.</span>`;
+  }
+
+  // Preference toggles (only when subscribed)
+  if (subscribed && user) {
+    prefsEl.style.display = "";
+    let prefs = { pref_blog:1, pref_event:1, pref_birthday:1, pref_tierlist:0 };
+    try {
+      const res = await apiFetch("/push/preferences");
+      if (res && res.ok) prefs = await res.json();
+    } catch {}
+
+    togglesEl.innerHTML = PREFS_DEF.map(p => `
+      <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;
+                    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+                    border-radius:10px;padding:.5rem .75rem;font-size:.83rem;color:rgba(255,255,255,.75);">
+        <input type="checkbox" data-key="${p.key}" ${prefs[p.key] ? "checked" : ""}
+               style="accent-color:#6366f1;width:16px;height:16px;">
+        <span>${p.label}</span>
+        <span style="font-size:.72rem;color:rgba(255,255,255,.35);">${p.desc}</span>
+      </label>
+    `).join("");
+
+    // Save on change
+    togglesEl.addEventListener("change", async () => {
+      const updated = {};
+      PREFS_DEF.forEach(p => {
+        updated[p.key] = togglesEl.querySelector(`[data-key="${p.key}"]`)?.checked ? 1 : 0;
+      });
+      await apiFetch("/push/preferences", { method:"PUT", body: JSON.stringify(updated) });
+    });
+  }
+
+  // Subscribe / Unsubscribe button
+  const btn = document.createElement("button");
+  btn.className = "btn btn-sm";
+  if (subscribed) {
+    btn.style.cssText = "background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;";
+    btn.textContent   = "🔕 Desactivar notificaciones";
+    btn.onclick = async () => {
+      btn.disabled = true;
+      await unsubscribeFromPush();
+      initPushSection(true); // reload
+    };
+  } else if (perm !== "denied") {
+    btn.style.cssText = "background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.35);color:#a5b4fc;";
+    btn.textContent   = "🔔 Activar notificaciones";
+    btn.onclick = async () => {
+      btn.disabled     = true;
+      btn.textContent  = "Activando…";
+      try {
+        await subscribeToPush(user?.id);
+        initPushSection(true);
+      } catch (err) {
+        btn.disabled    = false;
+        btn.textContent = "🔔 Activar notificaciones";
+        statusEl.innerHTML = `<span style="color:#fca5a5;">${err.message}</span>`;
+      }
+    };
+  }
+  if (perm !== "denied") btnWrap.appendChild(btn);
+}
