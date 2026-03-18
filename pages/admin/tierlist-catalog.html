@@ -24,36 +24,48 @@
       </div>
     </div>
 
-    <!-- Selector de juego — compact -->
+    <!-- Selector de juego -->
     <div class="card-dark mb-4">
-      <div style="display:flex;gap:12px;align-items:stretch;">
-        <!-- Square cover image -->
-        <div id="game-cover-panel" style="width:120px;height:120px;flex-shrink:0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);position:relative;">
+      <div style="display:flex;align-items:center;gap:8px;">
+
+        <!-- Imagen del juego 150x150 -->
+        <div id="game-cover-panel" style="width:150px;height:150px;flex-shrink:0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);position:relative;">
           <img id="game-cover-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;" loading="lazy">
           <div id="game-cover-placeholder" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.3);">
-            <div style="font-size:2rem;">🎮</div>
+            <div style="font-size:2.5rem;">🎮</div>
           </div>
         </div>
-        <!-- Right: top row + description -->
-        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;height:120px;">
-          <!-- Top row: game select + buttons + URL + save -->
-          <div style="display:flex;gap:6px;align-items:center;">
-            <select id="adm-game" class="tl-select" style="flex:1;min-width:0;font-size:.88rem;font-weight:700;padding:.3rem .6rem;">
-              <option value="ragnarok">Ragnarok Online</option>
-              <option value="wow">World of Warcraft</option>
-              <option value="lineage2">Lineage 2</option>
-              <option value="brawlstars">Brawl Stars</option>
-              <option value="throneandliberty">Throne &amp; Liberty</option>
-            </select>
-            <button id="btn-seed-defaults" class="btn-ss" title="Importar defaults" style="padding:.3rem .5rem;font-size:.9rem;flex-shrink:0;">📦</button>
-            <button id="btn-reload" class="btn-ss" title="Recargar" style="padding:.3rem .5rem;font-size:.9rem;flex-shrink:0;">🔄</button>
-            <input id="game-cover-url" class="tl-input" type="url" placeholder="URL imagen..." style="flex:1;min-width:0;font-size:.75rem;padding:.3rem .5rem;">
-            <button id="btn-save-cover" class="btn-ss active" title="Guardar imagen y descripción" style="padding:.3rem .5rem;font-size:.9rem;flex-shrink:0;">💾</button>
-          </div>
-          <!-- Description textarea -->
-          <textarea id="game-description" class="tl-input" placeholder="Descripción del juego (aparece en la página de tier list)..." style="flex:1;resize:none;font-size:.78rem;padding:.4rem .6rem;line-height:1.4;"></textarea>
-        </div>
+
+        <!-- Dropdown juego (crece para llenar espacio) -->
+        <select id="adm-game" class="tl-select" style="flex:1;min-width:0;font-size:1.05rem;font-weight:700;padding:.55rem .9rem;height:42px;">
+          <option value="ragnarok">Ragnarok Online</option>
+          <option value="wow">World of Warcraft</option>
+          <option value="lineage2">Lineage 2</option>
+          <option value="brawlstars">Brawl Stars</option>
+          <option value="throneandliberty">Throne &amp; Liberty</option>
+        </select>
+
+        <!-- Importar defaults -->
+        <button id="btn-seed-defaults" class="btn-ss" title="Importar defaults"
+                style="width:38px;height:38px;padding:0;font-size:1.1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;">📥</button>
+
+        <!-- Recargar -->
+        <button id="btn-reload" class="btn-ss" title="Recargar"
+                style="width:38px;height:38px;padding:0;font-size:1.1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;">🔄</button>
+
+        <!-- URL imagen -->
+        <input id="game-cover-url" class="tl-input" type="url" placeholder="https://..."
+               style="width:220px;flex-shrink:0;font-size:.82rem;padding:.5rem .75rem;height:38px;">
+
+        <!-- Guardar -->
+        <button id="btn-save-cover" class="btn-ss active" title="Guardar imagen y descripción"
+                style="width:38px;height:38px;padding:0;font-size:1.1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;">💾</button>
+
       </div>
+
+      <!-- Descripción del juego (debajo de la fila) -->
+      <textarea id="game-description" class="tl-input" placeholder="Descripción del juego (aparece en la página de tier list)..."
+                style="width:100%;margin-top:10px;resize:vertical;min-height:60px;font-size:.82rem;padding:.5rem .75rem;line-height:1.5;"></textarea>
     </div>
 
     <!-- Tabs -->
