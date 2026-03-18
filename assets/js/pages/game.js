@@ -259,45 +259,71 @@ async function renderClan(gameKey) {
   }
 }
 
+// ── Aplicar datos del servidor ─────────────────────────────────────
+function applyServerData(srv) {
+  if (!srv) return;
+  const logoEl = document.getElementById("servidor-logo");
+  const logoSrc = srv.logo_url || srv.logo || null;
+  if (logoEl) { if (logoSrc) { logoEl.src = logoSrc; logoEl.style.display = ""; } else logoEl.style.display = "none"; }
+
+  const descSrv = document.getElementById("servidor-descripcion");
+  if (descSrv) descSrv.textContent = srv.descripcion || "";
+
+  const btnDesc = document.getElementById("btn-descarga");
+  if (btnDesc) { if (srv.descarga) { btnDesc.href = srv.descarga; btnDesc.style.display = "inline-flex"; } else btnDesc.style.display = "none"; }
+
+  const btnDisc = document.getElementById("btn-discord");
+  if (btnDisc) { if (srv.discord) { btnDisc.href = srv.discord; btnDisc.style.display = "inline-flex"; } else btnDisc.style.display = "none"; }
+
+  const btnWeb = document.getElementById("btn-web");
+  if (btnWeb) { if (srv.web) { btnWeb.href = srv.web; btnWeb.style.display = "inline-flex"; } else btnWeb.style.display = "none"; }
+
+  const btnWiki = document.getElementById("btn-wiki");
+  if (btnWiki) { if (srv.wiki) { btnWiki.href = srv.wiki; btnWiki.style.display = "inline-flex"; } else btnWiki.style.display = "none"; }
+
+  renderTabla(srv.info);
+}
+
 // ── Init ───────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   if (!GAME_KEY) return;
   initTabs();
 
+  // Load static JSON (base data: descripcion, servidor, guias, builds)
+  let staticData = {};
+  try { staticData = await loadJson(`data/${GAME_KEY}.json`); } catch {}
+
+  const descEl = document.getElementById("game-descripcion");
+  if (descEl && staticData.descripcion) descEl.textContent = staticData.descripcion;
+
+  // Load API media (gallery, videos, server config) — overrides JSON if present
+  let apiMedia = null;
   try {
-    const data = await loadJson(`data/${GAME_KEY}.json`);
+    const r = await fetch(`${API}/game-media/${GAME_KEY}`);
+    if (r.ok) apiMedia = await r.json();
+  } catch {}
 
-    const descEl = document.getElementById("game-descripcion");
-    if (descEl) descEl.textContent = data.descripcion || "";
+  // Server data: API takes priority, falls back to JSON
+  const hasApiServer = apiMedia?.servidor &&
+    (apiMedia.servidor.logo_url || apiMedia.servidor.descripcion ||
+     apiMedia.servidor.web      || apiMedia.servidor.wiki        ||
+     apiMedia.servidor.descarga || apiMedia.servidor.discord     ||
+     apiMedia.servidor.info?.length);
+  applyServerData(hasApiServer ? apiMedia.servidor : staticData.servidor);
 
-    const srv = data.servidor;
-    if (srv) {
-      const logoEl = document.getElementById("servidor-logo");
-      if (logoEl) { if (srv.logo) { logoEl.src = srv.logo; logoEl.style.display = ""; } else logoEl.style.display = "none"; }
+  // Gallery: API takes priority (if any rows exist), else JSON
+  const galleryItems = apiMedia?.gallery?.length
+    ? apiMedia.gallery.map(g => ({ imagen: g.url, titulo: g.titulo }))
+    : (staticData.galeria || []);
+  renderGaleria(galleryItems);
 
-      const descSrv = document.getElementById("servidor-descripcion");
-      if (descSrv) descSrv.textContent = srv.descripcion || "";
+  // Videos: API takes priority (if any rows exist), else JSON
+  const videoItems = apiMedia?.videos?.length
+    ? apiMedia.videos.map(v => ({ url: v.url, titulo: v.titulo }))
+    : (staticData.videos || []);
+  renderVideos(videoItems);
 
-      const btnDesc = document.getElementById("btn-descarga");
-      if (btnDesc) { if (srv.descarga) { btnDesc.href = srv.descarga; btnDesc.style.display = "inline-flex"; } else btnDesc.style.display = "none"; }
-
-      const btnDisc = document.getElementById("btn-discord");
-      if (btnDisc) { if (srv.discord) { btnDisc.href = srv.discord; btnDisc.style.display = "inline-flex"; } else btnDisc.style.display = "none"; }
-
-      const btnWeb = document.getElementById("btn-web");
-      if (btnWeb) { if (srv.web) { btnWeb.href = srv.web; btnWeb.style.display = "inline-flex"; } else btnWeb.style.display = "none"; }
-
-      const btnWiki = document.getElementById("btn-wiki");
-      if (btnWiki) { if (srv.wiki) { btnWiki.href = srv.wiki; btnWiki.style.display = "inline-flex"; } else btnWiki.style.display = "none"; }
-
-      renderTabla(srv.info);
-    }
-
-    renderGaleria(data.galeria || []);
-    renderVideos(data.videos || []);
-    renderGrid(data.guias,  "guias-grid");
-    renderGrid(data.builds, "builds-grid");
-    renderClan(GAME_KEY);
-
-  } catch(e) { console.error(`game.js [${GAME_KEY}]:`, e); }
+  renderGrid(staticData.guias,  "guias-grid");
+  renderGrid(staticData.builds, "builds-grid");
+  renderClan(GAME_KEY);
 });

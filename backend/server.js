@@ -31,6 +31,7 @@ app.use("/api/bank",       require("./routes/bank"));
 app.use("/api/calendar",   require("./routes/calendar"));
 app.use("/api/streams",    require("./routes/streams"));
 app.use("/api/images",     require("./routes/images"));
+app.use("/api/game-media", require("./routes/game-media"));
 app.use("/api/profile",   require("./routes/profile"));
 app.use("/api/config",    require("./routes/config"));
 

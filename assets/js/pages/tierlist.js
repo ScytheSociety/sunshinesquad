@@ -615,14 +615,43 @@ async function loadFromUrl() {
   } catch { return false; }
 }
 
+// ── Cargar juegos dinámicamente ────────────────────────────────────
+async function loadGamesDropdown() {
+  try {
+    const res = await fetch(`${API}/games`);
+    if (!res.ok) return null;
+    const games = await res.json();
+    const sel   = document.getElementById("tl-juego");
+    games
+      .filter(g => g.activo)
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }))
+      .forEach(g => {
+        const key = g.bot_command_key || g.command_key ||
+                    g.nombre.toLowerCase().replace(/\s+/g, "").replace(/[^a-z0-9]/g, "");
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = g.nombre;
+        sel.appendChild(opt);
+      });
+    // Return first game key as default
+    const first = games.find(g => g.activo);
+    return first ? (first.bot_command_key || first.command_key ||
+                    first.nombre.toLowerCase().replace(/\s+/g, "").replace(/[^a-z0-9]/g, "")) : null;
+  } catch { return null; }
+}
+
 // ── Init ───────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   renderTiers(); initPool(); syncTitulo();
+
+  const firstGame = await loadGamesDropdown();
+
   const loaded = await loadFromUrl();
   if (!loaded) {
-    document.getElementById("tl-juego").value  = "ragnarok";
+    const defaultGame = firstGame || "ragnarok";
+    document.getElementById("tl-juego").value  = defaultGame;
     document.getElementById("tl-titulo").value = "Mi Tier List";
     syncTitulo();
-    await changeGame("ragnarok");
+    await changeGame(defaultGame);
   }
 });

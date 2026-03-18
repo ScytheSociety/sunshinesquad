@@ -53,7 +53,7 @@ function populateBotDropdown(selectedKey) {
 async function loadGames() {
   const el = document.getElementById("games-list");
   el.innerHTML = `<div class="admin-loading">Cargando...</div>`;
-  const res = await apiFetch("/games");
+  const res = await apiFetch("/games?_t=" + Date.now());
   if (!res?.ok) { el.innerHTML = `<div class="admin-empty">Error al cargar juegos</div>`; return; }
   allGames = await res.json();
   // Sort by name

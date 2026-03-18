@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · Multimedia · Sunshine Squad</title>
+  <link rel="icon" href="https://em-content.zobj.net/source/twitter/376/sun_2600-fe0f.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/pages/admin.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="container py-4">
+
+    <!-- Header -->
+    <div class="admin-page-header">
+      <a href="index.html" class="btn-ss" style="width:auto;">← Dashboard</a>
+      <div>
+        <h1>🖼️ Multimedia por Juego</h1>
+        <p class="subtitle">Galería, videos y configuración del servidor por página de juego</p>
+      </div>
+      <div id="admin-role-badge" class="admin-role-badge ms-auto"></div>
+    </div>
+
+    <!-- Acceso denegado -->
+    <div id="access-denied" class="card-dark text-center py-5" style="display:none;">
+      <div style="font-size:3rem;">🔒</div>
+      <h3 style="color:#ef4444;margin:.75rem 0 .5rem;">Acceso denegado</h3>
+      <p class="text-muted-ss">Necesitas ser Editor, Moderador o Admin.</p>
+    </div>
+
+    <div id="admin-content" style="display:none;">
+
+      <!-- Selector de juego -->
+      <div class="card-dark mb-4">
+        <div class="admin-form-title mb-2">Seleccionar página de juego</div>
+        <div class="d-flex gap-3 align-items-end flex-wrap">
+          <div style="flex:1;min-width:220px;">
+            <label class="admin-label">Página de juego</label>
+            <select id="sel-game" class="form-select" style="background:#1a1d27;color:#fff;border-color:rgba(255,255,255,.15);">
+              <option value="">— Seleccionar —</option>
+            </select>
+          </div>
+          <button id="btn-load-game" class="btn-indigo" style="font-size:.85rem;">Cargar</button>
+        </div>
+        <div id="sel-game-hint" style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.4rem;">
+          El "game key" es el identificador del juego usado en las páginas (ej: ragnarok, wow, lineage2).
+        </div>
+      </div>
+
+      <!-- Editor (oculto hasta que se carga un juego) -->
+      <div id="editor-wrap" style="display:none;">
+
+        <!-- Tabs -->
+        <div class="d-flex gap-2 mb-3 flex-wrap">
+          <button class="mm-tab-btn active" data-tab="galeria">📷 Galería</button>
+          <button class="mm-tab-btn" data-tab="videos">▶️ Videos</button>
+          <button class="mm-tab-btn" data-tab="servidor">⚙️ Servidor</button>
+        </div>
+
+        <!-- TAB: Galería -->
+        <div id="tab-galeria" class="mm-tab-content">
+          <div class="card-dark">
+            <div class="d-flex align-items-center justify-content-between mb-3 gap-2 flex-wrap">
+              <div class="admin-form-title mb-0">Imágenes de galería</div>
+              <button id="btn-add-img" class="btn-indigo" style="font-size:.8rem;">+ Añadir imagen</button>
+            </div>
+            <!-- Formulario añadir/editar -->
+            <div id="img-form" class="card-dark mb-3" style="display:none;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);">
+              <div class="admin-form-title mb-2" id="img-form-title">Nueva imagen</div>
+              <div class="row g-2">
+                <div class="col-md-8">
+                  <label class="admin-label">URL de la imagen</label>
+                  <input type="text" id="img-url" class="form-control" placeholder="https://...">
+                </div>
+                <div class="col-md-4">
+                  <label class="admin-label">Título (opcional)</label>
+                  <input type="text" id="img-titulo" class="form-control" placeholder="Descripción corta">
+                </div>
+              </div>
+              <div id="img-preview" style="margin-top:.5rem;display:none;">
+                <img id="img-preview-el" src="" style="max-height:80px;border-radius:6px;border:1px solid rgba(255,255,255,.1);">
+              </div>
+              <div class="d-flex gap-2 mt-3">
+                <button id="btn-save-img" class="btn-indigo flex-fill">Guardar</button>
+                <button id="btn-cancel-img" class="btn-ss flex-fill">Cancelar</button>
+              </div>
+            </div>
+            <div id="gallery-list"><div class="admin-empty">Sin imágenes aún.</div></div>
+          </div>
+        </div>
+
+        <!-- TAB: Videos -->
+        <div id="tab-videos" class="mm-tab-content" style="display:none;">
+          <div class="card-dark">
+            <div class="d-flex align-items-center justify-content-between mb-3 gap-2 flex-wrap">
+              <div class="admin-form-title mb-0">Videos</div>
+              <button id="btn-add-vid" class="btn-indigo" style="font-size:.8rem;">+ Añadir video</button>
+            </div>
+            <div id="vid-form" class="card-dark mb-3" style="display:none;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);">
+              <div class="admin-form-title mb-2" id="vid-form-title">Nuevo video</div>
+              <div class="row g-2">
+                <div class="col-md-8">
+                  <label class="admin-label">URL del video (YouTube, etc.)</label>
+                  <input type="text" id="vid-url" class="form-control" placeholder="https://youtube.com/watch?v=...">
+                </div>
+                <div class="col-md-4">
+                  <label class="admin-label">Título</label>
+                  <input type="text" id="vid-titulo" class="form-control" placeholder="Título del video">
+                </div>
+              </div>
+              <div class="d-flex gap-2 mt-3">
+                <button id="btn-save-vid" class="btn-indigo flex-fill">Guardar</button>
+                <button id="btn-cancel-vid" class="btn-ss flex-fill">Cancelar</button>
+              </div>
+            </div>
+            <div id="videos-list"><div class="admin-empty">Sin videos aún.</div></div>
+          </div>
+        </div>
+
+        <!-- TAB: Servidor -->
+        <div id="tab-servidor" class="mm-tab-content" style="display:none;">
+          <div class="card-dark">
+            <div class="admin-form-title mb-3">Configuración del servidor</div>
+            <form id="server-form" autocomplete="off">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="admin-label">URL logo del servidor</label>
+                  <input type="text" id="srv-logo" class="form-control" placeholder="https://...">
+                  <div id="srv-logo-preview" style="margin-top:.4rem;display:none;">
+                    <img id="srv-logo-img" src="" style="max-height:50px;border-radius:4px;">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="admin-label">Web del servidor</label>
+                  <input type="text" id="srv-web" class="form-control" placeholder="https://...">
+                </div>
+                <div class="col-md-6">
+                  <label class="admin-label">Wiki</label>
+                  <input type="text" id="srv-wiki" class="form-control" placeholder="https://...">
+                </div>
+                <div class="col-md-6">
+                  <label class="admin-label">Link de descarga</label>
+                  <input type="text" id="srv-descarga" class="form-control" placeholder="https://...">
+                </div>
+                <div class="col-md-6">
+                  <label class="admin-label">Discord del servidor</label>
+                  <input type="text" id="srv-discord" class="form-control" placeholder="https://discord.gg/...">
+                </div>
+                <div class="col-12">
+                  <label class="admin-label">Descripción del servidor</label>
+                  <textarea id="srv-desc" class="form-control" rows="4" placeholder="Descripción larga del servidor..."></textarea>
+                </div>
+              </div>
+
+              <!-- Tabla de información del servidor -->
+              <div class="admin-form-title mt-4 mb-2">Tabla de información (rates, episodio, etc.)</div>
+              <div id="srv-info-rows"></div>
+              <button type="button" id="btn-add-info-row" class="btn-ss mt-2" style="font-size:.8rem;">+ Añadir fila</button>
+
+              <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn-indigo flex-fill">Guardar configuración</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div><!-- /editor-wrap -->
+    </div><!-- /admin-content -->
+
+  </main>
+
+  <div id="footer-container"></div>
+  <div id="admin-toast"></div>
+
+  <style>
+    .mm-tab-btn {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.6);
+      border-radius: 8px;
+      padding: .35rem .9rem;
+      font-size: .82rem;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .mm-tab-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .mm-tab-btn.active { background: rgba(99,102,241,.25); border-color: rgba(99,102,241,.5); color: #a5b4fc; font-weight: 600; }
+    .mm-media-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: .5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .mm-media-row:last-child { border-bottom: none; }
+    .mm-media-thumb {
+      width: 60px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: rgba(255,255,255,.05);
+      flex-shrink: 0;
+    }
+    .mm-media-thumb-empty {
+      width: 60px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,.04);
+      border-radius: 6px;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .srv-info-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .srv-info-row input { font-size: .82rem; }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../../assets/js/components.js"></script>
+  <script type="module" src="../../assets/js/pages/admin-multimedia.js"></script>
+</body>
+</html>
