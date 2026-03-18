@@ -39,28 +39,31 @@ function ensureTables() {
       sort_order INTEGER DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS tl_game_covers (
-      game_key   TEXT PRIMARY KEY,
-      image_url  TEXT NOT NULL,
-      updated_at TEXT DEFAULT (datetime('now'))
+      game_key    TEXT PRIMARY KEY,
+      image_url   TEXT NOT NULL,
+      description TEXT,
+      updated_at  TEXT DEFAULT (datetime('now'))
     );
   `);
+  // Migration: add description column if missing
+  try { webDB().prepare("ALTER TABLE tl_game_covers ADD COLUMN description TEXT").run(); } catch {}
 }
 
 // ── GET /api/tl-catalog/:game/cover ───────────────────────────────
 router.get("/:game/cover", (req, res) => {
   ensureTables();
-  const row = webDB().prepare("SELECT image_url FROM tl_game_covers WHERE game_key=?").get(req.params.game);
-  res.json({ image_url: row ? row.image_url : null });
+  const row = webDB().prepare("SELECT image_url, description FROM tl_game_covers WHERE game_key=?").get(req.params.game);
+  res.json({ image_url: row?.image_url || null, description: row?.description || "" });
 });
 
 // ── PUT /api/tl-catalog/:game/cover ───────────────────────────────
 router.put("/:game/cover", requireRole("editor"), (req, res) => {
   ensureTables();
-  const { image_url } = req.body;
+  const { image_url, description } = req.body;
   if (!image_url) return res.status(400).json({ error: "URL requerida" });
   webDB().prepare(
-    "INSERT INTO tl_game_covers (game_key, image_url, updated_at) VALUES (?,?,datetime('now')) ON CONFLICT(game_key) DO UPDATE SET image_url=excluded.image_url, updated_at=excluded.updated_at"
-  ).run(req.params.game, image_url);
+    "INSERT INTO tl_game_covers (game_key, image_url, description, updated_at) VALUES (?,?,?,datetime('now')) ON CONFLICT(game_key) DO UPDATE SET image_url=excluded.image_url, description=excluded.description, updated_at=excluded.updated_at"
+  ).run(req.params.game, image_url, description || null);
   res.json({ ok: true });
 });
 

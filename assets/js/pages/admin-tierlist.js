@@ -185,34 +185,38 @@ function setGameCoverImg(src) {
 }
 
 async function updateGameCover(game) {
-  const urlInput = document.getElementById("game-cover-url");
+  const urlInput  = document.getElementById("game-cover-url");
+  const descInput = document.getElementById("game-description");
   try {
     const res  = await fetch(`${API}/tl-catalog/${game}/cover`, { headers: authHeaders() });
     const data = await res.json();
     const src  = data.image_url || GAME_COVERS_DEFAULT[game] || null;
     setGameCoverImg(src);
-    if (urlInput) urlInput.value = data.image_url || "";
+    if (urlInput)  urlInput.value  = data.image_url   || "";
+    if (descInput) descInput.value = data.description || "";
   } catch {
     const src = GAME_COVERS_DEFAULT[game] || null;
     setGameCoverImg(src);
-    if (urlInput) urlInput.value = "";
+    if (urlInput)  urlInput.value  = "";
+    if (descInput) descInput.value = "";
   }
 }
 
 document.getElementById("btn-save-cover")?.addEventListener("click", async () => {
-  const urlInput = document.getElementById("game-cover-url");
+  const urlInput  = document.getElementById("game-cover-url");
+  const descInput = document.getElementById("game-description");
   const src = urlInput?.value?.trim();
   if (!src) { toast("Ingresa una URL válida", true); return; }
   try {
     const res = await fetch(`${API}/tl-catalog/${currentGame}/cover`, {
       method: "PUT",
       headers: authHeaders(),
-      body: JSON.stringify({ image_url: src }),
+      body: JSON.stringify({ image_url: src, description: descInput?.value?.trim() || null }),
     });
     if (!res.ok) throw new Error();
     setGameCoverImg(src);
-    toast("Imagen guardada");
-  } catch { toast("Error al guardar la imagen", true); }
+    toast("Guardado");
+  } catch { toast("Error al guardar", true); }
 });
 
 document.getElementById("adm-game")?.addEventListener("change", e => {

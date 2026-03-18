@@ -40,11 +40,14 @@ async function loadRanking(game = "") {
   const top3 = data.slice(0, 3);
   podioRow.innerHTML = top3.map((u, i) => {
     const c = PODIO_COLORS[i];
+    const bgStyle = u.banner_url
+      ? `background-image:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.68)),url(${u.banner_url});background-size:cover;background-position:center;`
+      : `background:${c.bg};`;
     return `
       <div class="col-sm-4 col-6 ${i === 0 ? "" : ""}">
         <a href="../../pages/perfil/perfil.html?id=${u.discord_id}"
            style="display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1.5rem 1rem;
-                  background:${c.bg};border:1px solid ${c.border};border-radius:16px;text-decoration:none;">
+                  ${bgStyle}border:1px solid ${c.border};border-radius:16px;text-decoration:none;">
           <span style="font-size:1.6rem;">${c.medal}</span>
           <img src="${u.avatar_url}" alt="${u.username}" width="${i===0?60:48}" height="${i===0?60:48}"
                style="border-radius:50%;border:2px solid ${c.border};object-fit:cover;"

@@ -60,9 +60,9 @@ router.get("/", (req, res) => {
         LIMIT 5
       `).all(u.uid);
 
-      // Try to get cached avatar from web.db
+      // Try to get cached avatar/banner from web.db
       const cached = web.prepare(
-        "SELECT avatar FROM discord_users WHERE discord_id = ?"
+        "SELECT avatar, banner_url FROM discord_users WHERE discord_id = ?"
       ).get(u.discord_user_id);
 
       let avatar_url = cached?.avatar || null;
@@ -77,6 +77,7 @@ router.get("/", (req, res) => {
         discord_id:     u.discord_user_id,
         username:       u.username,
         avatar_url,
+        banner_url:     cached?.banner_url || null,
         puntos_totales: u.puntos_totales,
         juegos,
         logros,
