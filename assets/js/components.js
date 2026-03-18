@@ -61,6 +61,31 @@ function setYear() {
   if (el) el.textContent = new Date().getFullYear();
 }
 
+async function loadAnnouncement() {
+  try {
+    const res = await fetch("https://sunshinesquad.es/api/config", { cache: "no-store" });
+    if (!res.ok) return;
+    const cfg = await res.json();
+    if (cfg.announcement_active !== "1" || !cfg.announcement) return;
+
+    const COLORS = {
+      info:    { bg:"rgba(99,102,241,.15)", border:"rgba(99,102,241,.3)",  color:"#a5b4fc" },
+      success: { bg:"rgba(34,197,94,.12)",  border:"rgba(34,197,94,.3)",   color:"#86efac" },
+      warning: { bg:"rgba(251,191,36,.12)", border:"rgba(251,191,36,.3)",  color:"#fde047" },
+      danger:  { bg:"rgba(239,68,68,.12)",  border:"rgba(239,68,68,.3)",   color:"#fca5a5" },
+    };
+    const c   = COLORS[cfg.announcement_type] || COLORS.info;
+    const bar = document.createElement("div");
+    bar.style.cssText = `background:${c.bg};border-bottom:1px solid ${c.border};color:${c.color};
+      text-align:center;padding:.55rem 1rem;font-size:.84rem;font-weight:600;position:relative;`;
+    bar.innerHTML = `📢 ${cfg.announcement}
+      <button onclick="this.parentElement.remove()"
+        style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);
+               background:none;border:none;color:inherit;opacity:.6;cursor:pointer;font-size:1rem;line-height:1;">×</button>`;
+    document.body.insertBefore(bar, document.body.firstChild);
+  } catch {}
+}
+
 function injectPWAMeta() {
   const head = document.head;
 
@@ -101,6 +126,7 @@ function injectPWAMeta() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   injectPWAMeta();
+  loadAnnouncement();
   await loadComponent("navbar-container", "components/navbar.html");
   await loadComponent("footer-container", "components/footer.html");
   await loadNavJuegos();

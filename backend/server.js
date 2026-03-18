@@ -32,6 +32,7 @@ app.use("/api/calendar",   require("./routes/calendar"));
 app.use("/api/streams",    require("./routes/streams"));
 app.use("/api/images",     require("./routes/images"));
 app.use("/api/profile",   require("./routes/profile"));
+app.use("/api/config",    require("./routes/config"));
 
 // ── Health check ─────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
