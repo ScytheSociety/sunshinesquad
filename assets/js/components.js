@@ -61,7 +61,46 @@ function setYear() {
   if (el) el.textContent = new Date().getFullYear();
 }
 
+function injectPWAMeta() {
+  const head = document.head;
+
+  // Web App Manifest
+  if (!document.querySelector('link[rel="manifest"]')) {
+    const manifest = document.createElement("link");
+    manifest.rel  = "manifest";
+    manifest.href = "/manifest.json";
+    head.appendChild(manifest);
+  }
+
+  // Theme color
+  if (!document.querySelector('meta[name="theme-color"]')) {
+    const tc = document.createElement("meta");
+    tc.name    = "theme-color";
+    tc.content = "#6366f1";
+    head.appendChild(tc);
+  }
+
+  // Apple PWA metas
+  if (!document.querySelector('meta[name="apple-mobile-web-app-capable"]')) {
+    const amc = document.createElement("meta");
+    amc.name    = "apple-mobile-web-app-capable";
+    amc.content = "yes";
+    head.appendChild(amc);
+
+    const ams = document.createElement("meta");
+    ams.name    = "apple-mobile-web-app-status-bar-style";
+    ams.content = "black-translucent";
+    head.appendChild(ams);
+
+    const amt = document.createElement("meta");
+    amt.name    = "apple-mobile-web-app-title";
+    amt.content = "Sunshine Squad";
+    head.appendChild(amt);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+  injectPWAMeta();
   await loadComponent("navbar-container", "components/navbar.html");
   await loadComponent("footer-container", "components/footer.html");
   await loadNavJuegos();

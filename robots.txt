@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /pages/admin/
+Disallow: /pages/blog/editor.html
+Disallow: /auth-callback.html
+
+Sitemap: https://sunshinesquad.es/sitemap.xml

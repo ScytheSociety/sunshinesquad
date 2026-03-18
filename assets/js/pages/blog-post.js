@@ -17,6 +17,14 @@ async function loadPost() {
     const breadcrumb = document.getElementById("breadcrumb-title");
     if (breadcrumb) breadcrumb.textContent = post.titulo;
 
+    // Dynamic OG tags
+    const setMeta = (sel, val) => { const el = document.querySelector(sel); if (el) el.setAttribute("content", val); };
+    const postUrl = `https://sunshinesquad.es/pages/blog/post.html?slug=${post.slug}`;
+    setMeta('meta[property="og:title"]',       `${post.titulo} · Blog · Sunshine Squad`);
+    setMeta('meta[property="og:description"]', post.resumen || post.titulo);
+    setMeta('meta[property="og:url"]',         postUrl);
+    document.querySelector('meta[name="description"]')?.setAttribute("content", post.resumen || post.titulo);
+
     const fecha = new Date(post.created_at).toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
 
     const user      = getUser();

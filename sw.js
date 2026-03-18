@@ -1,15 +1,88 @@
 // Service Worker — Sunshine Squad
-const CACHE_NAME = "ss-v1";
+const CACHE_NAME    = "ss-v2";
+const STATIC_ASSETS = [
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/assets/css/main.css",
+  "/assets/js/app.js",
+  "/assets/js/auth.js",
+  "/assets/js/components.js",
+  "/assets/js/push-manager.js",
+  "/components/navbar.html",
+  "/components/footer.html",
+];
 
+// ── Install: pre-cache static shell ─────────────────────────────────
 self.addEventListener("install", e => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(c => c.addAll(STATIC_ASSETS)).catch(() => {})
+  );
   self.skipWaiting();
 });
 
+// ── Activate: purge old caches ───────────────────────────────────────
 self.addEventListener("activate", e => {
-  e.waitUntil(clients.claim());
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
+  );
+  clients.claim();
 });
 
-// Push notification received
+// ── Fetch: network-first for API, cache-first for static assets ──────
+self.addEventListener("fetch", e => {
+  const url = new URL(e.request.url);
+
+  // Only handle GET requests
+  if (e.request.method !== "GET") return;
+
+  // API calls: network-first, no cache fallback
+  if (url.pathname.startsWith("/api/")) {
+    e.respondWith(
+      fetch(e.request).catch(() => new Response(JSON.stringify({ error: "offline" }), {
+        status: 503,
+        headers: { "Content-Type": "application/json" },
+      }))
+    );
+    return;
+  }
+
+  // CDN resources (Bootstrap, emoji): cache-first
+  if (url.hostname !== "sunshinesquad.es" && url.hostname !== location.hostname) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(res => {
+          if (res && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+          }
+          return res;
+        }).catch(() => cached);
+      })
+    );
+    return;
+  }
+
+  // Site pages and assets: stale-while-revalidate
+  e.respondWith(
+    caches.open(CACHE_NAME).then(async cache => {
+      const cached = await cache.match(e.request);
+      const networkFetch = fetch(e.request).then(res => {
+        if (res && res.status === 200 && res.type !== "opaque") {
+          cache.put(e.request, res.clone());
+        }
+        return res;
+      }).catch(() => null);
+
+      return cached || networkFetch || new Response("Offline", { status: 503 });
+    })
+  );
+});
+
+// ── Push notification received ───────────────────────────────────────
 self.addEventListener("push", e => {
   let data = {};
   try { data = e.data?.json() || {}; } catch {}
@@ -28,7 +101,7 @@ self.addEventListener("push", e => {
   e.waitUntil(self.registration.showNotification(title, options));
 });
 
-// Click on notification → open URL
+// ── Click on notification → open URL ────────────────────────────────
 self.addEventListener("notificationclick", e => {
   e.notification.close();
   const url = e.notification.data?.url || "https://sunshinesquad.es";

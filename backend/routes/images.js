@@ -39,6 +39,7 @@ router.get("/file/:filename", (req, res) => {
   const safe = path.basename(req.params.filename); // previene path traversal
   const filepath = path.join(UPLOADS_DIR, safe);
   if (!fs.existsSync(filepath)) return res.status(404).json({ error: "Archivo no encontrado" });
+  res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
   res.sendFile(filepath);
 });
 

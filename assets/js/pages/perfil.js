@@ -55,6 +55,12 @@ async function loadProfile() {
 function renderProfile(p) {
   // Update meta
   document.title = `${p.username} · Sunshine Squad`;
+  const setMeta = (sel, val) => { const el = document.querySelector(sel); if (el) el.setAttribute("content", val); };
+  const profileUrl = `https://sunshinesquad.es/pages/perfil/perfil.html?id=${p.discord_id}`;
+  setMeta('meta[property="og:title"]',       `${p.display_name || p.username} · Sunshine Squad`);
+  setMeta('meta[property="og:description"]', `Perfil de ${p.display_name || p.username} en la comunidad Sunshine Squad.`);
+  setMeta('meta[property="og:image"]',       p.avatar || "https://i.imgur.com/p7OlADi.gif");
+  setMeta('meta[property="og:url"]',         profileUrl);
 
   // Header
   document.getElementById("p-avatar").src = p.avatar;
