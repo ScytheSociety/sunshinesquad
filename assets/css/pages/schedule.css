@@ -290,3 +290,58 @@
   .head-days      { min-width: 520px; }
   .swl-month      { font-size: .9rem; }
 }
+
+/* ===================== RSVP SECTION ===================== */
+.rsvp-header { font-size:.82rem; color:rgba(255,255,255,.5); margin-bottom:.5rem; }
+.rsvp-header strong { color:#fff; }
+.rsvp-list { display:flex; flex-direction:column; gap:3px; margin-bottom:.6rem; }
+.rsvp-user-row {
+  display:flex; align-items:center; gap:.5rem;
+  padding:.3rem .45rem; border-radius:8px;
+  background:rgba(255,255,255,.03);
+}
+.rsvp-avatar {
+  width:26px; height:26px; border-radius:50%;
+  object-fit:cover; flex-shrink:0;
+  border:1px solid rgba(255,255,255,.1);
+}
+.rsvp-user-info { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+.rsvp-char { font-size:.78rem; color:#fff; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rsvp-lv   { font-size:.67rem; color:rgba(255,255,255,.4); font-weight:400; }
+.rsvp-username { font-size:.67rem; color:rgba(255,255,255,.35); }
+.rsvp-type { font-size:.62rem; font-weight:700; padding:.1rem .42rem; border-radius:999px; flex-shrink:0; }
+.rsvp-type.main     { background:rgba(99,102,241,.18); color:#a5b4fc; border:1px solid rgba(99,102,241,.3); }
+.rsvp-type.wildcard { background:rgba(251,191,36,.14); color:#fde047; border:1px solid rgba(251,191,36,.3); }
+.rsvp-type.bench    { background:rgba(100,116,139,.18); color:#94a3b8; border:1px solid rgba(100,116,139,.3); }
+.rsvp-names { font-size:.78rem; color:rgba(255,255,255,.45); margin-bottom:.5rem; }
+.rsvp-empty { font-size:.78rem; color:rgba(255,255,255,.3); margin-bottom:.4rem; }
+.rsvp-login-hint { font-size:.75rem; color:rgba(255,255,255,.3); margin-top:.6rem; }
+.rsvp-login-hint a { color:rgba(139,148,255,.8); text-decoration:none; }
+.rsvp-login-hint a:hover { text-decoration:underline; }
+
+/* RSVP Form */
+.rsvp-form { margin-top:.75rem; border-top:1px solid rgba(255,255,255,.07); padding-top:.75rem; }
+.rsvp-form-label { font-size:.72rem; color:rgba(255,255,255,.4); margin-bottom:.4rem; }
+.rsvp-char-selector { display:flex; flex-wrap:wrap; gap:.35rem; margin-bottom:.6rem; }
+.char-pick {
+  font-size:.74rem; padding:.26rem .6rem; border-radius:8px;
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.65); cursor:pointer; transition:all .12s;
+}
+.char-pick span { opacity:.5; font-size:.66rem; }
+.char-pick.active { background:rgba(99,102,241,.2); border-color:rgba(99,102,241,.5); color:#a5b4fc; }
+.char-pick:hover:not(.active) { background:rgba(255,255,255,.09); color:#fff; }
+.rsvp-btns { display:flex; gap:.4rem; flex-wrap:wrap; }
+.rsvp-action-btn {
+  font-size:.78rem; font-weight:600; padding:.38rem .85rem;
+  border-radius:9px; border:1px solid; cursor:pointer; transition:all .15s;
+}
+.rsvp-action-btn.primary   { background:rgba(99,102,241,.15); border-color:rgba(99,102,241,.4); color:#a5b4fc; }
+.rsvp-action-btn.primary:hover   { background:rgba(99,102,241,.25); }
+.rsvp-action-btn.secondary { background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.15); color:rgba(255,255,255,.65); }
+.rsvp-action-btn.secondary:hover { background:rgba(255,255,255,.1); color:#fff; }
+.rsvp-action-btn.registered { background:rgba(34,197,94,.12); border-color:rgba(34,197,94,.35); color:#86efac; }
+.rsvp-action-btn.danger     { background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.35); color:#fca5a5; }
+.rsvp-action-btn.danger:hover { background:rgba(239,68,68,.2); }
+.rsvp-action-btn:disabled { opacity:.4; cursor:not-allowed; }
+.rsvp-my-status { font-size:.82rem; color:rgba(255,255,255,.7); margin-bottom:.55rem; }

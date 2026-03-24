@@ -128,10 +128,10 @@ async function showPopup(ev, inicio, est) {
     pasado: { label:"⚫ Finalizado", bg:"rgba(100,116,139,.2)", border:"#64748b" }
   }[est];
 
-  const hora       = inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
+  const hora       = inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:false });
   const fecha      = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
   const tz         = ev.timezone || "America/Lima";
-  const horaServer = new Date(`${ev.fecha}T${ev.hora}:00`).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
+  const horaServer = ev.hora;   // Ya está en la zona del servidor
   const tzLabel    = tz === "UTC" ? "UTC" : tz.split("/")[1]?.replace(/_/g," ") || tz;
   const tags  = arr => (arr||[]).map(x => `<span class="popup-tag">${x}</span>`).join("");
   const gcalUrl = buildGCalUrl(ev, inicio);
@@ -151,9 +151,8 @@ async function showPopup(ev, inicio, est) {
       ${(info.items_requeridos||[]).length ? `<div class="popup-label">Items requeridos</div><div>${tags(info.items_requeridos)}</div>` : ""}
       ${(info.consumibles||[]).length ? `<div class="popup-label">Consumibles</div><div>${tags(info.consumibles)}</div>` : ""}
       <!-- RSVP section -->
-      <div class="popup-label">Asistencia</div>
-      <div id="rsvp-section" style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
-        <span id="rsvp-count" style="font-size:.82rem;color:rgba(255,255,255,.45);">Cargando…</span>
+      <div id="rsvp-section" style="margin-top:1rem;">
+        <span style="font-size:.8rem;color:rgba(255,255,255,.35);">Cargando asistencia…</span>
       </div>
       <div class="popup-actions">
         ${info.link_info && info.link_info !== "#" ? `<a href="${info.link_info}" target="_blank" class="popup-btn">📚 Ver información</a>` : ""}
@@ -172,15 +171,12 @@ async function showPopup(ev, inicio, est) {
 }
 
 async function loadRSVP(eventId, est, popupEl, ev) {
-  const countEl   = popupEl.querySelector("#rsvp-count");
   const sectionEl = popupEl.querySelector("#rsvp-section");
-  if (!countEl || !sectionEl) return;
+  if (!sectionEl) return;
 
-  const isBotEvent = ev && ev.source === "bot";
+  const isBotEvent = ev?.source === "bot";
   const botId      = ev?.bot_id;
-  const rsvpUrl    = isBotEvent
-    ? `${API}/schedule/bot/${botId}/rsvp`
-    : `${API}/schedule/${eventId}/rsvp`;
+  const rsvpUrl    = isBotEvent ? `${API}/schedule/bot/${botId}/rsvp` : `${API}/schedule/${eventId}/rsvp`;
 
   try {
     const headers = {};
@@ -188,104 +184,150 @@ async function loadRSVP(eventId, est, popupEl, ev) {
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
     const res = await fetch(rsvpUrl, { headers });
-    if (!res.ok) { countEl.textContent = "No disponible"; return; }
+    if (!res.ok) { sectionEl.innerHTML = `<span class="rsvp-empty">No disponible</span>`; return; }
     const data = await res.json();
 
-    const names = data.users.slice(0, 8).map(u => {
-      const extra = isBotEvent && u.character_name ? ` (${u.character_name})` : "";
-      return u.username + extra;
-    }).join(", ");
-    const extraCount = data.count > 8 ? ` +${data.count - 8} más` : "";
-    countEl.innerHTML = data.count
-      ? `<span style="color:#a5b4fc;font-weight:700;">${data.count}</span> <span style="color:rgba(255,255,255,.4);">asistiré${data.count === 1 ? "" : "n"}</span>
-         ${names ? `<span style="color:rgba(255,255,255,.3);font-size:.75rem;"> · ${names}${extraCount}</span>` : ""}`
-      : `<span style="color:rgba(255,255,255,.35);">Nadie confirmó aún</span>`;
+    // ── Participant list ───────────────────────────────────────
+    const maxLabel = (isBotEvent && data.max) ? `/${data.max}` : "";
+    let html = `<div class="rsvp-header">👥 <strong>${data.count}</strong>${maxLabel} participante${data.count !== 1 ? "s" : ""}</div>`;
 
-    const user = getUser();
-    if (!user || est === "pasado") return;
-
-    const myRsvp = isBotEvent ? !!data.myRsvp : data.users.some(u => u.user_id === user.id);
-
-    if (isBotEvent && !myRsvp && data.characters && data.characters.length > 0) {
-      // Mostrar selector de personaje
-      renderCharacterSelector(data.characters, sectionEl, botId, est, popupEl, ev);
+    if (data.count > 0) {
+      html += `<div class="rsvp-list">`;
+      if (isBotEvent) {
+        data.users.forEach(u => {
+          const avatar  = u.avatar_url || `https://cdn.discordapp.com/embed/avatars/0.png`;
+          const charTxt = u.character_name
+            ? `${u.class_emoji} ${u.character_name} <span class="rsvp-lv">lv${u.character_level}</span>`
+            : `<span style="opacity:.4">Sin personaje</span>`;
+          const typeKey = u.is_wildcard ? "wildcard" : u.bench_voluntary ? "bench" : "main";
+          const typeTxt = u.is_wildcard ? "comodín" : u.bench_voluntary ? "banca" : "principal";
+          html += `<div class="rsvp-user-row">
+            <img src="${avatar}" class="rsvp-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            <div class="rsvp-user-info">
+              <span class="rsvp-char">${charTxt}</span>
+              <span class="rsvp-username">@${u.username}</span>
+            </div>
+            <span class="rsvp-type ${typeKey}">${typeTxt}</span>
+          </div>`;
+        });
+      } else {
+        const names = data.users.slice(0, 6).map(u => u.username).join(", ");
+        const extra = data.count > 6 ? ` +${data.count - 6}` : "";
+        html += `<div class="rsvp-names">${names}${extra}</div>`;
+      }
+      html += `</div>`;
     } else {
-      const btn = document.createElement("button");
-      btn.id = "rsvp-btn";
-      btn.className = "popup-btn";
-      btn.style.cssText = myRsvp
-        ? "background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4);color:#86efac;"
-        : "background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#a5b4fc;";
-      btn.textContent = myRsvp ? "✅ Inscrito (cancelar)" : "🙋 Confirmar asistencia";
-      sectionEl.appendChild(btn);
+      html += `<div class="rsvp-empty">Nadie confirmado aún</div>`;
+    }
 
-      btn.addEventListener("click", async () => {
-        btn.disabled = true;
-        btn.textContent = "…";
-        const method = myRsvp ? "DELETE" : "POST";
-        const url    = isBotEvent ? `/schedule/bot/${botId}/rsvp` : `/schedule/${eventId}/rsvp`;
-        const res2   = await apiFetch(url, { method });
-        if (!res2) return;
-        const d2 = await res2.json();
-        if (d2.ok !== undefined) loadRSVP(eventId, est, popupEl, ev);
-      });
+    sectionEl.innerHTML = html;
+
+    // ── Registration form ──────────────────────────────────────
+    if (est === "pasado") return;
+    const user = getUser();
+    if (!user) {
+      sectionEl.insertAdjacentHTML("beforeend",
+        `<div class="rsvp-login-hint">🔑 <a href="/pages/auth/login.html">Inicia sesión con Discord</a> para inscribirte</div>`);
+      return;
+    }
+
+    if (!isBotEvent) {
+      const myRsvp = data.users.some(u => u.user_id === user.id);
+      _renderSimpleRsvp(sectionEl, myRsvp, eventId, est, popupEl, ev);
+      return;
+    }
+
+    if (data.myRsvp) {
+      _renderMyRegistration(sectionEl, data.myRsvp, botId, est, popupEl, ev, data.characters);
+    } else {
+      _renderRegisterForm(sectionEl, data.characters, botId, est, popupEl, ev);
     }
   } catch {
-    countEl.textContent = "No disponible";
+    sectionEl.innerHTML = `<span class="rsvp-empty">No disponible</span>`;
   }
 }
 
-function renderCharacterSelector(characters, sectionEl, botId, est, popupEl, ev) {
+function _renderSimpleRsvp(sectionEl, myRsvp, eventId, est, popupEl, ev) {
   const wrap = document.createElement("div");
-  wrap.style.cssText = "width:100%;margin-top:.4rem;";
-  wrap.innerHTML = `
-    <div style="font-size:.78rem;color:rgba(255,255,255,.45);margin-bottom:.4rem;">Elige tu personaje:</div>
-    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.5rem;">
-      ${characters.map(c => `
-        <button class="char-pick popup-btn" data-id="${c.id}" data-name="${c.character_name}" data-level="${c.level}" data-role="${c.role_name}"
-          style="font-size:.78rem;padding:.3rem .7rem;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);">
-          ${c.class_emoji || "⚔️"} ${c.character_name} <span style="opacity:.5;font-size:.7rem;">lv${c.level}</span>
-        </button>`).join("")}
-    </div>
-    <button id="rsvp-confirm" class="popup-btn" style="background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#a5b4fc;opacity:.4;" disabled>
-      🙋 Confirmar asistencia
-    </button>`;
+  wrap.className = "rsvp-form";
+  wrap.innerHTML = `<button class="rsvp-action-btn ${myRsvp ? "registered" : "primary"}">${myRsvp ? "✅ Inscrito · cancelar" : "🙋 Confirmar asistencia"}</button>`;
   sectionEl.appendChild(wrap);
+  wrap.querySelector("button").addEventListener("click", async btn => {
+    btn.target.disabled = true; btn.target.textContent = "…";
+    await apiFetch(`/schedule/${eventId}/rsvp`, { method: myRsvp ? "DELETE" : "POST" });
+    loadRSVP(eventId, est, popupEl, ev);
+  });
+}
 
-  let selected = null;
-  wrap.querySelectorAll(".char-pick").forEach(btn => {
+function _renderRegisterForm(sectionEl, characters, botId, est, popupEl, ev) {
+  const defaultChar = characters.find(c => c.is_main) || characters[0] || null;
+  let selectedChar = defaultChar;
+
+  const charHtml = characters.length ? `
+    <div class="rsvp-form-label">Elige tu personaje:</div>
+    <div class="rsvp-char-selector">
+      ${characters.map(c => `
+        <button class="char-pick${selectedChar?.id === c.id ? " active" : ""}"
+                data-id="${c.id}" data-level="${c.level}">
+          ${c.class_emoji || "⚔️"} ${c.character_name} <span>lv${c.level}</span>
+        </button>`).join("")}
+    </div>` : "";
+
+  const formEl = document.createElement("div");
+  formEl.className = "rsvp-form";
+  formEl.innerHTML = `${charHtml}
+    <div class="rsvp-btns">
+      <button class="rsvp-action-btn primary" data-type="main">🙋 Inscribirse</button>
+      <button class="rsvp-action-btn secondary" data-type="wildcard">🃏 Comodín</button>
+      <button class="rsvp-action-btn secondary" data-type="bench">⏳ Banca</button>
+    </div>`;
+  sectionEl.appendChild(formEl);
+
+  formEl.querySelectorAll(".char-pick").forEach(btn => {
     btn.addEventListener("click", () => {
-      wrap.querySelectorAll(".char-pick").forEach(b => {
-        b.style.background = "rgba(255,255,255,.05)";
-        b.style.borderColor = "rgba(255,255,255,.15)";
-        b.style.color = "";
-      });
-      btn.style.background = "rgba(99,102,241,.2)";
-      btn.style.borderColor = "rgba(99,102,241,.5)";
-      btn.style.color = "#a5b4fc";
-      selected = { id: btn.dataset.id, name: btn.dataset.name, level: btn.dataset.level, role: btn.dataset.role };
-      const confirmBtn = wrap.querySelector("#rsvp-confirm");
-      confirmBtn.disabled = false;
-      confirmBtn.style.opacity = "1";
+      formEl.querySelectorAll(".char-pick").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedChar = { id: btn.dataset.id, level: btn.dataset.level };
     });
   });
 
-  wrap.querySelector("#rsvp-confirm")?.addEventListener("click", async () => {
-    const confirmBtn = wrap.querySelector("#rsvp-confirm");
-    confirmBtn.disabled = true;
-    confirmBtn.textContent = "…";
-    const res = await apiFetch(`/schedule/bot/${botId}/rsvp`, {
-      method: "POST",
-      body: JSON.stringify({
-        character_id:    selected?.id,
-        character_name:  selected?.name,
-        character_level: selected?.level,
-        role_name:       selected?.role,
-      }),
+  formEl.querySelectorAll("[data-type]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      btn.disabled = true; btn.textContent = "…";
+      const res = await apiFetch(`/schedule/bot/${botId}/rsvp`, {
+        method: "POST",
+        body: JSON.stringify({ character_id: selectedChar?.id || null, type: btn.dataset.type }),
+      });
+      if (res) loadRSVP(`bot-${botId}`, est, popupEl, ev);
     });
-    if (!res) return;
-    const d = await res.json();
-    if (d.ok !== undefined) loadRSVP(`bot-${botId}`, est, popupEl, ev);
+  });
+}
+
+function _renderMyRegistration(sectionEl, myRsvp, botId, est, popupEl, ev, characters) {
+  const charTxt = myRsvp.character_name
+    ? `${myRsvp.class_emoji || "⚔️"} ${myRsvp.character_name} (lv${myRsvp.character_level})`
+    : "Sin personaje";
+  const typeTxt = myRsvp.is_wildcard ? "🃏 Comodín" : myRsvp.bench_voluntary ? "⏳ Banca" : "🙋 Principal";
+
+  const formEl = document.createElement("div");
+  formEl.className = "rsvp-form";
+  formEl.innerHTML = `
+    <div class="rsvp-my-status">✅ ${typeTxt} · ${charTxt}</div>
+    <div class="rsvp-btns">
+      <button class="rsvp-action-btn secondary" id="btn-edit">✏️ Editar</button>
+      <button class="rsvp-action-btn danger"     id="btn-cancel">❌ Cancelar</button>
+    </div>`;
+  sectionEl.appendChild(formEl);
+
+  formEl.querySelector("#btn-edit").addEventListener("click", () => {
+    formEl.remove();
+    _renderRegisterForm(sectionEl, characters, botId, est, popupEl, ev);
+  });
+
+  formEl.querySelector("#btn-cancel").addEventListener("click", async btn => {
+    btn.target.disabled = true; btn.target.textContent = "…";
+    const res = await apiFetch(`/schedule/bot/${botId}/rsvp`, { method: "DELETE" });
+    if (res) loadRSVP(`bot-${botId}`, est, popupEl, ev);
   });
 }
 
@@ -382,7 +424,7 @@ function render() {
     el.addEventListener("click", () => {
       const evData = scheduleData.find(e => e.id === el.dataset.evid);
       if (!evData) return;
-      const ini = toLocal(evData.fecha, evData.hora);
+      const ini = toLocal(evData.fecha, evData.hora, evData.timezone || "America/Lima");
       showPopup(evData, ini, estado(ini, evData.duracion));
     });
   });
@@ -477,7 +519,7 @@ function renderMonth() {
     chip.addEventListener("click", () => {
       const evData = scheduleData.find(e => e.id === chip.dataset.evid);
       if (!evData) return;
-      const ini = toLocal(evData.fecha, evData.hora);
+      const ini = toLocal(evData.fecha, evData.hora, evData.timezone || "America/Lima");
       showPopup(evData, ini, estado(ini, evData.duracion));
     });
   });
