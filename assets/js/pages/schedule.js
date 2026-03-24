@@ -6,7 +6,7 @@ const DIAS_GRID  = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 const MESES      = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
                     "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const ZONA_USER  = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const HORA_PX    = 38;
+const HORA_PX    = 60;
 const HORAS      = 24;
 const API        = "https://sunshinesquad.es/api";
 
@@ -121,42 +121,53 @@ function getFragmentos(ev) {
 
 // ── Popup ──────────────────────────────────────────────────────────
 async function showPopup(ev, inicio, est) {
-  const info = activitiesData[ev.id] || {};
+  const isBotEvent = ev.source === "bot";
+  const info = (!isBotEvent && activitiesData[ev.id]) || {};
   const cfg  = {
     futuro: { label:"🔵 Próximo",    bg:"rgba(99,102,241,.25)", border:"#6366f1" },
     activo: { label:"🟢 En curso",   bg:"rgba(34,197,94,.25)",  border:"#22c55e" },
     pasado: { label:"⚫ Finalizado", bg:"rgba(100,116,139,.2)", border:"#64748b" }
   }[est];
 
-  const hora       = inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:false });
-  const fecha      = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
+  const horaLocal  = inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:false });
+  const fechaLocal = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
   const tz         = ev.timezone || "America/Lima";
-  const horaServer = ev.hora;   // Ya está en la zona del servidor
   const tzLabel    = tz === "UTC" ? "UTC" : tz.split("/")[1]?.replace(/_/g," ") || tz;
-  const tags  = arr => (arr||[]).map(x => `<span class="popup-tag">${x}</span>`).join("");
-  const gcalUrl = buildGCalUrl(ev, inicio);
+  const gcalUrl    = buildGCalUrl(ev, inicio);
+  const tags       = arr => (arr||[]).map(x => `<span class="popup-tag">${x}</span>`).join("");
+
+  // Descripción y metadatos según fuente
+  const desc     = isBotEvent ? (ev.description || "") : (info.descripcion || "");
+  const actName  = isBotEvent ? (ev.activity_name || ev.evento) : (info.nombre || ev.evento);
+  const actImage = isBotEvent ? ev.activity_image : null;
+  const puntos   = isBotEvent ? (ev.activity_points || 0) : 0;
+  const pubBy    = isBotEvent ? (ev.published_by || "") : "";
+  const dific    = isBotEvent ? (ev.difficulty || "") : "";
 
   const el = document.createElement("div");
   el.className = "popup-overlay";
   el.innerHTML = `
     <div class="popup-box">
       <button class="popup-close">✕</button>
+      ${actImage ? `<img src="${actImage}" class="popup-img" onerror="this.remove()">` : ""}
       <div class="popup-badge" style="background:${cfg.bg};border:1px solid ${cfg.border};color:#fff;">${cfg.label}</div>
-      <div class="popup-title">${info.nombre || ev.evento}</div>
-      <div class="popup-sub">${ev.juego} · ${fecha} · ${hora} · ~${ev.duracion}h</div>
-      <div class="popup-sub" style="font-size:.75rem;color:rgba(255,255,255,.35);margin-top:-.7rem;">🕐 Server time: ${horaServer} ${tzLabel}</div>
-      ${info.descripcion ? `<div class="popup-label">Descripción</div><div class="popup-text">${info.descripcion}</div>` : ""}
-      ${info.nivel_minimo ? `<div class="popup-label">Nivel mínimo</div><div class="popup-text">${info.nivel_minimo}</div>` : ""}
-      ${(info.clases||[]).length ? `<div class="popup-label">Clases</div><div>${tags(info.clases)}</div>` : ""}
-      ${(info.items_requeridos||[]).length ? `<div class="popup-label">Items requeridos</div><div>${tags(info.items_requeridos)}</div>` : ""}
-      ${(info.consumibles||[]).length ? `<div class="popup-label">Consumibles</div><div>${tags(info.consumibles)}</div>` : ""}
-      <!-- RSVP section -->
+      <div class="popup-title">${actName}</div>
+      <div class="popup-sub">${ev.juego} · ${fechaLocal} · ${horaLocal} · ~${ev.duracion}h</div>
+      <div class="popup-sub popup-tz">🕐 ${tzLabel}: ${ev.hora}</div>
+      ${desc ? `<div class="popup-text popup-desc">\`${desc}\`</div>` : ""}
+      ${dific ? `<div class="popup-sub">⚔️ Dificultad: ${dific}</div>` : ""}
+      ${puntos ? `<div class="popup-sub">⭐ ${puntos} puntos de logro</div>` : ""}
+      ${pubBy  ? `<div class="popup-sub">👤 Publicado por: <@${pubBy}></div>` : ""}
+      ${!isBotEvent && info.nivel_minimo ? `<div class="popup-label">Nivel mínimo</div><div class="popup-text">${info.nivel_minimo}</div>` : ""}
+      ${!isBotEvent && (info.clases||[]).length ? `<div class="popup-label">Clases</div><div>${tags(info.clases)}</div>` : ""}
+      ${!isBotEvent && (info.items_requeridos||[]).length ? `<div class="popup-label">Items requeridos</div><div>${tags(info.items_requeridos)}</div>` : ""}
+      ${!isBotEvent && (info.consumibles||[]).length ? `<div class="popup-label">Consumibles</div><div>${tags(info.consumibles)}</div>` : ""}
       <div id="rsvp-section" style="margin-top:1rem;">
         <span style="font-size:.8rem;color:rgba(255,255,255,.35);">Cargando asistencia…</span>
       </div>
       <div class="popup-actions">
-        ${info.link_info && info.link_info !== "#" ? `<a href="${info.link_info}" target="_blank" class="popup-btn">📚 Ver información</a>` : ""}
-        ${info.link_registro && info.link_registro !== "#" ? `<a href="${info.link_registro}" target="_blank" class="popup-btn">📋 Registro</a>` : ""}
+        ${!isBotEvent && info.link_info && info.link_info !== "#" ? `<a href="${info.link_info}" target="_blank" class="popup-btn">📚 Ver información</a>` : ""}
+        ${!isBotEvent && info.link_registro && info.link_registro !== "#" ? `<a href="${info.link_registro}" target="_blank" class="popup-btn">📋 Registro</a>` : ""}
         <a href="${gcalUrl}" target="_blank" class="popup-btn" style="background:rgba(66,133,244,.12);border-color:rgba(66,133,244,.35);color:#93c5fd;">
           📅 Google Calendar
         </a>
@@ -166,7 +177,6 @@ async function showPopup(ev, inicio, est) {
   el.onclick = e => { if (e.target === el) el.remove(); };
   document.body.appendChild(el);
 
-  // Load RSVP async
   loadRSVP(ev.id, est, el, ev);
 }
 
@@ -188,36 +198,77 @@ async function loadRSVP(eventId, est, popupEl, ev) {
     const data = await res.json();
 
     // ── Participant list ───────────────────────────────────────
-    const maxLabel = (isBotEvent && data.max) ? `/${data.max}` : "";
-    let html = `<div class="rsvp-header">👥 <strong>${data.count}</strong>${maxLabel} participante${data.count !== 1 ? "s" : ""}</div>`;
+    let html = "";
 
-    if (data.count > 0) {
-      html += `<div class="rsvp-list">`;
-      if (isBotEvent) {
-        data.users.forEach(u => {
-          const avatar  = u.avatar_url || `https://cdn.discordapp.com/embed/avatars/0.png`;
-          const charTxt = u.character_name
-            ? `${u.class_emoji} ${u.character_name} <span class="rsvp-lv">lv${u.character_level}</span>`
-            : `<span style="opacity:.4">Sin personaje</span>`;
-          const typeKey = u.is_wildcard ? "wildcard" : u.bench_voluntary ? "bench" : "main";
-          const typeTxt = u.is_wildcard ? "comodín" : u.bench_voluntary ? "banca" : "principal";
-          html += `<div class="rsvp-user-row">
-            <img src="${avatar}" class="rsvp-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-            <div class="rsvp-user-info">
-              <span class="rsvp-char">${charTxt}</span>
-              <span class="rsvp-username">@${u.username}</span>
-            </div>
-            <span class="rsvp-type ${typeKey}">${typeTxt}</span>
-          </div>`;
-        });
+    if (isBotEvent) {
+      // Barra de progreso
+      const total = data.count;
+      const max   = data.max || 0;
+      if (max > 0) {
+        const pct = Math.min(100, Math.round(total / max * 100));
+        html += `<div class="rsvp-progress-wrap">
+          <div class="rsvp-progress-bar"><div class="rsvp-progress-fill" style="width:${pct}%"></div></div>
+          <div class="rsvp-progress-label">${total}/${max} participantes · ${pct}%</div>
+        </div>`;
       } else {
+        html += `<div class="rsvp-header">👥 <strong>${total}</strong> participante${total !== 1 ? "s" : ""}</div>`;
+      }
+
+      // Separar main/wildcard vs banca
+      const mainUsers  = data.users.filter(u => !u.bench_voluntary);
+      const benchUsers = data.users.filter(u => u.bench_voluntary);
+
+      const userRow = u => {
+        const avatar  = u.avatar_url || `https://cdn.discordapp.com/embed/avatars/0.png`;
+        const charTxt = u.character_name
+          ? `${u.class_emoji || "⚔️"} ${u.character_name} <span class="rsvp-lv">lv${u.character_level}</span>`
+          : `<span style="opacity:.4">Sin personaje</span>`;
+        const badge = u.is_wildcard ? `<span class="rsvp-type wildcard">comodín</span>` : "";
+        return `<div class="rsvp-user-row">
+          <img src="${avatar}" class="rsvp-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+          <div class="rsvp-user-info">
+            <span class="rsvp-char">${charTxt}</span>
+            <span class="rsvp-username">@${u.username || u.discord_user_id}</span>
+          </div>
+          ${badge}
+        </div>`;
+      };
+
+      if (mainUsers.length) {
+        // Agrupar por rol
+        const byRole = {};
+        mainUsers.forEach(u => {
+          const key = u.role_name || "Sin rol";
+          if (!byRole[key]) byRole[key] = { emoji: u.role_emoji || "", users: [] };
+          byRole[key].users.push(u);
+        });
+        html += `<div class="rsvp-list">`;
+        Object.entries(byRole).forEach(([roleName, group]) => {
+          if (Object.keys(byRole).length > 1 || roleName !== "Sin rol") {
+            html += `<div class="rsvp-role-label">${group.emoji} ${roleName} (${group.users.length})</div>`;
+          }
+          group.users.forEach(u => { html += userRow(u); });
+        });
+        html += `</div>`;
+      } else {
+        html += `<div class="rsvp-empty">Nadie inscripto aún</div>`;
+      }
+
+      if (benchUsers.length) {
+        html += `<div class="rsvp-role-label rsvp-bench-label">⏳ Banca (${benchUsers.length})</div>
+          <div class="rsvp-list rsvp-bench-list">`;
+        benchUsers.forEach(u => { html += userRow(u); });
+        html += `</div>`;
+      }
+    } else {
+      html += `<div class="rsvp-header">👥 <strong>${data.count}</strong> participante${data.count !== 1 ? "s" : ""}</div>`;
+      if (data.count > 0) {
         const names = data.users.slice(0, 6).map(u => u.username).join(", ");
         const extra = data.count > 6 ? ` +${data.count - 6}` : "";
-        html += `<div class="rsvp-names">${names}${extra}</div>`;
+        html += `<div class="rsvp-list"><div class="rsvp-names">${names}${extra}</div></div>`;
+      } else {
+        html += `<div class="rsvp-empty">Nadie confirmado aún</div>`;
       }
-      html += `</div>`;
-    } else {
-      html += `<div class="rsvp-empty">Nadie confirmado aún</div>`;
     }
 
     sectionEl.innerHTML = html;
@@ -392,14 +443,15 @@ function render() {
       .map(f => {
         const ev   = f.ev;
         const est  = estado(toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima"), ev.duracion);
-        const hora = f.hora.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
-        const botBadge = ev.source === "bot" ? `<div class="ev-bot-badge">🤖</div>` : "";
+        const hora = f.hora.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:false });
         return `<div class="sched-ev ${gj(ev.juego)} st-${est}${ev.source === "bot" ? " ev-bot" : ""}"
                      style="top:${f.topPx}px;height:${f.altPx}px;"
                      data-evid="${ev.id}">
-          ${!f.esCont ? `<div class="ev-hora">${hora}${botBadge}</div>` : `<div class="ev-cont">↑ continúa</div>`}
-          <div class="ev-juego">${ev.juego}</div>
-          ${f.altPx > 38 ? `<div class="ev-nombre">${ev.evento}</div>` : ""}
+          ${!f.esCont
+            ? `<div class="ev-hora">${hora}</div>
+               <div class="ev-nombre">${ev.evento}</div>
+               <div class="ev-juego">${ev.juego}${ev.source === "bot" ? " 🤖" : ""}</div>`
+            : `<div class="ev-cont">↑ continúa</div>`}
         </div>`;
       }).join("");
 

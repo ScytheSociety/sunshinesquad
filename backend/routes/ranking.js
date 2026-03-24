@@ -19,6 +19,7 @@ router.get("/", (req, res) => {
           u.id            AS uid,
           u.discord_user_id,
           u.display_name  AS username,
+          u.avatar_url,
           ugs.points      AS puntos_totales
         FROM user_game_stats ugs
         JOIN users u     ON ugs.user_id = u.id
@@ -34,6 +35,7 @@ router.get("/", (req, res) => {
           u.id            AS uid,
           u.discord_user_id,
           u.display_name  AS username,
+          u.avatar_url,
           SUM(ugs.points) AS puntos_totales
         FROM user_game_stats ugs
         JOIN users u ON ugs.user_id = u.id
@@ -62,24 +64,30 @@ router.get("/", (req, res) => {
         LIMIT 5
       `).all(u.uid);
 
-      // Try to get cached avatar/banner from web.db
-      const cached = web.prepare(
-        "SELECT avatar, banner_url FROM discord_users WHERE discord_id = ?"
-      ).get(u.discord_user_id);
-
-      let avatar_url = cached?.avatar || null;
+      // Avatar: preferir bot.db (siempre actualizado), fallback web.db, fallback default
+      let avatar_url = u.avatar_url || null;
+      if (!avatar_url) {
+        const cached = web.prepare(
+          "SELECT avatar, banner_url FROM discord_users WHERE discord_id = ?"
+        ).get(u.discord_user_id);
+        avatar_url = cached?.avatar || null;
+      }
       if (!avatar_url) {
         try {
           avatar_url = `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(u.discord_user_id) % 6n)}.png`;
         } catch { avatar_url = "https://cdn.discordapp.com/embed/avatars/0.png"; }
       }
 
+      const banner = web.prepare(
+        "SELECT banner_url FROM discord_users WHERE discord_id = ?"
+      ).get(u.discord_user_id);
+
       return {
         posicion:       i + 1,
         discord_id:     u.discord_user_id,
         username:       u.username,
         avatar_url,
-        banner_url:     cached?.banner_url || null,
+        banner_url:     banner?.banner_url || null,
         puntos_totales: u.puntos_totales,
         juegos,
         logros,

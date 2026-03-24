@@ -192,6 +192,10 @@ function initSchema(db) {
     );
   `);
 
+  // Migrations idempotentes para bot_event_rsvp
+  ["slot_type TEXT DEFAULT 'free'", "is_wildcard INTEGER DEFAULT 0", "bench_voluntary INTEGER DEFAULT 0"]
+    .forEach(col => { try { db.exec(`ALTER TABLE bot_event_rsvp ADD COLUMN ${col}`); } catch {} });
+
   seedSiteData(db);
 }
 

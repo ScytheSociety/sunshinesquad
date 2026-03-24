@@ -61,10 +61,15 @@ router.get("/", (req, res) => {
       const cutoffStr = cutoff.toISOString().split('T')[0];
       const rawBot = botDB().prepare(`
         SELECT e.id, e.name, e.description, e.event_datetime, e.duration_minutes,
-               e.status, gi.name as game_name, gi.command_key,
-               COALESCE(gi.timezone, 'UTC') as timezone
+               e.status, e.creator_id, e.published_by, e.difficulty, e.participant_count,
+               gi.name as game_name, gi.command_key,
+               COALESCE(gi.timezone, 'UTC') as timezone,
+               COALESCE(a.points, 0)         as activity_points,
+               COALESCE(a.name, '')           as activity_name,
+               COALESCE(a.image_url, '')      as activity_image
         FROM events e
         JOIN game_info gi ON gi.id = e.game_id
+        LEFT JOIN activities a ON a.id = e.activity_id
         WHERE e.status NOT IN ('cancelled','canceled')
           AND date(e.event_datetime) >= ?
         ORDER BY e.event_datetime ASC
@@ -75,19 +80,26 @@ router.get("/", (req, res) => {
         const fecha = dt.slice(0, 10);
         const hora  = dt.slice(11, 16);
         return {
-          id:       `bot-${e.id}`,
-          bot_id:   e.id,
+          id:              `bot-${e.id}`,
+          bot_id:          e.id,
           fecha,
           hora,
-          juego:    e.game_name,
-          evento:   e.name,
-          duracion: Math.round((e.duration_minutes || 60) / 60 * 10) / 10,
-          timezone: e.timezone,
-          activo:   1,
-          source:   "bot",
-          status:   e.status,
-          description: e.description || "",
-          command_key: e.command_key,
+          juego:           e.game_name,
+          evento:          e.name,
+          duracion:        Math.round((e.duration_minutes || 60) / 60 * 10) / 10,
+          timezone:        e.timezone,
+          activo:          1,
+          source:          "bot",
+          status:          e.status,
+          description:     e.description || "",
+          difficulty:      e.difficulty || "",
+          command_key:     e.command_key,
+          creator_id:      e.creator_id || "",
+          published_by:    e.published_by || e.creator_id || "",
+          participant_count: e.participant_count || 0,
+          activity_points: e.activity_points || 0,
+          activity_name:   e.activity_name || "",
+          activity_image:  e.activity_image || "",
         };
       });
     } catch (botErr) {
@@ -240,8 +252,30 @@ router.delete("/:id/rsvp", requireAuth, (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Bot Event Detail ──────────────────────────────────────────────────
+// GET /api/schedule/bot/:id — detalles completos del evento del bot
+router.get("/bot/:id", (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id);
+    const ev = botDB().prepare(`
+      SELECT e.*, gi.name as game_name, COALESCE(gi.timezone,'UTC') as timezone,
+             COALESCE(a.points,0)    as activity_points,
+             COALESCE(a.name,'')     as activity_name,
+             COALESCE(a.image_url,'') as activity_image,
+             COALESCE(a.emoji,'')    as activity_emoji
+      FROM events e
+      JOIN game_info gi ON gi.id = e.game_id
+      LEFT JOIN activities a ON a.id = e.activity_id
+      WHERE e.id=?
+    `).get(eventId);
+    if (!ev) return res.status(404).json({ error: "Evento no encontrado" });
+    try { ev.slot_config = JSON.parse(ev.slot_config || "[]"); } catch { ev.slot_config = []; }
+    res.json(ev);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── RSVP Bot Events ──────────────────────────────────────────────────
-// GET /api/schedule/bot/:id/rsvp — participantes reales del bot + personajes del usuario
+// GET /api/schedule/bot/:id/rsvp — participantes (bot.db + web.db) + personajes del usuario
 router.get("/bot/:id/rsvp", (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
@@ -250,14 +284,16 @@ router.get("/bot/:id/rsvp", (req, res) => {
     ).get(eventId);
     if (!eventRow) return res.status(404).json({ error: "Evento no encontrado" });
 
-    const rows = botDB().prepare(`
+    // Inscripciones desde el bot (Discord)
+    const botRows = botDB().prepare(`
       SELECT er.discord_user_id, er.slot_type, er.is_wildcard, er.bench_voluntary,
              er.character_level,
              u.display_name AS username, u.avatar_url,
              c.character_name,
              COALESCE(cl.emoji,'⚔️') AS class_emoji,
              COALESCE(r.emoji,'')    AS role_emoji,
-             COALESCE(r.name,'')     AS role_name
+             COALESCE(r.name,'')     AS role_name,
+             'bot' as source
       FROM event_registrations er
       JOIN users u ON er.user_id = u.id
       LEFT JOIN characters c ON er.character_id = c.id
@@ -267,6 +303,25 @@ router.get("/bot/:id/rsvp", (req, res) => {
       ORDER BY er.is_wildcard ASC, er.bench_voluntary ASC, er.registered_at ASC
     `).all(eventId);
 
+    // Inscripciones desde la web (web.db)
+    const webRows = webDB().prepare(`
+      SELECT user_id as discord_user_id,
+             COALESCE(slot_type,'free') as slot_type,
+             COALESCE(is_wildcard,0)    as is_wildcard,
+             COALESCE(bench_voluntary,0) as bench_voluntary,
+             COALESCE(character_level,1) as character_level,
+             username, '' as avatar_url, character_name,
+             '⚔️' as class_emoji, '' as role_emoji,
+             COALESCE(role_name,'') as role_name,
+             'web' as source
+      FROM bot_event_rsvp WHERE event_id=?
+      ORDER BY is_wildcard ASC, bench_voluntary ASC, created_at ASC
+    `).all(eventId);
+
+    // Fusionar: bot tiene prioridad; eliminar duplicados por discord_user_id
+    const botIds = new Set(botRows.map(r => r.discord_user_id));
+    const rows   = [...botRows, ...webRows.filter(r => !botIds.has(r.discord_user_id))];
+
     let myRsvp = null;
     let characters = [];
     const authHeader = req.headers.authorization;
@@ -275,7 +330,25 @@ router.get("/bot/:id/rsvp", (req, res) => {
         const jwt = require("jsonwebtoken");
         const token = authHeader.replace("Bearer ", "");
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        myRsvp = rows.find(r => r.discord_user_id === decoded.id) || null;
+        // Buscar en bot primero, luego en web
+        myRsvp = botRows.find(r => r.discord_user_id === decoded.id) || null;
+        if (!myRsvp) {
+          const wr = webDB().prepare("SELECT * FROM bot_event_rsvp WHERE event_id=? AND user_id=?")
+            .get(eventId, decoded.id);
+          if (wr) myRsvp = {
+            discord_user_id: wr.user_id,
+            slot_type:       wr.slot_type || 'free',
+            is_wildcard:     wr.is_wildcard || 0,
+            bench_voluntary: wr.bench_voluntary || 0,
+            character_level: wr.character_level || 1,
+            username:        wr.username || "",
+            avatar_url:      null,
+            character_name:  wr.character_name || null,
+            class_emoji:     '⚔️',
+            role_emoji:      '',
+            role_name:       wr.role_name || '',
+          };
+        }
         characters = botDB().prepare(`
           SELECT c.id, c.character_name, c.level, c.is_main,
                  COALESCE(cl.name,'')    AS class_name,
@@ -295,56 +368,58 @@ router.get("/bot/:id/rsvp", (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// POST /api/schedule/bot/:id/rsvp — inscribirse / editar (upsert en event_registrations del bot)
+// POST /api/schedule/bot/:id/rsvp — inscribirse / editar (escribe en web.db)
 router.post("/bot/:id/rsvp", requireAuth, (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
-    const ev = botDB().prepare("SELECT id, status FROM events WHERE id=?").get(eventId);
+    const ev = botDB().prepare("SELECT id, game_id, status FROM events WHERE id=?").get(eventId);
     if (!ev) return res.status(404).json({ error: "Evento no encontrado" });
 
     const { character_id, type } = req.body;
-    // type: "main" | "wildcard" | "bench"
     const isWildcard     = type === "wildcard" ? 1 : 0;
     const slotType       = type === "bench"    ? "bench" : "free";
     const benchVoluntary = type === "bench"    ? 1 : 0;
 
-    // Obtener o crear usuario en bot.db
-    let userRow = botDB().prepare("SELECT id FROM users WHERE discord_user_id=?").get(req.user.id);
-    if (!userRow) {
-      botDB().prepare("INSERT INTO users (discord_user_id, display_name) VALUES (?,?)").run(req.user.id, req.user.username || "");
-      userRow = botDB().prepare("SELECT id FROM users WHERE discord_user_id=?").get(req.user.id);
-    }
-
-    let charLevel = 1;
+    // Leer datos del personaje desde bot.db (solo lectura)
+    let charLevel = 1, charName = null, roleName = null;
     if (character_id) {
-      const ch = botDB().prepare("SELECT level FROM characters WHERE id=?").get(parseInt(character_id));
-      if (ch) charLevel = ch.level;
+      const ch = botDB().prepare(`
+        SELECT c.level, c.character_name, COALESCE(r.name,'') as role_name
+        FROM characters c
+        LEFT JOIN roles r ON r.id = c.role_id
+        WHERE c.id=?
+      `).get(parseInt(character_id));
+      if (ch) { charLevel = ch.level; charName = ch.character_name; roleName = ch.role_name; }
     }
 
-    botDB().prepare(`
-      INSERT INTO event_registrations
-        (event_id, discord_user_id, user_id, character_id, character_level, status, slot_type, is_wildcard, bench_voluntary)
-      VALUES (?,?,?,?,?,'registered',?,?,?)
-      ON CONFLICT(event_id, discord_user_id) DO UPDATE SET
+    // Escribir inscripción en web.db
+    webDB().prepare(`
+      INSERT INTO bot_event_rsvp
+        (event_id, user_id, username, character_name, character_id, role_name,
+         character_level, slot_type, is_wildcard, bench_voluntary)
+      VALUES (?,?,?,?,?,?,?,?,?,?)
+      ON CONFLICT(event_id, user_id) DO UPDATE SET
+        character_name  = excluded.character_name,
         character_id    = excluded.character_id,
+        role_name       = excluded.role_name,
         character_level = excluded.character_level,
         slot_type       = excluded.slot_type,
         is_wildcard     = excluded.is_wildcard,
         bench_voluntary = excluded.bench_voluntary
-    `).run(eventId, req.user.id, userRow.id,
-           character_id ? parseInt(character_id) : null,
-           charLevel, slotType, isWildcard, benchVoluntary);
+    `).run(eventId, req.user.id, req.user.username || "",
+           charName, character_id ? parseInt(character_id) : null,
+           roleName, charLevel, slotType, isWildcard, benchVoluntary);
 
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// DELETE /api/schedule/bot/:id/rsvp — cancelar inscripción
+// DELETE /api/schedule/bot/:id/rsvp — cancelar inscripción (web.db)
 router.delete("/bot/:id/rsvp", requireAuth, (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
-    botDB().prepare(
-      "DELETE FROM event_registrations WHERE event_id=? AND discord_user_id=?"
+    webDB().prepare(
+      "DELETE FROM bot_event_rsvp WHERE event_id=? AND user_id=?"
     ).run(eventId, req.user.id);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
