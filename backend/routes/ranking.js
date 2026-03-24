@@ -24,7 +24,8 @@ router.get("/", (req, res) => {
         JOIN users u     ON ugs.user_id = u.id
         JOIN game_info g ON ugs.game_id = g.id
         WHERE g.command_key = ?
-        ORDER BY puntos_totales DESC
+        ORDER BY puntos_totales DESC,
+                 COALESCE(u.server_join_date, u.created_at) ASC
         LIMIT ?
       `).all(game, limit);
     } else {
@@ -37,7 +38,8 @@ router.get("/", (req, res) => {
         FROM user_game_stats ugs
         JOIN users u ON ugs.user_id = u.id
         GROUP BY ugs.user_id
-        ORDER BY puntos_totales DESC
+        ORDER BY puntos_totales DESC,
+                 COALESCE(u.server_join_date, u.created_at) ASC
         LIMIT ?
       `).all(limit);
     }
