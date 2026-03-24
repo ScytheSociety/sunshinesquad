@@ -279,7 +279,7 @@ async function renderBlogPosts() {
 // ── Juegos carousel (todos: guild + serie + sss) ──────────────────────
 function renderJuegos(games, rootUrl) {
   const section = document.getElementById("juegos-section");
-  const tagged  = games.filter(g => (g.guild || g.serie || g.sss) && g.mostrar_en_carrusel !== 0);
+  const tagged  = games.filter(g => (g.guild || g.serie || g.sss) && g.activo !== 0);
   if (!tagged.length || !section) return;
   section.style.display = "block";
   buildCarousel({

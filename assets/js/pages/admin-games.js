@@ -77,8 +77,7 @@ function renderGames(games) {
     const imgSrc = g.imagen
       ? (g.imagen.startsWith("http") || g.imagen.startsWith("/") ? g.imagen : "../../" + g.imagen)
       : null;
-    const badges = [g.guild?"GUILD":"", g.serie?"SERIE":"", g.sss?"SSS":"", !g.activo?"INACTIVO":"",
-                    g.mostrar_en_carrusel===0?"sin carrusel":"", g.mostrar_en_juegos===0?"oculto en /juegos":""]
+    const badges = [g.guild?"GUILD":"", g.serie?"SERIE":"", g.sss?"SSS":"", !g.activo?"INACTIVO":""]
       .filter(Boolean).join(" · ") || "Sin badges";
 
     row.innerHTML = `
@@ -119,8 +118,6 @@ function editGame(id) {
   document.getElementById("f-serie").checked      = !!g.serie;
   document.getElementById("f-sss").checked        = !!g.sss;
   document.getElementById("f-activo").checked     = !!g.activo;
-  document.getElementById("f-carrusel").checked   = g.mostrar_en_carrusel !== 0;
-  document.getElementById("f-en-juegos").checked  = g.mostrar_en_juegos !== 0;
   populateBotDropdown(g.bot_command_key || g.command_key || null);
   document.getElementById("game-form-card").scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -154,8 +151,6 @@ function bindForm() {
       serie:               document.getElementById("f-serie").checked,
       sss:                 document.getElementById("f-sss").checked,
       activo:              document.getElementById("f-activo").checked,
-      mostrar_en_carrusel: document.getElementById("f-carrusel").checked,
-      mostrar_en_juegos:   document.getElementById("f-en-juegos").checked,
       bot_command_key:     document.getElementById("f-bot-key").value || null,
     };
     if (!body.nombre) return toast("El nombre es requerido", true);
@@ -199,8 +194,6 @@ function resetForm() {
   document.getElementById("game-form").reset();
   document.getElementById("f-id").value = "";
   document.getElementById("f-activo").checked    = true;
-  document.getElementById("f-carrusel").checked  = true;
-  document.getElementById("f-en-juegos").checked = true;
   document.getElementById("f-imagen-preview").style.display = "none";
   populateBotDropdown(null);
 }

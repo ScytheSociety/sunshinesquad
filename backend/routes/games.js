@@ -69,14 +69,13 @@ router.get("/:id", (req, res) => {
 router.post("/", requireRole("editor"), (req, res) => {
   try {
     const { nombre, imagen, descripcion, guild, serie, sss, servidor, url, activo, orden,
-            mostrar_en_carrusel, mostrar_en_juegos, bot_command_key } = req.body;
+            bot_command_key } = req.body;
     if (!nombre) return res.status(400).json({ error: "nombre requerido" });
     const r = webDB().prepare(
-      `INSERT INTO site_games (nombre,imagen,descripcion,guild,serie,sss,servidor,url,activo,orden,mostrar_en_carrusel,mostrar_en_juegos,bot_command_key)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      `INSERT INTO site_games (nombre,imagen,descripcion,guild,serie,sss,servidor,url,activo,orden,bot_command_key)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?)`
     ).run(nombre, imagen||"", descripcion||"", guild?1:0, serie?1:0, sss?1:0,
-          servidor||"", url||"", activo!==false?1:0, orden||0,
-          mostrar_en_carrusel!==false?1:0, mostrar_en_juegos!==false?1:0, bot_command_key||null);
+          servidor||"", url||"", activo!==false?1:0, orden||0, bot_command_key||null);
     res.status(201).json(webDB().prepare("SELECT * FROM site_games WHERE id=?").get(r.lastInsertRowid));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -85,14 +84,13 @@ router.post("/", requireRole("editor"), (req, res) => {
 router.put("/:id", requireRole("editor"), (req, res) => {
   try {
     const { nombre, imagen, descripcion, guild, serie, sss, servidor, url, activo, orden,
-            mostrar_en_carrusel, mostrar_en_juegos, bot_command_key } = req.body;
+            bot_command_key } = req.body;
     const r = webDB().prepare(
       `UPDATE site_games SET nombre=?,imagen=?,descripcion=?,guild=?,serie=?,sss=?,servidor=?,url=?,activo=?,orden=?,
-       mostrar_en_carrusel=?,mostrar_en_juegos=?,bot_command_key=?,updated_at=datetime('now')
+       bot_command_key=?,updated_at=datetime('now')
        WHERE id=?`
     ).run(nombre, imagen||"", descripcion||"", guild?1:0, serie?1:0, sss?1:0,
-          servidor||"", url||"", activo!==false?1:0, orden||0,
-          mostrar_en_carrusel!==false?1:0, mostrar_en_juegos!==false?1:0, bot_command_key||null,
+          servidor||"", url||"", activo!==false?1:0, orden||0, bot_command_key||null,
           req.params.id);
     if (!r.changes) return res.status(404).json({ error: "No encontrado" });
     res.json(webDB().prepare("SELECT * FROM site_games WHERE id=?").get(req.params.id));

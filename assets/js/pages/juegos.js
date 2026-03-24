@@ -57,7 +57,6 @@ function applyFilter() {
 
   filteredGames = todosLosJuegos.filter(g => {
     if (!g.activo) return false;
-    if (g.mostrar_en_juegos === 0) return false;
     const matchesFiltro =
       activeFiltro === "todos"  ? true :
       activeFiltro === "guild"  ? !!g.guild :
@@ -151,7 +150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const res = await fetch(`${API}/games`);
     if (!res.ok) throw new Error("API error");
     todosLosJuegos = await res.json();
-    filteredGames  = todosLosJuegos.filter(g => g.activo !== 0 && g.mostrar_en_juegos !== 0);
+    filteredGames  = todosLosJuegos.filter(g => g.activo !== 0);
 
     renderJuegos(todosLosJuegos);
     initControls();
