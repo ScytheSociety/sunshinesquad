@@ -58,7 +58,7 @@ function renderRunners(runners) {
     return;
   }
 
-  const TRACK_H  = 480;
+  const TRACK_H  = 200;
   const RUNNER_H = 66; // avatar 42 + name + days ≈ 66px
   const count    = runners.length;
 
@@ -68,11 +68,14 @@ function renderRunners(runners) {
   const step   = count > 1 ? (topMax - topMin) / (count - 1) : 0;
 
   container.innerHTML = runners.map((r, i) => {
-    const src      = r.avatar_url || defaultAvatar(r.discord_user_id);
-    // Horizontal: fewer days = further right (closer to finish)
-    const leftPct  = Math.min(93, Math.max(2, (1 - r.dias_faltantes / 365) * 90 + 2));
+    const src     = r.avatar_url || defaultAvatar(r.discord_user_id);
+    // Horizontal: distribute evenly across full track width by index.
+    // Runner 0 (soonest) = rightmost, runner N-1 (furthest) = leftmost.
+    const leftPct = count === 1
+      ? 47
+      : 5 + ((count - 1 - i) / (count - 1)) * 86;
     // Vertical: spread evenly, sorted index
-    const topPx    = topMin + i * step;
+    const topPx   = topMin + i * step;
     // Stagger bounce per runner
     const dur      = (0.38 + (i % 5) * 0.06).toFixed(2);
     const delay    = -(i * 0.09).toFixed(2);
