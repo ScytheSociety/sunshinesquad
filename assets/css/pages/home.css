@@ -271,3 +271,62 @@
 }
 .carousel-arrow-btn:hover { background: rgba(255,255,255,.15); transform: scale(1.08); }
 .carousel-arrow-btn:disabled { opacity: .25; cursor: default; transform: none; }
+
+/* ===================== EVENT POPUP (shared with schedule) ===================== */
+.popup-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem; backdrop-filter: blur(5px);
+}
+.popup-box {
+  background: #0d1117; border: 1px solid rgba(255,255,255,.13);
+  border-radius: 16px; padding: 1.5rem;
+  max-width: 420px; width: 100%; position: relative;
+  max-height: 85vh; overflow-y: auto;
+}
+.popup-box::-webkit-scrollbar { width: 4px; }
+.popup-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 10px; }
+.popup-close {
+  position: absolute; top: .8rem; right: .8rem;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: #fff; width: 28px; height: 28px; border-radius: 50%;
+  cursor: pointer; font-size: .85rem; display: flex;
+  align-items: center; justify-content: center;
+}
+.popup-close:hover { background: rgba(255,255,255,.15); }
+.popup-badge { display: inline-flex; align-items: center; gap: 5px; padding: .22rem .7rem; border-radius: 999px; font-size: .72rem; font-weight: 700; margin-bottom: .85rem; }
+.popup-title { font-size: .88rem; font-weight: 800; color: #fff; margin-bottom: .2rem; text-transform: uppercase; letter-spacing: .3px; }
+.popup-game  { font-size: .82rem; color: rgba(255,255,255,.55); margin-bottom: .3rem !important; }
+.popup-sub   { font-size: .78rem; color: rgba(255,255,255,.4); margin-bottom: .35rem; }
+.popup-label { font-size: .7rem; font-weight: 700; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: .5px; margin-top: 1rem; margin-bottom: .35rem; }
+.popup-rec { margin-bottom: .6rem; }
+.popup-rec-item { font-size: .84rem; color: rgba(255,255,255,.65); line-height: 1.6; padding: .1rem 0; }
+.popup-pub { display: flex; align-items: center; gap: .45rem; margin-bottom: 1rem; }
+.popup-pub-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,.15); flex-shrink: 0; }
+.popup-pub-name { font-size: .8rem; color: rgba(255,255,255,.55); }
+.popup-actions { margin-top: 1.25rem; display: flex; gap: .5rem; flex-wrap: wrap; }
+.popup-btn { display: inline-flex; align-items: center; gap: 6px; padding: .5rem 1.1rem; border-radius: 9px; font-size: .84rem; font-weight: 600; text-decoration: none; transition: background .15s; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.07); color: #fff; }
+.popup-btn:hover { background: rgba(255,255,255,.15); color: #fff; text-decoration: none; }
+
+/* ===================== RSVP SECTION ===================== */
+.rsvp-header { font-size: .82rem; color: rgba(255,255,255,.5); margin-bottom: .5rem; }
+.rsvp-header strong { color: #fff; }
+.rsvp-list { display: flex; flex-direction: column; gap: 3px; margin-bottom: .6rem; }
+.rsvp-user-row { display: flex; align-items: center; gap: .55rem; padding: .3rem .4rem; border-radius: 8px; background: rgba(255,255,255,.03); }
+.rsvp-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,255,255,.1); }
+.rsvp-user-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.rsvp-char { font-size: .78rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rsvp-lv   { font-size: .67rem; color: rgba(255,255,255,.4); font-weight: 400; }
+.rsvp-username { font-size: .67rem; color: rgba(255,255,255,.35); }
+.rsvp-type           { font-size: .62rem; font-weight: 700; padding: .1rem .42rem; border-radius: 999px; flex-shrink: 0; border: 1px solid; }
+.rsvp-type.principal { background: rgba(99,102,241,.18);  color: #a5b4fc; border-color: rgba(99,102,241,.3); }
+.rsvp-type.libre     { background: rgba(34,197,94,.12);   color: #86efac; border-color: rgba(34,197,94,.3); }
+.rsvp-type.wildcard  { background: rgba(251,191,36,.14);  color: #fde047; border-color: rgba(251,191,36,.3); }
+.rsvp-type.bench     { background: rgba(100,116,139,.18); color: #94a3b8; border-color: rgba(100,116,139,.3); }
+.rsvp-type.bench-vol { background: rgba(239,68,68,.12);   color: #fca5a5; border-color: rgba(239,68,68,.3); }
+.rsvp-role-label { font-size: .7rem; font-weight: 700; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: .5px; margin: .6rem 0 .25rem; }
+.rsvp-empty { font-size: .78rem; color: rgba(255,255,255,.3); margin-bottom: .4rem; }
+.rsvp-progress-wrap  { display: flex; align-items: center; gap: .6rem; margin-bottom: .75rem; }
+.rsvp-progress-bar   { flex: 1; height: 8px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; }
+.rsvp-progress-fill  { height: 100%; background: linear-gradient(90deg,#6366f1,#22c55e); border-radius: 999px; transition: width .6s ease; min-width: 4px; }
+.rsvp-progress-label { font-size: .75rem; font-weight: 700; color: rgba(255,255,255,.55); flex-shrink: 0; }

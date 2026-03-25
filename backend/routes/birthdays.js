@@ -66,12 +66,14 @@ router.get("/all", (req, res) => {
     const db = botDB();
     const rows = db.prepare(`
       SELECT
-        discord_user_id,
-        display_name AS username,
-        birthday_date
-      FROM birthdays
+        b.discord_user_id,
+        b.display_name AS username,
+        b.birthday_date,
+        u.avatar_url
+      FROM birthdays b
+      LEFT JOIN users u ON CAST(u.discord_user_id AS TEXT) = CAST(b.discord_user_id AS TEXT)
       ORDER BY
-        CASE WHEN length(birthday_date) = 5 THEN birthday_date ELSE substr(birthday_date,6) END ASC
+        CASE WHEN length(b.birthday_date) = 5 THEN b.birthday_date ELSE substr(b.birthday_date,6) END ASC
     `).all();
 
     const today = new Date();
@@ -85,7 +87,7 @@ router.get("/all", (req, res) => {
       const bDate = new Date(today.getFullYear(), mm - 1, dd);
       if (bDate < today) bDate.setFullYear(today.getFullYear() + 1);
       const diff = Math.round((bDate - today) / 86400000);
-      return { ...r, mmdd, dias_faltantes: diff, es_hoy: mmdd === todayMD };
+      return { ...r, mmdd, birth_month: mm, birth_day: dd, dias_faltantes: diff, es_hoy: mmdd === todayMD };
     });
 
     res.json(result.sort((a, b) => a.dias_faltantes - b.dias_faltantes));

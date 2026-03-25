@@ -59,52 +59,144 @@ function getEstado(inicio, durH) {
   return "pasado";
 }
 
-// ── Popup de evento (home) ───────────────────────────────────────────
-async function showHomeEventPopup(ev) {
-  const inicio = toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima");
-  const utcHora  = inicio.toLocaleTimeString("es", { hour:"2-digit", minute:"2-digit", hour12:false, timeZone:"UTC" });
-  const utcFecha = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long", timeZone:"UTC" });
+// ── Popup de evento (home) — igual al del calendario ─────────────────
+function buildHomeGCalUrl(ev, inicio) {
+  const end = new Date(inicio.getTime() + (ev.duracion || 1) * 3600000);
+  const toGCalDt = d => d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+  const params = new URLSearchParams({
+    action: "TEMPLATE", text: `${ev.evento} (${ev.juego})`,
+    dates: `${toGCalDt(inicio)}/${toGCalDt(end)}`,
+    details: ev.description || "", location: "",
+  });
+  return `https://www.google.com/calendar/render?${params}`;
+}
+
+function showHomeEventPopup(ev) {
+  const inicio     = toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima");
+  const est        = getEstado(inicio, ev.duracion);
+  const utcHora    = inicio.toLocaleTimeString("es", { hour:"2-digit", minute:"2-digit", hour12:false, timeZone:"UTC" });
+  const utcFecha   = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long", timeZone:"UTC" });
   const localHora  = inicio.toLocaleTimeString("es", { hour:"2-digit", minute:"2-digit", hour12:false });
   const localFecha = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
+  const gcalUrl    = buildHomeGCalUrl(ev, inicio);
+  const cfg = {
+    futuro: { label:"🔵 Próximo",    bg:"rgba(99,102,241,.25)", border:"#6366f1" },
+    activo: { label:"🟢 En curso",   bg:"rgba(34,197,94,.25)",  border:"#22c55e" },
+    pasado: { label:"⚫ Finalizado", bg:"rgba(100,116,139,.2)", border:"#64748b" }
+  }[est] || { label:"🔵 Próximo", bg:"rgba(99,102,241,.25)", border:"#6366f1" };
+
   const pubByName   = ev.published_by_username || "";
   const pubByAvatar = ev.published_by_avatar   || "";
+  const desc        = ev.description || "";
+  const puntos      = ev.activity_points || 0;
+  const dific       = ev.difficulty || "";
 
-  let rsvpHtml = "";
-  if (ev.source === "bot" && ev.bot_id) {
-    try {
-      const r = await fetch(`${API}/schedule/bot/${ev.bot_id}/rsvp`);
-      if (r.ok) {
-        const d = await r.json();
-        const total = d.count; const max = d.max || 0;
-        if (max > 0) {
-          const pct = Math.min(100, Math.round(total / max * 100));
-          rsvpHtml = `<div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;">
-            <div style="flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;">
-              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:999px;transition:width .6s;"></div>
-            </div>
-            <span style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);flex-shrink:0;">${total}/${max}</span>
-          </div>`;
-        } else if (total > 0) {
-          rsvpHtml = `<div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:.6rem;">👥 ${total} participante${total!==1?"s":""}</div>`;
-        }
-      }
-    } catch {}
-  }
+  const descHtml = (() => {
+    if (!desc) return "";
+    const lines = desc.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return "";
+    return `<div class="popup-label">📋 Recomendaciones</div><div class="popup-rec">${lines.map((l,i)=>`<div class="popup-rec-item">${i+1}. ${l}</div>`).join("")}</div>`;
+  })();
+  const pubHtml = pubByName
+    ? `<div class="popup-pub">${pubByAvatar?`<img src="${pubByAvatar}" class="popup-pub-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">`:""}<span class="popup-pub-name">${pubByName}</span></div>`
+    : "";
 
   const overlay = document.createElement("div");
-  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(5px);";
-  overlay.innerHTML = `<div style="background:#0d1117;border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:1.5rem;max-width:400px;width:100%;position:relative;max-height:85vh;overflow-y:auto;">
-    <button style="position:absolute;top:.8rem;right:.8rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;" id="hep-close">✕</button>
-    <div style="font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#fff;margin-bottom:.15rem;">${ev.evento}</div>
-    <div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:.5rem;">${ev.juego}</div>
-    <div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:.15rem;">🕐 UTC: ${utcFecha} · ${utcHora}</div>
-    <div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:.6rem;">📍 Tu zona: ${localFecha} · ${localHora}</div>
-    ${pubByName ? `<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem;">${pubByAvatar?`<img src="${pubByAvatar}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;" onerror="this.remove()">`:""}<span style="font-size:.7rem;color:rgba(255,255,255,.4);">${pubByName}</span></div>` : ""}
-    ${rsvpHtml}
+  overlay.className = "popup-overlay";
+  overlay.innerHTML = `<div class="popup-box">
+    <button class="popup-close">✕</button>
+    <div class="popup-badge" style="background:${cfg.bg};border:1px solid ${cfg.border};color:#fff;">${cfg.label}</div>
+    <div class="popup-title">${ev.evento}</div>
+    <div class="popup-sub popup-game">${ev.juego}</div>
+    <div class="popup-sub">🕐 UTC: ${utcFecha} · ${utcHora}</div>
+    <div class="popup-sub">📍 Tu zona: ${localFecha} · ${localHora} (~${ev.duracion}h)</div>
+    ${dific  ? `<div class="popup-sub">⚔️ Dificultad: ${dific}</div>` : ""}
+    ${puntos ? `<div class="popup-sub">⭐ ${puntos} puntos de logro</div>` : ""}
+    ${pubHtml}${descHtml}
+    <div id="home-rsvp-section" style="margin-top:1rem;"><span style="font-size:.8rem;color:rgba(255,255,255,.35);">Cargando asistencia…</span></div>
+    <div class="popup-actions">
+      <a href="${gcalUrl}" target="_blank" class="popup-btn" style="background:rgba(66,133,244,.12);border-color:rgba(66,133,244,.35);color:#93c5fd;">📅 Google Calendar</a>
+    </div>
   </div>`;
-  overlay.querySelector("#hep-close").onclick = () => overlay.remove();
+  overlay.querySelector(".popup-close").onclick = () => overlay.remove();
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   document.body.appendChild(overlay);
+  loadHomeRSVP(ev, overlay);
+}
+
+async function loadHomeRSVP(ev, overlayEl) {
+  const sectionEl = overlayEl.querySelector("#home-rsvp-section");
+  if (!sectionEl) return;
+  if (ev.source !== "bot" || !ev.bot_id) { sectionEl.innerHTML = ""; return; }
+  try {
+    const res  = await fetch(`${API}/schedule/bot/${ev.bot_id}/rsvp`);
+    if (!res.ok) { sectionEl.innerHTML = `<span class="rsvp-empty">No disponible</span>`; return; }
+    const data = await res.json();
+    let html   = "";
+    const total = data.count; const max = data.max || 0;
+
+    if (max > 0) {
+      const pct = Math.min(100, Math.round(total / max * 100));
+      html += `<div class="rsvp-progress-wrap">
+        <div class="rsvp-progress-bar"><div class="rsvp-progress-fill" style="width:${pct}%"></div></div>
+        <span class="rsvp-progress-label">${total}/${max} · ${pct}%</span>
+      </div>`;
+    } else if (total > 0) {
+      html += `<div class="rsvp-header">👥 <strong>${total}</strong> participante${total !== 1 ? "s" : ""}</div>`;
+    }
+
+    const userRow = (u, badge) => {
+      const avatar  = u.avatar_url || `https://cdn.discordapp.com/embed/avatars/0.png`;
+      const charTxt = u.character_name
+        ? `${u.class_emoji || "⚔️"} ${u.character_name} <span class="rsvp-lv">lv${u.character_level}</span>`
+        : `<span style="opacity:.4">Sin personaje</span>`;
+      const cls = { "Principal":"principal","Libre":"libre","Comodín":"wildcard","Banca":"bench","Banca Vol.":"bench-vol" }[badge] || "libre";
+      return `<div class="rsvp-user-row">
+        <img src="${avatar}" class="rsvp-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+        <div class="rsvp-user-info"><span class="rsvp-char">${charTxt}</span><span class="rsvp-username">@${u.username || u.discord_user_id}</span></div>
+        <span class="rsvp-type ${cls}">${badge}</span>
+      </div>`;
+    };
+
+    const mainUsers = data.users.filter(u => u.slot_type === "main" && !u.is_wildcard);
+    if (mainUsers.length) {
+      const byRole = {};
+      mainUsers.forEach(u => {
+        const key = u.role_name || "Sin rol";
+        if (!byRole[key]) byRole[key] = { emoji: u.role_emoji || "", order: u.role_display_order ?? 99, users: [] };
+        byRole[key].users.push(u);
+      });
+      Object.entries(byRole).sort(([,a],[,b]) => a.order - b.order).forEach(([roleName, group]) => {
+        html += `<div class="rsvp-role-label">${group.emoji} ${roleName} (${group.users.length})</div><div class="rsvp-list">`;
+        group.users.forEach(u => { html += userRow(u, "Principal"); });
+        html += `</div>`;
+      });
+    }
+
+    const freeUsers = data.users.filter(u => u.slot_type === "free" && !u.is_wildcard);
+    if (freeUsers.length) {
+      html += `<div class="rsvp-role-label">🆓 Libre (${freeUsers.length})</div><div class="rsvp-list">`;
+      freeUsers.forEach(u => { html += userRow(u, "Libre"); });
+      html += `</div>`;
+    }
+
+    const wildcards = data.users.filter(u => u.is_wildcard);
+    const benchNorm = data.users.filter(u => u.slot_type === "bench" && !u.is_wildcard && !u.bench_voluntary);
+    const benchVol  = data.users.filter(u => u.slot_type === "bench" && !u.is_wildcard && u.bench_voluntary);
+    const bancaTotal = wildcards.length + benchNorm.length + benchVol.length;
+    if (bancaTotal > 0) {
+      html += `<div class="rsvp-role-label">⏳ Banca (${bancaTotal})</div><div class="rsvp-list">`;
+      wildcards.forEach(u => { html += userRow(u, "Comodín"); });
+      benchNorm.forEach(u => { html += userRow(u, "Banca"); });
+      benchVol.forEach(u => { html += userRow(u, "Banca Vol."); });
+      html += `</div>`;
+    }
+
+    if (!data.users.length) html += `<div class="rsvp-empty">Nadie inscripto aún</div>`;
+    sectionEl.innerHTML = html;
+  } catch {
+    sectionEl.innerHTML = `<span class="rsvp-empty">No disponible</span>`;
+  }
 }
 
 // ── Próximos Eventos ────────────────────────────────────────────────
@@ -121,23 +213,55 @@ function renderEventos(eventos) {
     .slice(0, 3);
   if (!items.length) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin eventos próximos.</div>`; return; }
   const cfg = { activo:{ dot:"#22c55e" }, futuro:{ dot:"#a5b4fc" } };
+  const C   = (2 * Math.PI * 16).toFixed(2); // donut circumference r=16
+
   el.innerHTML = items.map(ev => {
     const c    = cfg[ev.estado] || cfg.futuro;
     const hora = ev.inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
     const fLbl = ev.inicio.toLocaleDateString("es", { weekday:"short", day:"numeric", month:"short" });
-    return `<div data-evid="${ev.id}" style="display:flex;gap:8px;align-items:flex-start;margin-bottom:.6rem;cursor:pointer;padding:.3rem .4rem;border-radius:8px;transition:background .12s;" onmouseenter="this.style.background='rgba(255,255,255,.04)'" onmouseleave="this.style.background=''" >
-      <div style="width:7px;height:7px;border-radius:50%;background:${c.dot};margin-top:.35rem;flex-shrink:0;"></div>
+    const donutHtml = (ev.source === "bot" && ev.bot_id)
+      ? `<div class="ev-donut" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:44px;height:44px;">
+           <svg width="44" height="44" viewBox="0 0 44 44">
+             <circle cx="22" cy="22" r="16" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/>
+             <text x="22" y="27" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.25)" font-family="system-ui,sans-serif">?</text>
+           </svg>
+         </div>`
+      : "";
+    return `<div data-evid="${ev.id}" style="display:flex;gap:8px;align-items:center;margin-bottom:.6rem;cursor:pointer;padding:.3rem .4rem;border-radius:8px;transition:background .12s;" onmouseenter="this.style.background='rgba(255,255,255,.04)'" onmouseleave="this.style.background=''">
+      <div style="width:7px;height:7px;border-radius:50%;background:${c.dot};flex-shrink:0;"></div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:.8rem;font-weight:700;color:#fff;">${ev.juego}</div>
         <div style="font-size:.72rem;color:rgba(255,255,255,.5);">${ev.evento}</div>
         <div style="font-size:.66rem;color:rgba(255,255,255,.3);">${fLbl} · ${hora}</div>
       </div>
+      ${donutHtml}
     </div>`;
   }).join("");
 
   // Click handlers
   items.forEach(ev => {
     el.querySelector(`[data-evid="${ev.id}"]`)?.addEventListener("click", () => showHomeEventPopup(ev));
+  });
+
+  // Async load donuts
+  items.forEach(ev => {
+    if (ev.source !== "bot" || !ev.bot_id) return;
+    const donutEl = el.querySelector(`[data-evid="${ev.id}"] .ev-donut`);
+    if (!donutEl) return;
+    fetch(`${API}/schedule/bot/${ev.bot_id}/rsvp`).then(r => r.json()).then(data => {
+      const total = data.count; const max = data.max || 0;
+      if (max <= 0 && total <= 0) { donutEl.innerHTML = ""; return; }
+      const pct    = max > 0 ? Math.min(1, total / max) : 0;
+      const offset = (C * (1 - pct)).toFixed(2);
+      const color  = pct < 0.5 ? "#6366f1" : pct < 0.85 ? "#f59e0b" : "#22c55e";
+      donutEl.innerHTML = `<svg width="44" height="44" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="16" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/>
+        <circle cx="22" cy="22" r="16" fill="none" stroke="${color}" stroke-width="5"
+          stroke-dasharray="${C}" stroke-dashoffset="${offset}"
+          stroke-linecap="round" transform="rotate(-90 22 22)"/>
+        <text x="22" y="27" text-anchor="middle" font-size="12" font-weight="800" fill="white" font-family="system-ui,sans-serif">${total}</text>
+      </svg>`;
+    }).catch(() => { donutEl.innerHTML = ""; });
   });
 }
 
@@ -216,9 +340,9 @@ async function renderRanking() {
   try {
     const items = await fetch(`${API}/ranking?limit=5`).then(r => r.json());
     if (!items.length) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin datos.</div>`; return; }
-    const rankingUrl = `${repoRoot()}pages/ranking/ranking.html`;
+    const perfilBase = `${repoRoot()}pages/perfil/perfil.html`;
     el.innerHTML = items.map((u, i) => `
-      <a href="${rankingUrl}" style="display:flex;align-items:center;gap:8px;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.05);text-decoration:none;transition:background .12s;border-radius:6px;" onmouseenter="this.style.background='rgba(255,255,255,.04)'" onmouseleave="this.style.background=''">
+      <a href="${perfilBase}?id=${u.discord_id}" style="display:flex;align-items:center;gap:8px;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.05);text-decoration:none;transition:background .12s;border-radius:6px;" onmouseenter="this.style.background='rgba(255,255,255,.04)'" onmouseleave="this.style.background=''">
         <div style="font-size:.95rem;min-width:22px;text-align:center;">${MEDALLAS[i]}</div>
         ${u.avatar_url ? `<img src="${u.avatar_url}" width="28" height="28" style="border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.1);" loading="lazy">` : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(99,102,241,.2);"></div>`}
         <div style="flex:1;min-width:0;font-weight:700;font-size:.8rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.username}</div>
