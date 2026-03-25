@@ -43,7 +43,9 @@ async function loadGameSelector() {
     games.sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
     games.forEach(g => {
       // Determine game key: prefer bot_command_key, then command_key, then derive from nombre
-      const key = g.bot_command_key || g.command_key || g.nombre.toLowerCase().replace(/\s+/g, "");
+      // Extraer key de URL (ej. "pages/juegos/ragnarok/..." → "ragnarok") para coincidir con data-game
+      const urlMatch = g.url?.match(/juegos\/([^/]+)\//);
+      const key = urlMatch ? urlMatch[1] : (g.bot_command_key || g.command_key || g.nombre.toLowerCase().replace(/\s+/g, ""));
       const opt  = document.createElement("option");
       opt.value  = key;
       opt.textContent = g.nombre;

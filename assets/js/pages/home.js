@@ -59,6 +59,54 @@ function getEstado(inicio, durH) {
   return "pasado";
 }
 
+// ── Popup de evento (home) ───────────────────────────────────────────
+async function showHomeEventPopup(ev) {
+  const inicio = toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima");
+  const utcHora  = inicio.toLocaleTimeString("es", { hour:"2-digit", minute:"2-digit", hour12:false, timeZone:"UTC" });
+  const utcFecha = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long", timeZone:"UTC" });
+  const localHora  = inicio.toLocaleTimeString("es", { hour:"2-digit", minute:"2-digit", hour12:false });
+  const localFecha = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
+  const pubByName   = ev.published_by_username || "";
+  const pubByAvatar = ev.published_by_avatar   || "";
+
+  let rsvpHtml = "";
+  if (ev.source === "bot" && ev.bot_id) {
+    try {
+      const r = await fetch(`${API}/schedule/bot/${ev.bot_id}/rsvp`);
+      if (r.ok) {
+        const d = await r.json();
+        const total = d.count; const max = d.max || 0;
+        if (max > 0) {
+          const pct = Math.min(100, Math.round(total / max * 100));
+          rsvpHtml = `<div style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;">
+            <div style="flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:999px;transition:width .6s;"></div>
+            </div>
+            <span style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);flex-shrink:0;">${total}/${max}</span>
+          </div>`;
+        } else if (total > 0) {
+          rsvpHtml = `<div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:.6rem;">👥 ${total} participante${total!==1?"s":""}</div>`;
+        }
+      }
+    } catch {}
+  }
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(5px);";
+  overlay.innerHTML = `<div style="background:#0d1117;border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:1.5rem;max-width:400px;width:100%;position:relative;max-height:85vh;overflow-y:auto;">
+    <button style="position:absolute;top:.8rem;right:.8rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;" id="hep-close">✕</button>
+    <div style="font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#fff;margin-bottom:.15rem;">${ev.evento}</div>
+    <div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:.5rem;">${ev.juego}</div>
+    <div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:.15rem;">🕐 UTC: ${utcFecha} · ${utcHora}</div>
+    <div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:.6rem;">📍 Tu zona: ${localFecha} · ${localHora}</div>
+    ${pubByName ? `<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem;">${pubByAvatar?`<img src="${pubByAvatar}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;" onerror="this.remove()">`:""}<span style="font-size:.7rem;color:rgba(255,255,255,.4);">${pubByName}</span></div>` : ""}
+    ${rsvpHtml}
+  </div>`;
+  overlay.querySelector("#hep-close").onclick = () => overlay.remove();
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+}
+
 // ── Próximos Eventos ────────────────────────────────────────────────
 function renderEventos(eventos) {
   const el = document.getElementById("eventos-content");
@@ -77,15 +125,20 @@ function renderEventos(eventos) {
     const c    = cfg[ev.estado] || cfg.futuro;
     const hora = ev.inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:true });
     const fLbl = ev.inicio.toLocaleDateString("es", { weekday:"short", day:"numeric", month:"short" });
-    return `<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:.6rem;">
+    return `<div data-evid="${ev.id}" style="display:flex;gap:8px;align-items:flex-start;margin-bottom:.6rem;cursor:pointer;padding:.3rem .4rem;border-radius:8px;transition:background .12s;" onmouseenter="this.style.background='rgba(255,255,255,.04)'" onmouseleave="this.style.background=''" >
       <div style="width:7px;height:7px;border-radius:50%;background:${c.dot};margin-top:.35rem;flex-shrink:0;"></div>
-      <div>
+      <div style="flex:1;min-width:0;">
         <div style="font-size:.8rem;font-weight:700;color:#fff;">${ev.juego}</div>
         <div style="font-size:.72rem;color:rgba(255,255,255,.5);">${ev.evento}</div>
         <div style="font-size:.66rem;color:rgba(255,255,255,.3);">${fLbl} · ${hora}</div>
       </div>
     </div>`;
   }).join("");
+
+  // Click handlers
+  items.forEach(ev => {
+    el.querySelector(`[data-evid="${ev.id}"]`)?.addEventListener("click", () => showHomeEventPopup(ev));
+  });
 }
 
 // ── MVP Tracker ─────────────────────────────────────────────────────
@@ -133,15 +186,23 @@ async function renderBirthdays() {
     const all   = await fetch(`${API}/birthdays/all`).then(r => r.json());
     const items = all.slice(0, 5);
     if (!items.length) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin cumpleaños próximos.</div>`; return; }
+    const MESES_CORTO = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
     el.innerHTML = items.map(b => {
-      const label = b.dias_faltantes === 0 ? "🎉 ¡Hoy!" : `en ${b.dias_faltantes}d`;
-      const color = b.dias_faltantes === 0 ? "#fde047" : "rgba(255,255,255,.5)";
-      return `<div class="d-flex align-items-center gap-2 mb-2">
-        ${(b.avatar || b.avatar_url) ? `<img src="${b.avatar || b.avatar_url}" width="28" height="28" style="border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;font-size:.7rem;">🎂</div>`}
+      const isHoy   = b.dias_faltantes === 0;
+      const label   = isHoy ? "🎉 ¡Hoy!" : `en ${b.dias_faltantes}d`;
+      const color   = isHoy ? "#fde047" : "rgba(255,255,255,.5)";
+      const dateStr = (b.birth_month && b.birth_day)
+        ? `${b.birth_day} ${MESES_CORTO[(b.birth_month||1)-1]}`
+        : "";
+      const bg      = isHoy ? "background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:.4rem .5rem;" : "padding:.2rem 0;";
+      const avatar  = b.avatar || b.avatar_url;
+      return `<div class="d-flex align-items-center gap-2 mb-2" style="${bg}">
+        ${avatar ? `<img src="${avatar}" width="30" height="30" style="border-radius:50%;object-fit:cover;border:2px solid ${isHoy?"rgba(251,191,36,.5)":"rgba(255,255,255,.1)"};" loading="lazy">` : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;font-size:.8rem;">🎂</div>`}
         <div style="flex:1;min-width:0;">
           <div style="font-size:.82rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.username}</div>
-          <div style="font-size:.7rem;color:${color};">${label}</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.35);">${dateStr}</div>
         </div>
+        <div style="font-size:.72rem;font-weight:700;color:${color};flex-shrink:0;">${label}</div>
       </div>`;
     }).join("");
   } catch { el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.8rem;">No disponible.</div>`; }
@@ -155,13 +216,14 @@ async function renderRanking() {
   try {
     const items = await fetch(`${API}/ranking?limit=5`).then(r => r.json());
     if (!items.length) { el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.8rem;">Sin datos.</div>`; return; }
+    const rankingUrl = `${repoRoot()}pages/ranking/ranking.html`;
     el.innerHTML = items.map((u, i) => `
-      <div style="display:flex;align-items:center;gap:8px;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.05);">
+      <a href="${rankingUrl}" style="display:flex;align-items:center;gap:8px;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.05);text-decoration:none;transition:background .12s;border-radius:6px;" onmouseenter="this.style.background='rgba(255,255,255,.04)'" onmouseleave="this.style.background=''">
         <div style="font-size:.95rem;min-width:22px;text-align:center;">${MEDALLAS[i]}</div>
         ${u.avatar_url ? `<img src="${u.avatar_url}" width="28" height="28" style="border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.1);" loading="lazy">` : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(99,102,241,.2);"></div>`}
         <div style="flex:1;min-width:0;font-weight:700;font-size:.8rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.username}</div>
         <div style="font-size:.85rem;font-weight:900;color:#fbbf24;">${u.puntos_totales?.toLocaleString() ?? 0}</div>
-      </div>`).join("");
+      </a>`).join("");
   } catch { el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.8rem;">No disponible.</div>`; }
 }
 

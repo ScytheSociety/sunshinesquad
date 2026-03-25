@@ -158,16 +158,16 @@ async function showPopup(ev, inicio, est) {
     pasado: { label:"⚫ Finalizado", bg:"rgba(100,116,139,.2)", border:"#64748b" }
   }[est];
 
-  const horaLocal  = inicio.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:false });
-  const fechaLocal = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
-  const tz         = ev.timezone || "America/Lima";
-  const tzLabel    = tz === "UTC" ? "UTC" : tz.split("/")[1]?.replace(/_/g," ") || tz;
+  const utcHora    = inicio.toLocaleTimeString("es", { hour:"2-digit", minute:"2-digit", hour12:false, timeZone:"UTC" });
+  const utcFecha   = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long", timeZone:"UTC" });
+  const localHora  = inicio.toLocaleTimeString("es", { hour:"2-digit", minute:"2-digit", hour12:false });
+  const localFecha = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
   const gcalUrl    = buildGCalUrl(ev, inicio);
   const tags       = arr => (arr||[]).map(x => `<span class="popup-tag">${x}</span>`).join("");
 
   // Descripción y metadatos según fuente
-  const desc     = isBotEvent ? (ev.description || "") : (info.descripcion || "");
-  const actName  = isBotEvent ? (ev.activity_name || ev.evento) : (info.nombre || ev.evento);
+  const desc    = isBotEvent ? (ev.description || "") : (info.descripcion || "");
+  const actName = ev.evento;
   const puntos      = isBotEvent ? (ev.activity_points || 0) : 0;
   const pubBy       = isBotEvent ? (ev.published_by || "") : "";
   const pubByName   = isBotEvent ? (ev.published_by_username || "") : "";
@@ -198,8 +198,9 @@ async function showPopup(ev, inicio, est) {
       <button class="popup-close">✕</button>
       <div class="popup-badge" style="background:${cfg.bg};border:1px solid ${cfg.border};color:#fff;">${cfg.label}</div>
       <div class="popup-title">${actName}</div>
-      <div class="popup-sub">${ev.juego} · ${fechaLocal} · ${horaLocal} · ~${ev.duracion}h</div>
-      <div class="popup-sub popup-tz">🕐 ${tzLabel}: ${ev.hora}</div>
+      <div class="popup-sub popup-game">${ev.juego}</div>
+      <div class="popup-sub">🕐 UTC: ${utcFecha} · ${utcHora}</div>
+      <div class="popup-sub">📍 Tu zona: ${localFecha} · ${localHora} (~${ev.duracion}h)</div>
       ${dific ? `<div class="popup-sub">⚔️ Dificultad: ${dific}</div>` : ""}
       ${puntos ? `<div class="popup-sub">⭐ ${puntos} puntos de logro</div>` : ""}
       ${pubHtml}
@@ -235,78 +236,79 @@ async function loadRSVP(eventId, est, popupEl, ev) {
   const rsvpUrl    = isBotEvent ? `${API}/schedule/bot/${botId}/rsvp` : `${API}/schedule/${eventId}/rsvp`;
 
   try {
-    const headers = {};
-    const token = localStorage.getItem("ss_token");
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const res = await fetch(rsvpUrl, { headers });
+    const res = await fetch(rsvpUrl);
     if (!res.ok) { sectionEl.innerHTML = `<span class="rsvp-empty">No disponible</span>`; return; }
     const data = await res.json();
-
-    // ── Participant list ───────────────────────────────────────
     let html = "";
 
     if (isBotEvent) {
-      // Barra de progreso
       const total = data.count;
       const max   = data.max || 0;
       if (max > 0) {
         const pct = Math.min(100, Math.round(total / max * 100));
         html += `<div class="rsvp-progress-wrap">
           <div class="rsvp-progress-bar"><div class="rsvp-progress-fill" style="width:${pct}%"></div></div>
-          <div class="rsvp-progress-label">${total}/${max} participantes · ${pct}%</div>
+          <span class="rsvp-progress-label">${total}/${max} · ${pct}%</span>
         </div>`;
-      } else {
+      } else if (total > 0) {
         html += `<div class="rsvp-header">👥 <strong>${total}</strong> participante${total !== 1 ? "s" : ""}</div>`;
       }
 
-      // Separar main/wildcard vs banca
-      const mainUsers  = data.users.filter(u => !u.bench_voluntary);
-      const benchUsers = data.users.filter(u => u.bench_voluntary);
-
-      const userRow = u => {
+      const userRow = (u, badge) => {
         const avatar  = u.avatar_url || `https://cdn.discordapp.com/embed/avatars/0.png`;
         const charTxt = u.character_name
           ? `${u.class_emoji || "⚔️"} ${u.character_name} <span class="rsvp-lv">lv${u.character_level}</span>`
           : `<span style="opacity:.4">Sin personaje</span>`;
-        const badge = u.is_wildcard ? `<span class="rsvp-type wildcard">comodín</span>` : "";
+        const badgeCls = { "Principal":"principal","Libre":"libre","Comodín":"wildcard","Banca":"bench","Banca Vol.":"bench-vol" }[badge] || "libre";
         return `<div class="rsvp-user-row">
           <img src="${avatar}" class="rsvp-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
           <div class="rsvp-user-info">
             <span class="rsvp-char">${charTxt}</span>
             <span class="rsvp-username">@${u.username || u.discord_user_id}</span>
           </div>
-          ${badge}
+          <span class="rsvp-type ${badgeCls}">${badge}</span>
         </div>`;
       };
 
+      // Main slots (non-wildcard) grouped by role
+      const mainUsers = data.users.filter(u => u.slot_type === "main" && !u.is_wildcard);
       if (mainUsers.length) {
-        // Agrupar por rol y ordenar por display_order
         const byRole = {};
         mainUsers.forEach(u => {
           const key = u.role_name || "Sin rol";
           if (!byRole[key]) byRole[key] = { emoji: u.role_emoji || "", order: u.role_display_order ?? 99, users: [] };
           byRole[key].users.push(u);
         });
-        html += `<div class="rsvp-list">`;
-        Object.entries(byRole)
-          .sort(([,a], [,b]) => a.order - b.order)
-          .forEach(([roleName, group]) => {
-            if (Object.keys(byRole).length > 1 || roleName !== "Sin rol") {
-              html += `<div class="rsvp-role-label">${group.emoji} ${roleName} (${group.users.length})</div>`;
-            }
-            group.users.forEach(u => { html += userRow(u); });
-          });
-        html += `</div>`;
-      } else {
-        html += `<div class="rsvp-empty">Nadie inscripto aún</div>`;
+        Object.entries(byRole).sort(([,a],[,b]) => a.order - b.order).forEach(([roleName, group]) => {
+          html += `<div class="rsvp-role-label">${group.emoji} ${roleName} (${group.users.length})</div><div class="rsvp-list">`;
+          group.users.forEach(u => { html += userRow(u, "Principal"); });
+          html += `</div>`;
+        });
       }
 
-      if (benchUsers.length) {
-        html += `<div class="rsvp-role-label rsvp-bench-label">⏳ Banca (${benchUsers.length})</div>
-          <div class="rsvp-list rsvp-bench-list">`;
-        benchUsers.forEach(u => { html += userRow(u); });
+      // Libre (non-wildcard free)
+      const freeUsers = data.users.filter(u => u.slot_type === "free" && !u.is_wildcard);
+      if (freeUsers.length) {
+        html += `<div class="rsvp-role-label">🆓 Libre (${freeUsers.length})</div><div class="rsvp-list">`;
+        freeUsers.forEach(u => { html += userRow(u, "Libre"); });
         html += `</div>`;
+      }
+
+      // Banca: wildcards + bench
+      const wildcards  = data.users.filter(u => u.is_wildcard);
+      const benchNorm  = data.users.filter(u => u.slot_type === "bench" && !u.is_wildcard && !u.bench_voluntary);
+      const benchVol   = data.users.filter(u => u.slot_type === "bench" && !u.is_wildcard && u.bench_voluntary);
+      const bancaTotal = wildcards.length + benchNorm.length + benchVol.length;
+      if (bancaTotal > 0) {
+        html += `<div class="rsvp-role-label rsvp-bench-label">⏳ Banca (${bancaTotal})</div><div class="rsvp-list rsvp-bench-list">`;
+        wildcards.forEach(u => { html += userRow(u, "Comodín"); });
+        benchNorm.forEach(u => { html += userRow(u, "Banca"); });
+        benchVol.forEach(u => { html += userRow(u, "Banca Vol."); });
+        html += `</div>`;
+      }
+
+      if (!data.users.length) {
+        html += `<div class="rsvp-empty">Nadie inscripto aún</div>`;
       }
     } else {
       html += `<div class="rsvp-header">👥 <strong>${data.count}</strong> participante${data.count !== 1 ? "s" : ""}</div>`;
@@ -320,114 +322,9 @@ async function loadRSVP(eventId, est, popupEl, ev) {
     }
 
     sectionEl.innerHTML = html;
-
-    // ── Registration form ──────────────────────────────────────
-    if (est === "pasado") return;
-    const user = getUser();
-    if (!user) {
-      sectionEl.insertAdjacentHTML("beforeend",
-        `<div class="rsvp-login-hint">🔑 <a href="/pages/auth/login.html">Inicia sesión con Discord</a> para inscribirte</div>`);
-      return;
-    }
-
-    if (!isBotEvent) {
-      const myRsvp = data.users.some(u => u.user_id === user.id);
-      _renderSimpleRsvp(sectionEl, myRsvp, eventId, est, popupEl, ev);
-      return;
-    }
-
-    if (data.myRsvp) {
-      _renderMyRegistration(sectionEl, data.myRsvp, botId, est, popupEl, ev, data.characters);
-    } else {
-      _renderRegisterForm(sectionEl, data.characters, botId, est, popupEl, ev);
-    }
   } catch {
     sectionEl.innerHTML = `<span class="rsvp-empty">No disponible</span>`;
   }
-}
-
-function _renderSimpleRsvp(sectionEl, myRsvp, eventId, est, popupEl, ev) {
-  const wrap = document.createElement("div");
-  wrap.className = "rsvp-form";
-  wrap.innerHTML = `<button class="rsvp-action-btn ${myRsvp ? "registered" : "primary"}">${myRsvp ? "✅ Inscrito · cancelar" : "🙋 Confirmar asistencia"}</button>`;
-  sectionEl.appendChild(wrap);
-  wrap.querySelector("button").addEventListener("click", async btn => {
-    btn.target.disabled = true; btn.target.textContent = "…";
-    await apiFetch(`/schedule/${eventId}/rsvp`, { method: myRsvp ? "DELETE" : "POST" });
-    loadRSVP(eventId, est, popupEl, ev);
-  });
-}
-
-function _renderRegisterForm(sectionEl, characters, botId, est, popupEl, ev) {
-  const defaultChar = characters.find(c => c.is_main) || characters[0] || null;
-  let selectedChar = defaultChar;
-
-  const charHtml = characters.length ? `
-    <div class="rsvp-form-label">Elige tu personaje:</div>
-    <div class="rsvp-char-selector">
-      ${characters.map(c => `
-        <button class="char-pick${selectedChar?.id === c.id ? " active" : ""}"
-                data-id="${c.id}" data-level="${c.level}">
-          ${c.class_emoji || "⚔️"} ${c.character_name} <span>lv${c.level}</span>
-        </button>`).join("")}
-    </div>` : "";
-
-  const formEl = document.createElement("div");
-  formEl.className = "rsvp-form";
-  formEl.innerHTML = `${charHtml}
-    <div class="rsvp-btns">
-      <button class="rsvp-action-btn primary" data-type="main">🙋 Inscribirse</button>
-      <button class="rsvp-action-btn secondary" data-type="wildcard">🃏 Comodín</button>
-      <button class="rsvp-action-btn secondary" data-type="bench">⏳ Banca</button>
-    </div>`;
-  sectionEl.appendChild(formEl);
-
-  formEl.querySelectorAll(".char-pick").forEach(btn => {
-    btn.addEventListener("click", () => {
-      formEl.querySelectorAll(".char-pick").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      selectedChar = { id: btn.dataset.id, level: btn.dataset.level };
-    });
-  });
-
-  formEl.querySelectorAll("[data-type]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      btn.disabled = true; btn.textContent = "…";
-      const res = await apiFetch(`/schedule/bot/${botId}/rsvp`, {
-        method: "POST",
-        body: JSON.stringify({ character_id: selectedChar?.id || null, type: btn.dataset.type }),
-      });
-      if (res) loadRSVP(`bot-${botId}`, est, popupEl, ev);
-    });
-  });
-}
-
-function _renderMyRegistration(sectionEl, myRsvp, botId, est, popupEl, ev, characters) {
-  const charTxt = myRsvp.character_name
-    ? `${myRsvp.class_emoji || "⚔️"} ${myRsvp.character_name} (lv${myRsvp.character_level})`
-    : "Sin personaje";
-  const typeTxt = myRsvp.is_wildcard ? "🃏 Comodín" : myRsvp.bench_voluntary ? "⏳ Banca" : "🙋 Principal";
-
-  const formEl = document.createElement("div");
-  formEl.className = "rsvp-form";
-  formEl.innerHTML = `
-    <div class="rsvp-my-status">✅ ${typeTxt} · ${charTxt}</div>
-    <div class="rsvp-btns">
-      <button class="rsvp-action-btn secondary" id="btn-edit">✏️ Editar</button>
-      <button class="rsvp-action-btn danger"     id="btn-cancel">❌ Cancelar</button>
-    </div>`;
-  sectionEl.appendChild(formEl);
-
-  formEl.querySelector("#btn-edit").addEventListener("click", () => {
-    formEl.remove();
-    _renderRegisterForm(sectionEl, characters, botId, est, popupEl, ev);
-  });
-
-  formEl.querySelector("#btn-cancel").addEventListener("click", async btn => {
-    btn.target.disabled = true; btn.target.textContent = "…";
-    const res = await apiFetch(`/schedule/bot/${botId}/rsvp`, { method: "DELETE" });
-    if (res) loadRSVP(`bot-${botId}`, est, popupEl, ev);
-  });
 }
 
 // ── Vista SEMANA ───────────────────────────────────────────────────

@@ -141,18 +141,18 @@
   display: flex; flex-direction: column; justify-content: flex-start;
 }
 
-/* Miniatura cuadrada a la derecha */
+/* Miniatura cuadrada a la derecha — object-fit:contain para no recortar */
 .ev-thumb {
   flex-shrink: 0;
   align-self: stretch;
-  aspect-ratio: 1 / 1;
-  max-width: 38px;
-  object-fit: cover;
+  width: 32px;
+  object-fit: contain;
   border-radius: 3px;
+  background: rgba(0,0,0,.25);
 }
 
-.ev-hora   { font-size: .58rem; opacity: .6; margin-bottom: 1px; line-height: 1.2; }
-.ev-nombre { font-size: .66rem; font-weight: 800; line-height: 1.2; text-transform: uppercase; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev-hora   { font-size: .57rem; opacity: .6; margin-bottom: 1px; line-height: 1.2; }
+.ev-nombre { font-size: .59rem; font-weight: 800; line-height: 1.2; text-transform: uppercase; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ev-juego  { font-size: .59rem; font-weight: 400; opacity: .65; line-height: 1.2; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ev-autor  { font-size: .56rem; opacity: .45; line-height: 1.2; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ev-cont   { font-size: .58rem; opacity: .5; margin-top: 1px; font-style: italic; }
@@ -203,8 +203,9 @@
 }
 .popup-close:hover { background: rgba(255,255,255,.15); }
 .popup-badge { display: inline-flex; align-items: center; gap: 5px; padding: .22rem .7rem; border-radius: 999px; font-size: .72rem; font-weight: 700; margin-bottom: .85rem; }
-.popup-title { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: .2rem; }
-.popup-sub   { font-size: .82rem; color: rgba(255,255,255,.4); margin-bottom: 1.1rem; }
+.popup-title { font-size: .88rem; font-weight: 800; color: #fff; margin-bottom: .2rem; text-transform: uppercase; letter-spacing: .3px; }
+.popup-game  { font-size: .82rem; color: rgba(255,255,255,.55); margin-bottom: .3rem !important; }
+.popup-sub   { font-size: .78rem; color: rgba(255,255,255,.4); margin-bottom: .35rem; }
 .popup-label { font-size: .7rem; font-weight: 700; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: .5px; margin-top: 1rem; margin-bottom: .35rem; }
 .popup-text  { font-size: .87rem; color: rgba(255,255,255,.65); line-height: 1.6; }
 .popup-tag { display: inline-flex; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 6px; padding: .18rem .52rem; font-size: .74rem; color: rgba(255,255,255,.55); margin: 2px; }
@@ -336,15 +337,24 @@
 .rsvp-char { font-size:.78rem; color:#fff; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .rsvp-lv   { font-size:.67rem; color:rgba(255,255,255,.4); font-weight:400; }
 .rsvp-username { font-size:.67rem; color:rgba(255,255,255,.35); }
-.rsvp-type { font-size:.62rem; font-weight:700; padding:.1rem .42rem; border-radius:999px; flex-shrink:0; }
-.rsvp-type.main     { background:rgba(99,102,241,.18); color:#a5b4fc; border:1px solid rgba(99,102,241,.3); }
-.rsvp-type.wildcard { background:rgba(251,191,36,.14); color:#fde047; border:1px solid rgba(251,191,36,.3); }
-.rsvp-type.bench    { background:rgba(100,116,139,.18); color:#94a3b8; border:1px solid rgba(100,116,139,.3); }
+.rsvp-type          { font-size:.62rem; font-weight:700; padding:.1rem .42rem; border-radius:999px; flex-shrink:0; border:1px solid; }
+.rsvp-type.principal{ background:rgba(99,102,241,.18); color:#a5b4fc; border-color:rgba(99,102,241,.3); }
+.rsvp-type.libre    { background:rgba(34,197,94,.12);  color:#86efac; border-color:rgba(34,197,94,.3); }
+.rsvp-type.wildcard { background:rgba(251,191,36,.14); color:#fde047; border-color:rgba(251,191,36,.3); }
+.rsvp-type.bench    { background:rgba(100,116,139,.18); color:#94a3b8; border-color:rgba(100,116,139,.3); }
+.rsvp-type.bench-vol{ background:rgba(239,68,68,.12);  color:#fca5a5; border-color:rgba(239,68,68,.3); }
+.rsvp-role-label    { font-size:.7rem; font-weight:700; color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:.5px; margin:.6rem 0 .25rem; }
 .rsvp-names { font-size:.78rem; color:rgba(255,255,255,.45); margin-bottom:.5rem; }
 .rsvp-empty { font-size:.78rem; color:rgba(255,255,255,.3); margin-bottom:.4rem; }
 .rsvp-login-hint { font-size:.75rem; color:rgba(255,255,255,.3); margin-top:.6rem; }
 .rsvp-login-hint a { color:rgba(139,148,255,.8); text-decoration:none; }
 .rsvp-login-hint a:hover { text-decoration:underline; }
+
+/* RSVP Progress bar */
+.rsvp-progress-wrap { display:flex; align-items:center; gap:.6rem; margin-bottom:.75rem; }
+.rsvp-progress-bar  { flex:1; height:8px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; }
+.rsvp-progress-fill { height:100%; background:linear-gradient(90deg,#6366f1,#22c55e); border-radius:999px; transition:width .6s ease; min-width:4px; }
+.rsvp-progress-label{ font-size:.75rem; font-weight:700; color:rgba(255,255,255,.55); flex-shrink:0; }
 
 /* RSVP Form */
 .rsvp-form { margin-top:.75rem; border-top:1px solid rgba(255,255,255,.07); padding-top:.75rem; }
