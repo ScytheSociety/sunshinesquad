@@ -66,10 +66,13 @@ router.get("/", (req, res) => {
                COALESCE(gi.timezone, 'UTC') as timezone,
                COALESCE(a.points, 0)         as activity_points,
                COALESCE(a.name, '')           as activity_name,
-               COALESCE(a.image_url, '')      as activity_image
+               COALESCE(a.image_url, '')      as activity_image,
+               COALESCE(pub.display_name, '') as published_by_username,
+               COALESCE(pub.avatar_url, '')   as published_by_avatar
         FROM events e
         JOIN game_info gi ON gi.id = e.game_id
         LEFT JOIN activities a ON a.id = e.activity_id
+        LEFT JOIN users pub ON CAST(pub.discord_user_id AS TEXT) = CAST(e.published_by AS TEXT)
         WHERE e.status NOT IN ('cancelled','canceled')
           AND date(e.event_datetime) >= ?
         ORDER BY e.event_datetime ASC
@@ -97,9 +100,11 @@ router.get("/", (req, res) => {
           creator_id:      e.creator_id || "",
           published_by:    e.published_by || e.creator_id || "",
           participant_count: e.participant_count || 0,
-          activity_points: e.activity_points || 0,
-          activity_name:   e.activity_name || "",
-          activity_image:  e.activity_image || "",
+          activity_points:       e.activity_points || 0,
+          activity_name:         e.activity_name || "",
+          activity_image:        e.activity_image || "",
+          published_by_username: e.published_by_username || "",
+          published_by_avatar:   e.published_by_avatar || "",
         };
       });
     } catch (botErr) {
@@ -290,9 +295,10 @@ router.get("/bot/:id/rsvp", (req, res) => {
              er.character_level,
              u.display_name AS username, u.avatar_url,
              c.character_name,
-             COALESCE(cl.emoji,'⚔️') AS class_emoji,
-             COALESCE(r.emoji,'')    AS role_emoji,
-             COALESCE(r.name,'')     AS role_name,
+             COALESCE(cl.emoji,'⚔️')        AS class_emoji,
+             COALESCE(r.emoji,'')           AS role_emoji,
+             COALESCE(r.name,'')            AS role_name,
+             COALESCE(r.display_order, 99)  AS role_display_order,
              'bot' as source
       FROM event_registrations er
       JOIN users u ON er.user_id = u.id
