@@ -285,7 +285,7 @@ router.get("/bot/:id/rsvp", (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
     const eventRow = botDB().prepare(
-      "SELECT id, game_id, status, max_participants FROM events WHERE id=?"
+      "SELECT id, game_id, status, max_participants, slot_config FROM events WHERE id=?"
     ).get(eventId);
     if (!eventRow) return res.status(404).json({ error: "Evento no encontrado" });
 
@@ -370,7 +370,13 @@ router.get("/bot/:id/rsvp", (req, res) => {
       } catch {}
     }
 
-    res.json({ count: rows.length, max: eventRow.max_participants || null, users: rows, myRsvp, characters });
+    // max: usar max_participants explícito; si es 0, derivar del largo de slot_config
+    const slotMax = (() => {
+      try { return (JSON.parse(eventRow.slot_config || "[]")).length; } catch { return 0; }
+    })();
+    const max = eventRow.max_participants > 0 ? eventRow.max_participants : (slotMax || null);
+
+    res.json({ count: rows.length, max, users: rows, myRsvp, characters });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

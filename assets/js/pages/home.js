@@ -152,9 +152,10 @@ async function loadHomeRSVP(ev, overlayEl) {
         : `👥 <strong>${total}</strong> participante${total !== 1 ? "s" : ""}`;
       html += `<div class="rsvp-header" style="margin-bottom:.4rem;">${countLabel}</div>`;
       if (max > 0) {
-        const pct = Math.min(100, Math.round(total / max * 100));
+        const pct   = Math.min(100, Math.round(total / max * 100));
+        const color = pct < 50 ? "#6366f1" : pct < 85 ? "#f59e0b" : "#22c55e";
         html += `<div class="rsvp-progress-wrap">
-          <div class="rsvp-progress-bar"><div class="rsvp-progress-fill" style="width:${pct}%"></div></div>
+          <div class="rsvp-progress-bar"><div class="rsvp-progress-fill" style="width:${pct}%;background:${color};"></div></div>
           <span class="rsvp-progress-label">${pct}%</span>
         </div>`;
       }
