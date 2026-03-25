@@ -58,7 +58,7 @@ function renderRunners(runners) {
     return;
   }
 
-  const TRACK_H  = 200;
+  const TRACK_H  = 480;
   const RUNNER_H = 66; // avatar 42 + name + days ≈ 66px
   const count    = runners.length;
 
@@ -178,7 +178,7 @@ async function init() {
   const todayMD = String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
 
   // API already sorted by dias_faltantes ASC
-  const runners    = data.slice(0, 10);
+  const runners    = data.slice(0, 15);
   const runnerIds  = new Set(runners.map(r => String(r.discord_user_id)));
   // Past = birthday already happened in current calendar year, not among runners
   const past = data.filter(b => !runnerIds.has(String(b.discord_user_id)) && b.mmdd < todayMD);
