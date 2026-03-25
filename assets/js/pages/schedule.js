@@ -6,8 +6,10 @@ const DIAS_GRID  = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 const MESES      = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
                     "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const ZONA_USER  = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const HORA_PX    = 60;
-const HORAS      = 24;
+const HORA_PX       = 60;   // base para getFragmentos (no cambiar)
+const HORA_PX_FULL  = 60;   // hora con eventos
+const HORA_PX_EMPTY = 18;   // hora sin eventos (colapsada)
+const HORAS         = 24;
 const API        = "https://sunshinesquad.es/api";
 
 let scheduleData   = [];
@@ -107,16 +109,43 @@ function getFragmentos(ev) {
     const topMin     = (inicioFrag - diaActual.getTime()) / 60000;
     const durMin     = (finFrag - inicioFrag) / 60000;
     frags.push({
-      dia:   new Date(diaActual),
-      topPx: topMin * (HORA_PX / 60),
-      altPx: Math.max(durMin * (HORA_PX / 60), 20),
-      hora:  new Date(inicioFrag),
+      dia:    new Date(diaActual),
+      topPx:  topMin * (HORA_PX / 60),
+      altPx:  Math.max(durMin * (HORA_PX / 60), 20),
+      topMin,
+      durMin,
+      hora:   new Date(inicioFrag),
       esCont: inicioFrag > ini.getTime(),
       ev
     });
     diaActual = new Date(finDia);
   }
   return frags;
+}
+
+// ── Alturas variables por hora ─────────────────────────────────────
+function buildHourHeights(frags, dias) {
+  const used = new Set();
+  frags.forEach(f => {
+    if (!dias.some(d => isSameDay(f.dia, d))) return;
+    const sh = Math.floor(f.topMin / 60);
+    const eh = Math.min(23, Math.floor((f.topMin + Math.max(f.durMin, 1)) / 60));
+    for (let h = sh; h <= eh; h++) used.add(h);
+  });
+  return Array.from({length: 24}, (_, h) => used.has(h) ? HORA_PX_FULL : HORA_PX_EMPTY);
+}
+
+function minuteToPx(min, hh) {
+  const h   = Math.min(23, Math.floor(min / 60));
+  const rem = min % 60;
+  let px = 0;
+  for (let i = 0; i < h; i++) px += hh[i];
+  px += (rem / 60) * hh[h];
+  return px;
+}
+
+function durToPx(topMin, durMin, hh) {
+  return minuteToPx(topMin + durMin, hh) - minuteToPx(topMin, hh);
 }
 
 // ── Popup ──────────────────────────────────────────────────────────
@@ -139,25 +168,42 @@ async function showPopup(ev, inicio, est) {
   // Descripción y metadatos según fuente
   const desc     = isBotEvent ? (ev.description || "") : (info.descripcion || "");
   const actName  = isBotEvent ? (ev.activity_name || ev.evento) : (info.nombre || ev.evento);
-  const actImage = isBotEvent ? ev.activity_image : null;
-  const puntos   = isBotEvent ? (ev.activity_points || 0) : 0;
-  const pubBy    = isBotEvent ? (ev.published_by || "") : "";
-  const dific    = isBotEvent ? (ev.difficulty || "") : "";
+  const puntos      = isBotEvent ? (ev.activity_points || 0) : 0;
+  const pubBy       = isBotEvent ? (ev.published_by || "") : "";
+  const pubByName   = isBotEvent ? (ev.published_by_username || "") : "";
+  const pubByAvatar = isBotEvent ? (ev.published_by_avatar || "") : "";
+  const dific       = isBotEvent ? (ev.difficulty || "") : "";
 
   const el = document.createElement("div");
   el.className = "popup-overlay";
+  // Recomendaciones como lista numerada
+  const descHtml = (() => {
+    if (!desc) return "";
+    const lines = desc.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return "";
+    const items = lines.map((l, i) => `<div class="popup-rec-item">${i+1}. ${l}</div>`).join("");
+    return `<div class="popup-label">📋 Recomendaciones</div><div class="popup-rec">${items}</div>`;
+  })();
+
+  // Publicado por con avatar y nombre
+  const pubHtml = pubByName
+    ? `<div class="popup-pub">
+        ${pubByAvatar ? `<img src="${pubByAvatar}" class="popup-pub-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">` : ""}
+        <span class="popup-pub-name">${pubByName}</span>
+       </div>`
+    : (pubBy ? `<div class="popup-sub">👤 Publicado por: <@${pubBy}></div>` : "");
+
   el.innerHTML = `
     <div class="popup-box">
       <button class="popup-close">✕</button>
-      ${actImage ? `<img src="${actImage}" class="popup-img" onerror="this.remove()">` : ""}
       <div class="popup-badge" style="background:${cfg.bg};border:1px solid ${cfg.border};color:#fff;">${cfg.label}</div>
       <div class="popup-title">${actName}</div>
       <div class="popup-sub">${ev.juego} · ${fechaLocal} · ${horaLocal} · ~${ev.duracion}h</div>
       <div class="popup-sub popup-tz">🕐 ${tzLabel}: ${ev.hora}</div>
-      ${desc ? `<div class="popup-text popup-desc">\`${desc}\`</div>` : ""}
       ${dific ? `<div class="popup-sub">⚔️ Dificultad: ${dific}</div>` : ""}
       ${puntos ? `<div class="popup-sub">⭐ ${puntos} puntos de logro</div>` : ""}
-      ${pubBy  ? `<div class="popup-sub">👤 Publicado por: <@${pubBy}></div>` : ""}
+      ${pubHtml}
+      ${descHtml}
       ${!isBotEvent && info.nivel_minimo ? `<div class="popup-label">Nivel mínimo</div><div class="popup-text">${info.nivel_minimo}</div>` : ""}
       ${!isBotEvent && (info.clases||[]).length ? `<div class="popup-label">Clases</div><div>${tags(info.clases)}</div>` : ""}
       ${!isBotEvent && (info.items_requeridos||[]).length ? `<div class="popup-label">Items requeridos</div><div>${tags(info.items_requeridos)}</div>` : ""}
@@ -235,20 +281,22 @@ async function loadRSVP(eventId, est, popupEl, ev) {
       };
 
       if (mainUsers.length) {
-        // Agrupar por rol
+        // Agrupar por rol y ordenar por display_order
         const byRole = {};
         mainUsers.forEach(u => {
           const key = u.role_name || "Sin rol";
-          if (!byRole[key]) byRole[key] = { emoji: u.role_emoji || "", users: [] };
+          if (!byRole[key]) byRole[key] = { emoji: u.role_emoji || "", order: u.role_display_order ?? 99, users: [] };
           byRole[key].users.push(u);
         });
         html += `<div class="rsvp-list">`;
-        Object.entries(byRole).forEach(([roleName, group]) => {
-          if (Object.keys(byRole).length > 1 || roleName !== "Sin rol") {
-            html += `<div class="rsvp-role-label">${group.emoji} ${roleName} (${group.users.length})</div>`;
-          }
-          group.users.forEach(u => { html += userRow(u); });
-        });
+        Object.entries(byRole)
+          .sort(([,a], [,b]) => a.order - b.order)
+          .forEach(([roleName, group]) => {
+            if (Object.keys(byRole).length > 1 || roleName !== "Sin rol") {
+              html += `<div class="rsvp-role-label">${group.emoji} ${roleName} (${group.users.length})</div>`;
+            }
+            group.users.forEach(u => { html += userRow(u); });
+          });
         html += `</div>`;
       } else {
         html += `<div class="rsvp-empty">Nadie inscripto aún</div>`;
@@ -422,35 +470,55 @@ function render() {
     `<div class="hour-lbl" style="height:${HORA_PX}px;">${String(h).padStart(2,"0")}:00</div>`
   ).join("");
 
-  const evData   = filterEvents(scheduleData);
+  const evData    = filterEvents(scheduleData);
   const todosFrag = evData.flatMap(ev => getFragmentos(ev));
+
+  // Alturas variables: horas con eventos = HORA_PX_FULL, vacías = HORA_PX_EMPTY
+  const hourHeights = buildHourHeights(todosFrag, dias);
+  const totalH      = hourHeights.reduce((a, b) => a + b, 0);
+
+  const horasHTML = hourHeights.map((hpx, h) =>
+    `<div class="hour-lbl" style="height:${hpx}px;">${String(h).padStart(2,"0")}:00</div>`
+  ).join("");
 
   const colsHTML = dias.map(d => {
     const esHoy = isSameDay(d, hoy);
-    const lineasH = Array.from({length:HORAS}, (_,h) =>
-      `<div class="hr-line" style="top:${h * HORA_PX}px;"></div>`
-    ).join("");
+
+    // Líneas horizontales en posición acumulada
+    const lineasH = Array.from({length:HORAS}, (_,h) => {
+      const top = hourHeights.slice(0, h).reduce((a, b) => a + b, 0);
+      return `<div class="hr-line" style="top:${top}px;"></div>`;
+    }).join("");
 
     let nowHTML = "";
     if (esHoy && semanaOffset === 0) {
-      const now = new Date();
-      const px  = now.getHours() * HORA_PX + Math.floor(now.getMinutes() * (HORA_PX / 60));
+      const now    = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const px     = minuteToPx(nowMin, hourHeights);
       nowHTML = `<div class="now-line" style="top:${px}px;"></div>`;
     }
 
     const eventsHTML = todosFrag
       .filter(f => isSameDay(f.dia, d))
       .map(f => {
-        const ev   = f.ev;
-        const est  = estado(toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima"), ev.duracion);
-        const hora = f.hora.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:false });
+        const ev     = f.ev;
+        const est    = estado(toLocal(ev.fecha, ev.hora, ev.timezone || "America/Lima"), ev.duracion);
+        const hora   = f.hora.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", hour12:false });
+        const topPx  = minuteToPx(f.topMin, hourHeights);
+        const altPx  = Math.max(durToPx(f.topMin, Math.max(f.durMin, 1), hourHeights), 18);
+        const imgHtml = ev.activity_image
+          ? `<img class="ev-thumb" src="${ev.activity_image}" loading="lazy" onerror="this.style.display='none'">`
+          : "";
         return `<div class="sched-ev ${gj(ev.juego)} st-${est}${ev.source === "bot" ? " ev-bot" : ""}"
-                     style="top:${f.topPx}px;height:${f.altPx}px;"
+                     style="top:${topPx}px;height:${altPx}px;"
                      data-evid="${ev.id}">
           ${!f.esCont
-            ? `<div class="ev-hora">${hora}</div>
-               <div class="ev-nombre">${ev.evento}</div>
-               <div class="ev-juego">${ev.juego}${ev.source === "bot" ? " 🤖" : ""}</div>`
+            ? `<div class="ev-inner">
+                 <div class="ev-hora">${hora}</div>
+                 <div class="ev-nombre">${ev.evento.toUpperCase()}</div>
+                 <div class="ev-juego">${ev.juego}${ev.source === "bot" ? " 🤖" : ""}</div>
+                 ${ev.published_by_username ? `<div class="ev-autor">${ev.published_by_username}</div>` : ""}
+               </div>${imgHtml}`
             : `<div class="ev-cont">↑ continúa</div>`}
         </div>`;
       }).join("");
@@ -469,7 +537,7 @@ function render() {
     </div>
     <div class="schedule-body">
       <div class="hours-col">${horasHTML}</div>
-      <div class="days-grid">${lineasV}${colsHTML}</div>
+      <div class="days-grid" style="min-height:${totalH}px;">${lineasV}${colsHTML}</div>
     </div>`;
 
   outer.querySelectorAll(".sched-ev").forEach(el => {

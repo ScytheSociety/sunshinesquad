@@ -126,17 +126,35 @@
 /* ===================== EVENTOS ===================== */
 .sched-ev {
   position: absolute; left: 2px; right: 2px;
-  border-radius: 6px; padding: 3px 5px;
+  border-radius: 6px; padding: 3px 4px 3px 5px;
   font-size: .67rem; cursor: pointer; overflow: hidden;
   z-index: 3; border-left: 3px solid transparent;
   transition: filter .15s, transform .15s;
-  box-sizing: border-box; min-height: 20px;
+  box-sizing: border-box; min-height: 18px;
+  display: flex; align-items: stretch; gap: 3px;
 }
 .sched-ev:hover { filter: brightness(1.25); transform: scaleX(1.02); }
 
-.ev-hora   { font-size: .6rem; opacity: .7; margin-bottom: 1px; }
-.ev-juego  { font-weight: 700; line-height: 1.2; font-size: .67rem; }
-.ev-nombre { font-size: .62rem; opacity: .72; line-height: 1.2; margin-top: 1px; }
+/* Área de texto dentro del evento */
+.ev-inner {
+  flex: 1; min-width: 0; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: flex-start;
+}
+
+/* Miniatura cuadrada a la derecha */
+.ev-thumb {
+  flex-shrink: 0;
+  align-self: stretch;
+  aspect-ratio: 1 / 1;
+  max-width: 38px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.ev-hora   { font-size: .58rem; opacity: .6; margin-bottom: 1px; line-height: 1.2; }
+.ev-nombre { font-size: .66rem; font-weight: 800; line-height: 1.2; text-transform: uppercase; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev-juego  { font-size: .59rem; font-weight: 400; opacity: .65; line-height: 1.2; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev-autor  { font-size: .56rem; opacity: .45; line-height: 1.2; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ev-cont   { font-size: .58rem; opacity: .5; margin-top: 1px; font-style: italic; }
 
 .st-futuro { background: rgba(99,102,241,.22); border-left-color: #6366f1; color: #c7d2fe; }
@@ -193,6 +211,15 @@
 .popup-actions { margin-top: 1.25rem; display: flex; gap: .5rem; flex-wrap: wrap; }
 .popup-btn { display: inline-flex; align-items: center; gap: 6px; padding: .5rem 1.1rem; border-radius: 9px; font-size: .84rem; font-weight: 600; text-decoration: none; transition: background .15s; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.07); color: #fff; }
 .popup-btn:hover { background: rgba(255,255,255,.15); color: #fff; text-decoration: none; }
+
+/* Publicado por con avatar */
+.popup-pub { display: flex; align-items: center; gap: .45rem; margin-bottom: 1rem; }
+.popup-pub-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,.15); flex-shrink: 0; }
+.popup-pub-name { font-size: .8rem; color: rgba(255,255,255,.55); }
+
+/* Recomendaciones */
+.popup-rec { margin-bottom: .6rem; }
+.popup-rec-item { font-size: .84rem; color: rgba(255,255,255,.65); line-height: 1.6; padding: .1rem 0; }
 
 /* ===================== MONTHLY VIEW ===================== */
 .mcal-grid {
