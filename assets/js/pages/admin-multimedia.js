@@ -8,6 +8,11 @@ let mediaData    = { gallery: [], videos: [], servidor: null };
 let editingImgId = null;
 let editingVidId = null;
 
+// Datos pendientes de importar (desde JSON estático)
+let pendingGallery  = [];
+let pendingVideos   = [];
+let pendingServidor = null;
+
 // ── Auth ────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   const user = getUser();
@@ -57,16 +62,87 @@ async function loadGameSelector() {
 // ── Load game media ─────────────────────────────────────────────────
 async function loadGame(key) {
   currentGame = key;
+  pendingGallery = []; pendingVideos = []; pendingServidor = null;
+
   try {
     const res = await fetch(`${API}/game-media/${key}`);
     mediaData = res.ok ? await res.json() : { gallery: [], videos: [], servidor: null };
   } catch {
     mediaData = { gallery: [], videos: [], servidor: null };
   }
+
+  // Si el DB está vacío, intentar cargar el JSON estático
+  const dbEmpty = !mediaData.gallery.length && !mediaData.videos.length && !mediaData.servidor;
+  if (dbEmpty) await loadStaticJson(key);
+
   document.getElementById("editor-wrap").style.display = "block";
+  renderImportBanner();
   renderGallery();
   renderVideos();
   populateServerForm();
+}
+
+async function loadStaticJson(key) {
+  try {
+    const r = await fetch(`../../data/${key}.json`);
+    if (!r.ok) return;
+    const d = await r.json();
+    pendingGallery = (d.galeria || [])
+      .filter(g => g.imagen || g.url)
+      .map(g => ({ url: g.imagen || g.url, titulo: g.titulo || "" }));
+    pendingVideos = (d.videos || [])
+      .filter(v => v.url)
+      .map(v => ({ url: v.url, titulo: v.titulo || "" }));
+    if (d.servidor) {
+      pendingServidor = {
+        logo_url:    d.servidor.logo || d.servidor.logo_url || "",
+        descripcion: d.servidor.descripcion || "",
+        web:         d.servidor.web || "",
+        wiki:        d.servidor.wiki || "",
+        descarga:    d.servidor.descarga || "",
+        discord:     d.servidor.discord || "",
+        info:        d.servidor.info || [],
+      };
+    }
+  } catch {}
+}
+
+function renderImportBanner() {
+  document.getElementById("import-json-banner")?.remove();
+  const hasPending = pendingGallery.length || pendingVideos.length || pendingServidor;
+  if (!hasPending) return;
+  const banner = document.createElement("div");
+  banner.id = "import-json-banner";
+  banner.style.cssText = "background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;";
+  banner.innerHTML = `
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:.83rem;font-weight:700;color:#fde047;">📦 Datos estáticos sin importar</div>
+      <div style="font-size:.73rem;color:rgba(255,255,255,.45);">${pendingGallery.length} imágenes · ${pendingVideos.length} videos · config de servidor — del JSON estático del juego. Impórtalos al sistema para poder editarlos.</div>
+    </div>
+    <button id="btn-import-json" class="btn btn-sm" style="background:rgba(251,191,36,.18);border:1px solid rgba(251,191,36,.35);color:#fde047;font-size:.78rem;white-space:nowrap;flex-shrink:0;">📥 Importar todo</button>
+  `;
+  document.getElementById("editor-wrap").insertBefore(banner, document.getElementById("editor-wrap").firstChild);
+  document.getElementById("btn-import-json").addEventListener("click", importFromJson);
+}
+
+async function importFromJson() {
+  const btn = document.getElementById("btn-import-json");
+  if (btn) { btn.disabled = true; btn.textContent = "Importando…"; }
+  let errors = 0;
+  for (const item of pendingGallery) {
+    const r = await apiFetch(`/game-media/${currentGame}/gallery`, { method:"POST", body:JSON.stringify(item) });
+    if (!r?.ok) errors++;
+  }
+  for (const item of pendingVideos) {
+    const r = await apiFetch(`/game-media/${currentGame}/videos`, { method:"POST", body:JSON.stringify(item) });
+    if (!r?.ok) errors++;
+  }
+  if (pendingServidor) {
+    const r = await apiFetch(`/game-media/${currentGame}/server`, { method:"PUT", body:JSON.stringify(pendingServidor) });
+    if (!r?.ok) errors++;
+  }
+  if (errors === 0) { toast("Importado correctamente"); await loadGame(currentGame); }
+  else { toast(`${errors} elemento(s) no importados`, true); if (btn) { btn.disabled = false; btn.textContent = "📥 Importar todo"; } }
 }
 
 // ── Tabs ────────────────────────────────────────────────────────────
@@ -84,7 +160,7 @@ function bindTabs() {
 // ── Gallery ─────────────────────────────────────────────────────────
 function renderGallery() {
   const el = document.getElementById("gallery-list");
-  if (!mediaData.gallery.length) {
+  if (!mediaData.gallery.length && !pendingGallery.length) {
     el.innerHTML = `<div class="admin-empty">Sin imágenes aún.</div>`;
     return;
   }
@@ -112,6 +188,30 @@ function renderGallery() {
   el.querySelectorAll(".btn-del-img").forEach(b =>
     b.addEventListener("click", () => deleteImg(parseInt(b.dataset.id), b.closest(".mm-media-row")))
   );
+
+  // Items pendientes de JSON
+  if (pendingGallery.length) {
+    const sep = document.createElement("div");
+    sep.style.cssText = "font-size:.68rem;color:rgba(251,191,36,.6);margin:.6rem 0 .2rem;text-transform:uppercase;letter-spacing:.5px;";
+    sep.textContent = "— JSON estático (pendiente de importar) —";
+    el.appendChild(sep);
+    pendingGallery.forEach(img => {
+      const row = document.createElement("div");
+      row.className = "mm-media-row";
+      row.style.opacity = ".75";
+      row.innerHTML = `
+        <img class="mm-media-thumb" src="${img.url}" alt="${img.titulo||""}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="mm-media-thumb-empty" style="display:none;">📷</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.82rem;font-weight:600;color:#fde047;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${img.titulo || "(sin título)"}</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${img.url}</div>
+        </div>
+        <span style="font-size:.63rem;font-weight:700;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fde047;padding:.1rem .35rem;border-radius:6px;flex-shrink:0;">JSON</span>
+      `;
+      el.appendChild(row);
+    });
+  }
 }
 
 function bindImgForm() {
@@ -190,7 +290,7 @@ async function deleteImg(id, rowEl) {
 // ── Videos ──────────────────────────────────────────────────────────
 function renderVideos() {
   const el = document.getElementById("videos-list");
-  if (!mediaData.videos.length) {
+  if (!mediaData.videos.length && !pendingVideos.length) {
     el.innerHTML = `<div class="admin-empty">Sin videos aún.</div>`;
     return;
   }
@@ -221,6 +321,30 @@ function renderVideos() {
   el.querySelectorAll(".btn-del-vid").forEach(b =>
     b.addEventListener("click", () => deleteVid(parseInt(b.dataset.id), b.closest(".mm-media-row")))
   );
+
+  // Items pendientes de JSON
+  if (pendingVideos.length) {
+    const sep = document.createElement("div");
+    sep.style.cssText = "font-size:.68rem;color:rgba(251,191,36,.6);margin:.6rem 0 .2rem;text-transform:uppercase;letter-spacing:.5px;";
+    sep.textContent = "— JSON estático (pendiente de importar) —";
+    el.appendChild(sep);
+    pendingVideos.forEach(v => {
+      const row = document.createElement("div");
+      row.className = "mm-media-row";
+      row.style.opacity = ".75";
+      const ytMatch = v.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
+      const thumb   = ytMatch ? `<img class="mm-media-thumb" src="https://img.youtube.com/vi/${ytMatch[1]}/default.jpg" alt="">` : `<div class="mm-media-thumb-empty">▶️</div>`;
+      row.innerHTML = `
+        ${thumb}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.82rem;font-weight:600;color:#fde047;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.titulo || "(sin título)"}</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.url}</div>
+        </div>
+        <span style="font-size:.63rem;font-weight:700;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fde047;padding:.1rem .35rem;border-radius:6px;flex-shrink:0;">JSON</span>
+      `;
+      el.appendChild(row);
+    });
+  }
 }
 
 function bindVidForm() {
@@ -286,7 +410,7 @@ async function deleteVid(id, rowEl) {
 
 // ── Server config ────────────────────────────────────────────────────
 function populateServerForm() {
-  const s = mediaData.servidor || {};
+  const s = mediaData.servidor || pendingServidor || {};
   document.getElementById("srv-logo").value     = s.logo_url    || "";
   document.getElementById("srv-web").value      = s.web         || "";
   document.getElementById("srv-wiki").value     = s.wiki        || "";
