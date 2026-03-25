@@ -4,10 +4,16 @@ const cors    = require("cors");
 
 const app = express();
 
-// CORS: solo permite el dominio del frontend
+// CORS: permite el dominio custom y el de GitHub Pages
 const FRONTEND = process.env.FRONTEND_URL || "https://sunshinesquad.es";
 app.use(cors({
-  origin: [FRONTEND, "http://localhost:5173", "http://127.0.0.1:5500", "http://localhost:8080"],
+  origin: [
+    FRONTEND,
+    "https://scythesociety.github.io",
+    "http://localhost:5173",
+    "http://127.0.0.1:5500",
+    "http://localhost:8080",
+  ],
   credentials: true,
 }));
 
