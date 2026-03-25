@@ -466,10 +466,6 @@ function render() {
     </div>`;
   }).join("");
 
-  const horasHTML = Array.from({length:HORAS}, (_,h) =>
-    `<div class="hour-lbl" style="height:${HORA_PX}px;">${String(h).padStart(2,"0")}:00</div>`
-  ).join("");
-
   const evData    = filterEvents(scheduleData);
   const todosFrag = evData.flatMap(ev => getFragmentos(ev));
 
