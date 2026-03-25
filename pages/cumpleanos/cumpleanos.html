@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cumpleaños · Sunshine Squad</title>
-  <meta name="description" content="Cumpleaños de los miembros de Sunshine Squad.">
-  <meta property="og:title" content="Cumpleaños · Sunshine Squad">
-  <meta property="og:description" content="Cumpleaños de los miembros de la comunidad Sunshine Squad.">
+  <title>Carrera de Cumpleaños · Sunshine Squad</title>
+  <meta name="description" content="¡La gran carrera de cumpleaños de Sunshine Squad!">
+  <meta property="og:title" content="Carrera de Cumpleaños · Sunshine Squad">
+  <meta property="og:description" content="¿Quién llegará primero a la meta?">
   <meta property="og:image" content="https://i.imgur.com/p7OlADi.gif">
   <meta property="og:url" content="https://sunshinesquad.es/pages/cumpleanos/cumpleanos.html">
   <meta property="og:type" content="website">
@@ -16,64 +16,410 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/main.css">
   <style>
-    @keyframes bday-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(250,204,21,.5), 0 4px 24px rgba(250,204,21,.15); }
-      50%       { box-shadow: 0 0 0 6px rgba(250,204,21,0), 0 4px 24px rgba(250,204,21,.35); }
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow-x: hidden; }
+
+    /* ── Race Section ─────────────────────────────────── */
+    #race-wrap {
+      position: relative;
+      height: calc(100vh - 60px);
+      min-height: 440px;
+      overflow: hidden;
     }
-    .bday-today-card { animation: bday-pulse 2s ease-in-out infinite; }
-    @keyframes confetti-float {
-      0%, 100% { transform: translateY(0) rotate(0deg); opacity: .7; }
-      50%       { transform: translateY(-6px) rotate(8deg); opacity: 1; }
+
+    /* ── Sky Background ───────────────────────────────── */
+    #race-bg {
+      position: absolute;
+      inset: 0;
+      transition: background 2s;
+      z-index: 0;
     }
-    .bday-emoji { display: inline-block; animation: confetti-float 2.2s ease-in-out infinite; }
-    .bday-card {
-      display:flex;flex-direction:column;align-items:center;gap:.6rem;
-      padding:1.25rem 1rem;border-radius:16px;text-decoration:none;
-      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-      transition:border-color .15s,background .15s;position:relative;overflow:hidden;
+    #race-bg.day   { background: linear-gradient(180deg, #1565c0 0%, #1e88e5 40%, #64b5f6 75%, #90caf9 100%); }
+    #race-bg.night { background: linear-gradient(180deg, #020209 0%, #07071e 40%, #0d0d30 75%, #1a1a4a 100%); }
+
+    /* ── Sky Particles ────────────────────────────────── */
+    #sky-layer { position: absolute; inset: 0; overflow: hidden; z-index: 1; }
+
+    /* Sun */
+    .sun {
+      position: absolute;
+      top: 10%; right: 10%;
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, #fffde7, #fdd835);
+      box-shadow: 0 0 0 12px rgba(253,216,53,.15), 0 0 50px #fdd835, 0 0 100px rgba(253,216,53,.3);
+      animation: sun-pulse 4s ease-in-out infinite;
     }
-    .bday-card:hover { background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14); }
-    .bday-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px; }
-    .bday-avatar-ring-today { border:3px solid #fbbf24; }
-    .bday-avatar-ring-soon  { border:3px solid #a5b4fc; }
-    .bday-avatar-ring       { border:3px solid rgba(255,255,255,.12); }
-    .bday-badge {
-      position:absolute;top:8px;right:8px;font-size:.6rem;font-weight:800;
-      letter-spacing:.3px;text-transform:uppercase;padding:.15rem .45rem;border-radius:20px;
+    @keyframes sun-pulse {
+      0%,100% { box-shadow: 0 0 0 12px rgba(253,216,53,.15), 0 0 50px #fdd835, 0 0 100px rgba(253,216,53,.3); }
+      50%      { box-shadow: 0 0 0 18px rgba(253,216,53,.1),  0 0 65px #fdd835, 0 0 130px rgba(253,216,53,.4); }
     }
-    .bday-badge-today { background:rgba(250,204,21,.2);color:#fde047;border:1px solid rgba(250,204,21,.3); }
-    .bday-badge-next  { background:rgba(165,180,252,.15);color:#c7d2fe;border:1px solid rgba(165,180,252,.25); }
+
+    /* Moon */
+    .moon {
+      position: absolute;
+      top: 8%; right: 10%;
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fff9c4, #e8d044);
+      box-shadow: 0 0 30px rgba(255,240,100,.3);
+    }
+    .moon::after {
+      content: '';
+      position: absolute;
+      top: 5px; left: 10px;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #07071e;
+    }
+
+    /* Clouds */
+    .cloud {
+      position: absolute;
+      background: rgba(255,255,255,.78);
+      border-radius: 50px;
+      animation: cloud-drift linear infinite;
+    }
+    .cloud::before {
+      content: '';
+      position: absolute;
+      background: inherit; border-radius: 50%;
+      width: 55%; height: 200%;
+      top: -55%; left: 15%;
+    }
+    .cloud::after {
+      content: '';
+      position: absolute;
+      background: inherit; border-radius: 50%;
+      width: 38%; height: 175%;
+      top: -40%; right: 18%;
+    }
+    @keyframes cloud-drift {
+      from { transform: translateX(110vw); }
+      to   { transform: translateX(-350px); }
+    }
+
+    /* Stars */
+    .star {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+      animation: star-twinkle ease-in-out infinite;
+    }
+    @keyframes star-twinkle {
+      0%,100% { opacity: .15; transform: scale(1); }
+      50%     { opacity: 1;   transform: scale(1.4); }
+    }
+
+    /* ── Mountains ────────────────────────────────────── */
+    #mountain-svg {
+      position: absolute;
+      bottom: 27%;
+      left: 0; right: 0;
+      width: 100%; height: 130px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* ── Ground ───────────────────────────────────────── */
+    #ground-layer {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 30%;
+      background: linear-gradient(180deg, #1b3d10 0%, #0e2208 60%, #081404 100%);
+      z-index: 3;
+    }
+    #ground-layer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #2e6318, #3a7a1e, #2e6318);
+    }
+    /* Moving ground lines */
+    #ground-layer::after {
+      content: '';
+      position: absolute;
+      inset: 5px 0 0 0;
+      background: repeating-linear-gradient(90deg,
+        transparent 0, transparent 38px,
+        rgba(255,255,255,.03) 38px, rgba(255,255,255,.03) 39px
+      );
+      animation: ground-scroll 6s linear infinite;
+    }
+    @keyframes ground-scroll {
+      from { background-position-x: 0; }
+      to   { background-position-x: -39px; }
+    }
+
+    /* ── Year Watermark ───────────────────────────────── */
+    #year-label {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(90px, 16vw, 200px);
+      font-weight: 900;
+      color: rgba(255,255,255,.04);
+      letter-spacing: -6px;
+      user-select: none;
+      pointer-events: none;
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    /* ── Track ────────────────────────────────────────── */
+    #track-area {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 27%;
+      z-index: 10;
+    }
+    #track {
+      position: relative;
+      height: 200px;
+      margin: 0 70px 0 56px;
+      background: rgba(0,0,0,.38);
+      border-top: 3px solid rgba(255,255,255,.22);
+      border-bottom: 3px solid rgba(255,255,255,.22);
+      backdrop-filter: blur(3px);
+      overflow: visible;
+    }
+    /* Lane dashes */
+    #track::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg,
+        transparent 0, transparent 44px,
+        rgba(255,255,255,.055) 44px, rgba(255,255,255,.055) 46px
+      );
+      pointer-events: none;
+    }
+
+    /* Start */
+    .start-line {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: rgba(255,255,255,.35);
+    }
+    .start-label {
+      position: absolute;
+      left: -48px; top: 50%;
+      transform: translateY(-50%) rotate(180deg);
+      font-size: .55rem; font-weight: 800;
+      color: rgba(255,255,255,.35);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      writing-mode: vertical-lr;
+    }
+
+    /* Finish */
+    .finish-line {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 8px;
+      background: repeating-linear-gradient(180deg,
+        #111 0, #111 10px,
+        #eee 10px, #eee 20px
+      );
+    }
+    .finish-flag {
+      position: absolute;
+      right: 14px; top: -34px;
+      font-size: 1.8rem;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.6));
+      animation: flag-wave .7s ease-in-out infinite alternate;
+    }
+    @keyframes flag-wave {
+      from { transform: rotate(-8deg) translateY(0); }
+      to   { transform: rotate(8deg) translateY(-3px); }
+    }
+
+    /* ── Runners ──────────────────────────────────────── */
+    #runners-container {
+      position: absolute;
+      inset: 0;
+    }
+    .runner {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transform: translateX(-50%);
+      animation: runner-bounce .5s ease-in-out infinite alternate;
+      cursor: pointer;
+      z-index: 5;
+      transition: left 1.5s cubic-bezier(.25,.46,.45,.94);
+    }
+    @keyframes runner-bounce {
+      from { transform: translateX(-50%) translateY(0); }
+      to   { transform: translateX(-50%) translateY(-9px); }
+    }
+    .runner-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255,255,255,.5);
+      box-shadow: 0 3px 12px rgba(0,0,0,.65);
+    }
+    .runner-avatar.is-today {
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 4px rgba(251,191,36,.45), 0 3px 12px rgba(0,0,0,.65);
+    }
+    .runner-name {
+      font-size: .6rem; font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 5px rgba(0,0,0,.95);
+      white-space: nowrap;
+      max-width: 68px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .runner-days {
+      font-size: .55rem; font-weight: 600;
+      color: rgba(255,255,255,.8);
+      text-shadow: 0 1px 4px rgba(0,0,0,.9);
+    }
+
+    /* ── Music Button ─────────────────────────────────── */
+    #music-btn {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      z-index: 200;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(99,102,241,.9);
+      border: 2px solid rgba(255,255,255,.2);
+      color: #fff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,.5);
+      transition: background .15s, transform .1s;
+    }
+    #music-btn:hover  { background: #6366f1; transform: scale(1.08); }
+    #music-btn:active { transform: scale(.94); }
+
+    /* ── Loading ──────────────────────────────────────── */
+    #race-loading {
+      position: absolute;
+      inset: 0; z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      color: rgba(255,255,255,.5);
+    }
+
+    /* ── Confetti ─────────────────────────────────────── */
+    @keyframes confetti-fall {
+      0%   { transform: translateY(-10px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(110px) rotate(540deg); opacity: 0; }
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 7px; height: 7px;
+      border-radius: 2px;
+      pointer-events: none;
+      animation: confetti-fall linear infinite;
+    }
+
+    /* ── Celebrados ───────────────────────────────────── */
+    #celebrados {
+      position: relative;
+      z-index: 20;
+      background: rgba(0,0,0,.55);
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 20px 60px 28px;
+      backdrop-filter: blur(12px);
+    }
+    .celebrados-title {
+      font-size: .7rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .6px;
+      color: rgba(255,255,255,.3);
+      margin-bottom: 14px;
+    }
+    .celebrados-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .celebrado-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .celebrado-item img {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.18);
+      filter: grayscale(20%);
+      opacity: .72;
+    }
+    .celebrado-name {
+      font-size: .6rem; font-weight: 600;
+      color: rgba(255,255,255,.5);
+      max-width: 54px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+    .celebrado-date {
+      font-size: .52rem;
+      color: rgba(255,255,255,.28);
+    }
   </style>
 </head>
 <body>
-
   <div id="navbar-container"></div>
 
-  <main class="container py-4">
-
-    <!-- Header -->
-    <div class="mb-4">
-      <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:.25rem;">🎂 Cumpleaños</h1>
-      <p class="text-muted-ss mb-0">Próximos cumpleaños de los miembros de la comunidad.</p>
+  <div id="race-wrap">
+    <!-- Sky + particles -->
+    <div id="race-bg">
+      <div id="sky-layer"></div>
+      <div id="sky-obj"></div>
     </div>
 
-    <!-- Banner de hoy -->
-    <div id="birthday-banner" style="display:none;" class="mb-4">
-      <div style="background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(251,146,60,.1));border:1px solid rgba(250,204,21,.3);border-radius:16px;padding:1.5rem;text-align:center;">
-        <div class="bday-emoji" style="font-size:2.5rem;margin-bottom:.5rem;">🎉</div>
-        <div style="font-size:1rem;font-weight:900;color:#fde047;margin-bottom:.25rem;">¡Hoy es su cumpleaños!</div>
-        <div id="birthday-banner-names" style="font-size:.88rem;color:rgba(255,255,255,.7);"></div>
+    <!-- Mountain silhouette -->
+    <svg id="mountain-svg" viewBox="0 0 1440 130" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,130 L0,75 L90,42 L170,82 L300,12 L420,68 L530,22 L650,72 L760,16 L890,58 L980,18 L1090,62 L1190,24 L1330,66 L1440,32 L1440,130 Z" fill="rgba(6,16,3,0.92)"/>
+      <path d="M0,130 L0,95 L110,72 L210,92 L330,58 L450,86 L570,54 L690,82 L810,50 L930,78 L1050,52 L1170,80 L1300,55 L1420,82 L1440,70 L1440,130 Z" fill="rgba(10,24,6,0.97)"/>
+    </svg>
+
+    <!-- Ground -->
+    <div id="ground-layer"></div>
+
+    <!-- Year watermark -->
+    <div id="year-label"></div>
+
+    <!-- Track -->
+    <div id="track-area">
+      <div id="track">
+        <div class="start-line"></div>
+        <div class="start-label">Inicio</div>
+        <div class="finish-line">
+          <span class="finish-flag">🏁</span>
+        </div>
+        <div id="runners-container"></div>
       </div>
     </div>
 
-    <!-- Grid de tarjetas -->
-    <div class="card-dark">
-      <div id="birthday-list">
-        <div class="text-center py-5" style="color:rgba(255,255,255,.3);">Cargando…</div>
-      </div>
-    </div>
+    <div id="race-loading">Cargando carrera…</div>
+  </div>
 
-  </main>
+  <!-- Celebrados (below fold) -->
+  <div id="celebrados" style="display:none;">
+    <div class="celebrados-title">🎉 Cumpleaños celebrados este año</div>
+    <div class="celebrados-list" id="celebrados-list"></div>
+  </div>
+
+  <audio id="bg-audio" loop></audio>
+  <button id="music-btn" title="Reproducir música">🎵</button>
 
   <div id="footer-container"></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

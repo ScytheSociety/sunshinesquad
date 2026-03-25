@@ -15,6 +15,7 @@ const DEFAULTS = {
   announcement:        "",
   announcement_type:   "info",
   announcement_active: "0",
+  birthday_music_url:  "",
 };
 
 function getAll() {

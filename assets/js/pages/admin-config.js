@@ -6,6 +6,7 @@ const FIELDS = [
   "clan_name", "clan_description",
   "clan_discord", "clan_twitch", "clan_youtube", "clan_twitter", "clan_tiktok",
   "announcement", "announcement_type",
+  "birthday_music_url",
 ];
 
 const ANNOUNCE_COLORS = {
