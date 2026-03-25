@@ -80,10 +80,10 @@ function showHomeEventPopup(ev) {
   const localFecha = inicio.toLocaleDateString("es", { weekday:"long", day:"numeric", month:"long" });
   const gcalUrl    = buildHomeGCalUrl(ev, inicio);
   const cfg = {
-    futuro: { label:"🔵 Próximo",    bg:"rgba(99,102,241,.25)", border:"#6366f1" },
-    activo: { label:"🟢 En curso",   bg:"rgba(34,197,94,.25)",  border:"#22c55e" },
+    futuro: { label:"🔵 Activo",     bg:"rgba(99,102,241,.25)", border:"#6366f1" },
+    activo: { label:"🟢 En Curso",   bg:"rgba(34,197,94,.25)",  border:"#22c55e" },
     pasado: { label:"⚫ Finalizado", bg:"rgba(100,116,139,.2)", border:"#64748b" }
-  }[est] || { label:"🔵 Próximo", bg:"rgba(99,102,241,.25)", border:"#6366f1" };
+  }[est] || { label:"🔵 Activo", bg:"rgba(99,102,241,.25)", border:"#6366f1" };
 
   const pubByName   = ev.published_by_username || "";
   const pubByAvatar = ev.published_by_avatar   || "";
@@ -101,13 +101,22 @@ function showHomeEventPopup(ev) {
     ? `<div class="popup-pub">${pubByAvatar?`<img src="${pubByAvatar}" class="popup-pub-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">`:""}<span class="popup-pub-name">${pubByName}</span></div>`
     : "";
 
+  const imgHtml = ev.activity_image
+    ? `<img src="${ev.activity_image}" style="width:60px;height:60px;object-fit:contain;border-radius:10px;flex-shrink:0;background:rgba(255,255,255,.05);" loading="lazy" onerror="this.style.display='none'">`
+    : "";
+
   const overlay = document.createElement("div");
   overlay.className = "popup-overlay";
   overlay.innerHTML = `<div class="popup-box">
     <button class="popup-close">✕</button>
-    <div class="popup-badge" style="background:${cfg.bg};border:1px solid ${cfg.border};color:#fff;">${cfg.label}</div>
-    <div class="popup-title">${ev.evento}</div>
-    <div class="popup-sub popup-game">${ev.juego}</div>
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div style="flex:1;min-width:0;">
+        <div class="popup-badge" style="background:${cfg.bg};border:1px solid ${cfg.border};color:#fff;">${cfg.label}</div>
+        <div class="popup-title">${ev.evento}</div>
+        <div class="popup-sub popup-game">${ev.juego}</div>
+      </div>
+      ${imgHtml}
+    </div>
     <div class="popup-sub">🕐 UTC: ${utcFecha} · ${utcHora}</div>
     <div class="popup-sub">📍 Tu zona: ${localFecha} · ${localHora} (~${ev.duracion}h)</div>
     ${dific  ? `<div class="popup-sub">⚔️ Dificultad: ${dific}</div>` : ""}
@@ -131,18 +140,24 @@ async function loadHomeRSVP(ev, overlayEl) {
   try {
     const res  = await fetch(`${API}/schedule/bot/${ev.bot_id}/rsvp`);
     if (!res.ok) { sectionEl.innerHTML = `<span class="rsvp-empty">No disponible</span>`; return; }
-    const data = await res.json();
-    let html   = "";
-    const total = data.count; const max = data.max || 0;
+    const data  = await res.json();
+    let html    = "";
+    // Solo contar main + free (banca no cuenta como participante)
+    const total = (data.users || []).filter(u => u.slot_type !== "bench").length;
+    const max   = data.max || 0;
 
-    if (max > 0) {
-      const pct = Math.min(100, Math.round(total / max * 100));
-      html += `<div class="rsvp-progress-wrap">
-        <div class="rsvp-progress-bar"><div class="rsvp-progress-fill" style="width:${pct}%"></div></div>
-        <span class="rsvp-progress-label">${total}/${max} · ${pct}%</span>
-      </div>`;
-    } else if (total > 0) {
-      html += `<div class="rsvp-header">👥 <strong>${total}</strong> participante${total !== 1 ? "s" : ""}</div>`;
+    if (total > 0 || max > 0) {
+      const countLabel = max > 0
+        ? `👥 <strong>${total}</strong>/${max} participantes`
+        : `👥 <strong>${total}</strong> participante${total !== 1 ? "s" : ""}`;
+      html += `<div class="rsvp-header" style="margin-bottom:.4rem;">${countLabel}</div>`;
+      if (max > 0) {
+        const pct = Math.min(100, Math.round(total / max * 100));
+        html += `<div class="rsvp-progress-wrap">
+          <div class="rsvp-progress-bar"><div class="rsvp-progress-fill" style="width:${pct}%"></div></div>
+          <span class="rsvp-progress-label">${pct}%</span>
+        </div>`;
+      }
     }
 
     const userRow = (u, badge) => {
@@ -249,9 +264,11 @@ function renderEventos(eventos) {
     const donutEl = el.querySelector(`[data-evid="${ev.id}"] .ev-donut`);
     if (!donutEl) return;
     fetch(`${API}/schedule/bot/${ev.bot_id}/rsvp`).then(r => r.json()).then(data => {
-      const total = data.count; const max = data.max || 0;
-      if (max <= 0 && total <= 0) { donutEl.innerHTML = ""; return; }
-      const pct    = max > 0 ? Math.min(1, total / max) : 0;
+      const total = (data.users || []).filter(u => u.slot_type !== "bench").length;
+      const max   = data.max || 0;
+      if (total <= 0 && max <= 0) { donutEl.innerHTML = ""; return; }
+      // pct: si hay max usamos la proporción; si no, mostramos arco completo
+      const pct    = max > 0 ? Math.min(1, total / max) : 1;
       const offset = (C * (1 - pct)).toFixed(2);
       const color  = pct < 0.5 ? "#6366f1" : pct < 0.85 ? "#f59e0b" : "#22c55e";
       donutEl.innerHTML = `<svg width="44" height="44" viewBox="0 0 44 44">

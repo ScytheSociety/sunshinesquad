@@ -154,8 +154,8 @@ async function showPopup(ev, inicio, est) {
   const isBotEvent = ev.source === "bot";
   const info = (!isBotEvent && activitiesData[ev.id]) || {};
   const cfg  = {
-    futuro: { label:"🔵 Próximo",    bg:"rgba(99,102,241,.25)", border:"#6366f1" },
-    activo: { label:"🟢 En curso",   bg:"rgba(34,197,94,.25)",  border:"#22c55e" },
+    futuro: { label:"🔵 Activo",     bg:"rgba(99,102,241,.25)", border:"#6366f1" },
+    activo: { label:"🟢 En Curso",   bg:"rgba(34,197,94,.25)",  border:"#22c55e" },
     pasado: { label:"⚫ Finalizado", bg:"rgba(100,116,139,.2)", border:"#64748b" }
   }[est];
 
@@ -243,16 +243,20 @@ async function loadRSVP(eventId, est, popupEl, ev) {
     let html = "";
 
     if (isBotEvent) {
-      const total = data.count;
+      const total = (data.users || []).filter(u => u.slot_type !== "bench").length;
       const max   = data.max || 0;
-      if (max > 0) {
-        const pct = Math.min(100, Math.round(total / max * 100));
-        html += `<div class="rsvp-progress-wrap">
-          <div class="rsvp-progress-bar"><div class="rsvp-progress-fill" style="width:${pct}%"></div></div>
-          <span class="rsvp-progress-label">${total}/${max} · ${pct}%</span>
-        </div>`;
-      } else if (total > 0) {
-        html += `<div class="rsvp-header">👥 <strong>${total}</strong> participante${total !== 1 ? "s" : ""}</div>`;
+      if (total > 0 || max > 0) {
+        const countLabel = max > 0
+          ? `👥 <strong>${total}</strong>/${max} participantes`
+          : `👥 <strong>${total}</strong> participante${total !== 1 ? "s" : ""}`;
+        html += `<div class="rsvp-header" style="margin-bottom:.4rem;">${countLabel}</div>`;
+        if (max > 0) {
+          const pct = Math.min(100, Math.round(total / max * 100));
+          html += `<div class="rsvp-progress-wrap">
+            <div class="rsvp-progress-bar"><div class="rsvp-progress-fill" style="width:${pct}%"></div></div>
+            <span class="rsvp-progress-label">${pct}%</span>
+          </div>`;
+        }
       }
 
       const userRow = (u, badge) => {
