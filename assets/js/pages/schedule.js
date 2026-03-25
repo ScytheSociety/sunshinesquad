@@ -136,7 +136,8 @@ function buildHourHeights(frags, dias) {
 }
 
 function minuteToPx(min, hh) {
-  const h   = Math.min(23, Math.floor(min / 60));
+  if (min >= 1440) return hh.reduce((a, b) => a + b, 0); // medianoche = fin del grid
+  const h   = Math.floor(min / 60);
   const rem = min % 60;
   let px = 0;
   for (let i = 0; i < h; i++) px += hh[i];
