@@ -162,7 +162,7 @@ function initSchema(db) {
 
     CREATE TABLE IF NOT EXISTS content_posts (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
-      tipo        TEXT NOT NULL CHECK(tipo IN ('guia','build')),
+      tipo        TEXT NOT NULL,
       game_key    TEXT NOT NULL,
       slug        TEXT UNIQUE NOT NULL,
       titulo      TEXT NOT NULL,
@@ -175,6 +175,16 @@ function initSchema(db) {
       publicado   INTEGER DEFAULT 0,
       created_at  TEXT DEFAULT (datetime('now')),
       updated_at  TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS content_sections (
+      id        INTEGER PRIMARY KEY AUTOINCREMENT,
+      game_key  TEXT NOT NULL,
+      tipo      TEXT NOT NULL,
+      label     TEXT NOT NULL,
+      emoji     TEXT DEFAULT '',
+      orden     INTEGER DEFAULT 0,
+      UNIQUE(game_key, tipo)
     );
 
     CREATE TABLE IF NOT EXISTS content_comentarios (

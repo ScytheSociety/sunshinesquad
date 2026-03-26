@@ -72,7 +72,6 @@ router.post("/", requireRole("editor"), (req, res) => {
     const db = webDB();
     const { tipo, game_key, titulo, resumen, portada, contenido, publicado } = req.body;
     if (!tipo || !game_key || !titulo) return res.status(400).json({ error: "tipo, game_key y titulo son requeridos" });
-    if (!["guia","build"].includes(tipo)) return res.status(400).json({ error: "tipo debe ser 'guia' o 'build'" });
 
     // Generar slug único
     let slug = slugify(titulo);
@@ -184,6 +183,77 @@ router.delete("/:id", requireRole("moderador"), (req, res) => {
   try {
     const r = webDB().prepare("DELETE FROM content_posts WHERE id=?").run(req.params.id);
     if (!r.changes) return res.status(404).json({ error: "Post no encontrado" });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Sections CRUD (/api/content/sections) ───────────────────────────
+
+// GET /api/content/sections?game_key=X — list sections for a game
+router.get("/sections", (req, res) => {
+  try {
+    const { game_key } = req.query;
+    if (!game_key) return res.status(400).json({ error: "game_key requerido" });
+    const db = webDB();
+
+    // Auto-seed defaults if this game has no sections yet
+    const count = db.prepare("SELECT COUNT(*) as n FROM content_sections WHERE game_key=?").get(game_key).n;
+    if (count === 0) {
+      db.prepare("INSERT OR IGNORE INTO content_sections (game_key,tipo,label,emoji,orden) VALUES (?,?,?,?,?)")
+        .run(game_key, "guia",  "Guías",  "📖", 0);
+      db.prepare("INSERT OR IGNORE INTO content_sections (game_key,tipo,label,emoji,orden) VALUES (?,?,?,?,?)")
+        .run(game_key, "build", "Builds", "🔧", 1);
+    }
+
+    const sections = db.prepare(
+      "SELECT * FROM content_sections WHERE game_key=? ORDER BY orden ASC, id ASC"
+    ).all(game_key);
+    res.json(sections);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/content/sections — create section (editor+)
+router.post("/sections", requireRole("editor"), (req, res) => {
+  try {
+    const db = webDB();
+    const { game_key, tipo, label, emoji } = req.body;
+    if (!game_key || !tipo || !label) return res.status(400).json({ error: "game_key, tipo y label requeridos" });
+
+    const maxOrden = db.prepare("SELECT COALESCE(MAX(orden),0) as m FROM content_sections WHERE game_key=?").get(game_key).m;
+    const r = db.prepare(
+      "INSERT INTO content_sections (game_key,tipo,label,emoji,orden) VALUES (?,?,?,?,?)"
+    ).run(game_key, tipo.toLowerCase().replace(/\s+/g,"-"), label, emoji||"", maxOrden + 1);
+
+    res.status(201).json(db.prepare("SELECT * FROM content_sections WHERE id=?").get(r.lastInsertRowid));
+  } catch (e) {
+    if (e.message.includes("UNIQUE")) return res.status(409).json({ error: "Ya existe una sección con ese tipo para este juego" });
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PUT /api/content/sections/:id — edit section (editor+)
+router.put("/sections/:id", requireRole("editor"), (req, res) => {
+  try {
+    const db = webDB();
+    const { label, emoji } = req.body;
+    if (!label) return res.status(400).json({ error: "label requerido" });
+    const r = db.prepare("UPDATE content_sections SET label=?,emoji=? WHERE id=?")
+      .run(label, emoji||"", req.params.id);
+    if (!r.changes) return res.status(404).json({ error: "Sección no encontrada" });
+    res.json(db.prepare("SELECT * FROM content_sections WHERE id=?").get(req.params.id));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /api/content/sections/:id — delete section + its posts (admin)
+router.delete("/sections/:id", requireRole("admin"), (req, res) => {
+  try {
+    const db  = webDB();
+    const sec = db.prepare("SELECT * FROM content_sections WHERE id=?").get(req.params.id);
+    if (!sec) return res.status(404).json({ error: "Sección no encontrada" });
+
+    // Delete all posts in this section first (cascade not automatic without FK here)
+    db.prepare("DELETE FROM content_posts WHERE game_key=? AND tipo=?").run(sec.game_key, sec.tipo);
+    db.prepare("DELETE FROM content_sections WHERE id=?").run(req.params.id);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

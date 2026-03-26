@@ -193,13 +193,18 @@ router.get("/members", (req, res) => {
       `).all();
     }
 
-    // Obtener avatares en batch
+    // Obtener avatares en batch: bot DB primero (todos), luego web DB (login reciente)
     const discordIds = users.map(u => u.discord_user_id);
-    const webUsers = {};
+    const botAvatars = {};
+    const webUsers   = {};
     if (discordIds.length) {
-      web.prepare(
-        `SELECT discord_id, username, avatar FROM discord_users WHERE discord_id IN (${discordIds.map(() => "?").join(",")})`
-      ).all(...discordIds).forEach(d => { webUsers[d.discord_id] = d; });
+      const ph = discordIds.map(() => "?").join(",");
+      bot.prepare(`SELECT discord_user_id, avatar_url FROM users WHERE discord_user_id IN (${ph})`)
+        .all(...discordIds)
+        .forEach(u => { if (u.avatar_url) botAvatars[u.discord_user_id] = u.avatar_url; });
+      web.prepare(`SELECT discord_id, username, avatar FROM discord_users WHERE discord_id IN (${ph})`)
+        .all(...discordIds)
+        .forEach(d => { webUsers[d.discord_id] = d; });
     }
 
     // Obtener juegos de todos los usuarios en una sola query
@@ -249,7 +254,7 @@ router.get("/members", (req, res) => {
         discord_id:     u.discord_user_id,
         username:       d?.username || u.display_name || `User${u.discord_user_id.slice(-4)}`,
         display_name:   u.display_name,
-        avatar:         d?.avatar   || defaultAvatar(u.discord_user_id),
+        avatar:         d?.avatar || botAvatars[u.discord_user_id] || defaultAvatar(u.discord_user_id),
         joined_bot:     u.created_at,
         total_points:   u.total_points,
         game_count:     u.game_count,

@@ -78,20 +78,32 @@ router.get("/:game", (req, res) => {
       };
     });
 
-    // Enriquecer avatares en batch desde discord_users (web DB)
+    // Enriquecer avatares: 1) bot DB (todos los miembros), 2) web DB (si loguearon), 3) default
     const discordIds = result.map(r => r.discord_id);
     if (discordIds.length) {
-      const web = webDB();
-      const ph  = discordIds.map(() => "?").join(",");
-      web.prepare(`SELECT discord_id, avatar FROM discord_users WHERE discord_id IN (${ph})`)
+      const ph = discordIds.map(() => "?").join(",");
+
+      // Bot DB tiene avatar_url para todos los usuarios del bot
+      db.prepare(`SELECT discord_user_id, avatar_url FROM users WHERE discord_user_id IN (${ph})`)
         .all(...discordIds)
-        .forEach(d => {
-          const member = result.find(r => r.discord_id === d.discord_id);
-          if (member) member.avatar_url = d.avatar || null;
+        .forEach(u => {
+          const member = result.find(r => r.discord_id === u.discord_user_id);
+          if (member && u.avatar_url) member.avatar_url = u.avatar_url;
         });
+
+      // Web DB puede tener versión más reciente (post-login OAuth)
+      try {
+        const web = webDB();
+        web.prepare(`SELECT discord_id, avatar FROM discord_users WHERE discord_id IN (${ph})`)
+          .all(...discordIds)
+          .forEach(d => {
+            const member = result.find(r => r.discord_id === d.discord_id);
+            if (member && d.avatar) member.avatar_url = d.avatar;
+          });
+      } catch {}
     }
 
-    // Fallback: avatar por defecto de Discord si no hay cacheo
+    // Fallback: avatar genérico de Discord
     result.forEach(r => {
       if (!r.avatar_url) {
         try {

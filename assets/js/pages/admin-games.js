@@ -101,7 +101,7 @@ function renderGames(games) {
     b.addEventListener("click", () => editGame(parseInt(b.dataset.id)))
   );
   rows.querySelectorAll(".btn-secciones-game").forEach(b =>
-    b.addEventListener("click", () => openSecciones(parseInt(b.dataset.id)))
+    b.addEventListener("click", () => openSecciones(parseInt(b.dataset.id)).catch(() => {}))
   );
   rows.querySelectorAll(".btn-delete-game").forEach(b =>
     b.addEventListener("click", () => deleteGame(parseInt(b.dataset.id), b.closest(".admin-row")))
@@ -192,21 +192,15 @@ function resetForm() {
 }
 
 // ── Secciones (drill-down) ───────────────────────────────────────────
-// Secciones disponibles — fácil de ampliar en el futuro
-const SECCIONES = [
-  { tipo: "guia",  label: "📖 Guías" },
-  { tipo: "build", label: "🔧 Builds" },
-];
-
-let secGameKey  = null;   // game_key derivado de la URL del juego
-let secTipo     = "guia"; // sección activa
+let secGameKey     = null;
+let secTipo        = null;
+let secSecciones   = [];   // array of {id, tipo, label, emoji} from API
 let secSearchTimer = null;
 
-function openSecciones(gameId) {
+async function openSecciones(gameId) {
   const g = allGames.find(x => x.id === gameId);
   if (!g) return;
 
-  // Derivar game_key desde la URL del juego
   const urlKey = g.url?.match(/juegos\/([^/]+)\//)?.[1];
   if (!urlKey) {
     toast("Este juego no tiene una página generada aún.", true);
@@ -214,15 +208,9 @@ function openSecciones(gameId) {
   }
 
   secGameKey = urlKey;
-  secTipo    = SECCIONES[0].tipo;
 
-  // Título
   document.getElementById("sec-game-title").textContent = `Secciones — ${g.nombre}`;
 
-  // Tabs
-  renderSecTabs();
-
-  // Buscar: debounce
   const searchEl = document.getElementById("sec-search");
   searchEl.value = "";
   searchEl.oninput = () => {
@@ -230,27 +218,47 @@ function openSecciones(gameId) {
     secSearchTimer = setTimeout(() => loadSecPosts(), 350);
   };
 
-  // Mostrar vista
   document.getElementById("games-view").style.display = "none";
   document.getElementById("secciones-view").style.display = "block";
   window.scrollTo({ top: 0, behavior: "smooth" });
 
-  loadSecPosts();
+  await loadSecSections();
 }
 
 function closeSecciones() {
   document.getElementById("secciones-view").style.display = "none";
   document.getElementById("games-view").style.display = "block";
   secGameKey = null;
+  secSecciones = [];
+}
+
+async function loadSecSections() {
+  try {
+    const res = await apiFetch(`/content/sections?game_key=${secGameKey}`);
+    if (!res?.ok) throw new Error();
+    secSecciones = await res.json();
+  } catch {
+    secSecciones = [{ tipo:"guia", label:"Guías", emoji:"📖" }, { tipo:"build", label:"Builds", emoji:"🔧" }];
+  }
+  if (!secTipo || !secSecciones.find(s => s.tipo === secTipo)) {
+    secTipo = secSecciones[0]?.tipo || "guia";
+  }
+  renderSecTabs();
+  loadSecPosts();
 }
 
 function renderSecTabs() {
   const container = document.getElementById("sec-tabs");
   container.innerHTML = "";
-  SECCIONES.forEach(s => {
+  const user = getUser();
+
+  secSecciones.forEach(s => {
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "display:inline-flex;align-items:center;gap:2px;";
+
     const btn = document.createElement("button");
     btn.className = "mm-tab-btn" + (s.tipo === secTipo ? " active" : "");
-    btn.textContent = s.label;
+    btn.textContent = `${s.emoji ? s.emoji + " " : ""}${s.label}`;
     btn.addEventListener("click", () => {
       secTipo = s.tipo;
       container.querySelectorAll(".mm-tab-btn").forEach(b => b.classList.remove("active"));
@@ -259,18 +267,135 @@ function renderSecTabs() {
       updateSecNewBtn();
       loadSecPosts();
     });
-    container.appendChild(btn);
+    wrap.appendChild(btn);
+
+    // Edit / delete buttons for editors
+    if (user?.role === "editor" || user?.role === "moderador" || user?.role === "admin") {
+      const editBtn = document.createElement("button");
+      editBtn.title = "Renombrar sección";
+      editBtn.style.cssText = "background:none;border:none;color:rgba(255,255,255,.3);font-size:.72rem;cursor:pointer;padding:0 3px;line-height:1;";
+      editBtn.textContent = "✏️";
+      editBtn.addEventListener("click", e => { e.stopPropagation(); openEditSection(s); });
+      wrap.appendChild(editBtn);
+    }
+    if (user?.role === "admin" && s.id) {
+      const delBtn = document.createElement("button");
+      delBtn.title = "Eliminar sección";
+      delBtn.style.cssText = "background:none;border:none;color:rgba(239,68,68,.4);font-size:.72rem;cursor:pointer;padding:0 3px;line-height:1;";
+      delBtn.textContent = "✕";
+      delBtn.addEventListener("click", e => { e.stopPropagation(); deleteSection(s); });
+      wrap.appendChild(delBtn);
+    }
+
+    container.appendChild(wrap);
   });
+
+  // "+ Nueva sección" button
+  const addBtn = document.createElement("button");
+  addBtn.className = "mm-tab-btn";
+  addBtn.style.cssText = "border-style:dashed;opacity:.6;";
+  addBtn.textContent = "+ Sección";
+  addBtn.addEventListener("click", () => openNewSection());
+  container.appendChild(addBtn);
+
   updateSecNewBtn();
 }
 
 function updateSecNewBtn() {
   const btn = document.getElementById("btn-new-sec");
-  if (!btn || !secGameKey) return;
+  if (!btn || !secGameKey || !secTipo) return;
+  const sec = secSecciones.find(s => s.tipo === secTipo);
   btn.href = `../../pages/guia/editor.html?game=${secGameKey}&tipo=${secTipo}`;
-  btn.textContent = `+ Nueva ${secTipo === "build" ? "Build" : "Guía"}`;
+  btn.textContent = `+ Nueva ${sec?.label || secTipo}`;
 }
 
+// ── Section create/edit modal ────────────────────────────────────────
+function openNewSection() {
+  showSectionModal(null);
+}
+
+function openEditSection(sec) {
+  showSectionModal(sec);
+}
+
+function showSectionModal(sec) {
+  const existing = document.getElementById("sec-modal");
+  if (existing) existing.remove();
+
+  const isEdit = !!sec?.id;
+  const modal = document.createElement("div");
+  modal.id = "sec-modal";
+  modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);";
+  modal.innerHTML = `
+    <div style="background:#0d1117;border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;">
+      <div style="font-weight:700;font-size:.95rem;margin-bottom:1.2rem;">${isEdit ? "Editar sección" : "Nueva sección"}</div>
+      ${!isEdit ? `
+      <div class="mb-3">
+        <label class="admin-label">Tipo (identificador único)</label>
+        <input type="text" id="sec-modal-tipo" class="form-control"
+          placeholder="pvp, woe, mvp…" value="">
+        <div style="font-size:.7rem;color:rgba(255,255,255,.3);margin-top:.25rem;">Sin espacios, solo letras y guiones. No se puede cambiar después.</div>
+      </div>` : ""}
+      <div class="mb-3">
+        <label class="admin-label">Nombre visible</label>
+        <input type="text" id="sec-modal-label" class="form-control" placeholder="PvP, WoE…" value="${sec?.label || ""}">
+      </div>
+      <div class="mb-3">
+        <label class="admin-label">Emoji (opcional)</label>
+        <input type="text" id="sec-modal-emoji" class="form-control" placeholder="⚔️" value="${sec?.emoji || ""}">
+      </div>
+      <div class="d-flex gap-2 mt-3">
+        <button id="sec-modal-save" class="btn-indigo flex-fill">${isEdit ? "Guardar" : "Crear"}</button>
+        <button id="sec-modal-cancel" class="btn-ss flex-fill">Cancelar</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+
+  modal.querySelector("#sec-modal-cancel").addEventListener("click", () => modal.remove());
+  modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); });
+
+  modal.querySelector("#sec-modal-save").addEventListener("click", async () => {
+    const label = modal.querySelector("#sec-modal-label").value.trim();
+    const emoji = modal.querySelector("#sec-modal-emoji").value.trim();
+    if (!label) return toast("El nombre es requerido", true);
+
+    if (isEdit) {
+      const res = await apiFetch(`/content/sections/${sec.id}`, {
+        method: "PUT", body: JSON.stringify({ label, emoji })
+      });
+      if (res?.ok) { modal.remove(); toast("Sección actualizada"); await loadSecSections(); }
+      else { const e = await res?.json().catch(()=>({})); toast(e?.error || "Error", true); }
+    } else {
+      const tipo = modal.querySelector("#sec-modal-tipo").value.trim().toLowerCase().replace(/\s+/g,"-");
+      if (!tipo) return toast("El tipo es requerido", true);
+      const res = await apiFetch("/content/sections", {
+        method: "POST", body: JSON.stringify({ game_key: secGameKey, tipo, label, emoji })
+      });
+      if (res?.ok) {
+        modal.remove();
+        toast("Sección creada");
+        secTipo = tipo;
+        await loadSecSections();
+      } else { const e = await res?.json().catch(()=>({})); toast(e?.error || "Error", true); }
+    }
+  });
+}
+
+async function deleteSection(sec) {
+  if (!confirm(`¿Eliminar la sección "${sec.label}"? Se eliminarán TODAS sus publicaciones.`)) return;
+  const res = await apiFetch(`/content/sections/${sec.id}`, { method: "DELETE" });
+  if (res?.ok) {
+    toast("Sección eliminada");
+    if (secTipo === sec.tipo) secTipo = null;
+    await loadSecSections();
+  } else {
+    const e = await res?.json().catch(()=>({}));
+    toast(e?.error || "Error al eliminar", true);
+  }
+}
+
+// ── Posts list ───────────────────────────────────────────────────────
 async function loadSecPosts() {
   const el = document.getElementById("sec-posts-list");
   if (!secGameKey) return;
