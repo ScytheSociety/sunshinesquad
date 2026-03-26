@@ -226,18 +226,35 @@ router.get("/members", (req, res) => {
       ).all(...discordIds).forEach(r => { userIdMap[r.discord_user_id] = r.id; });
     }
 
+    // Main character per user for the filtered game
+    const mainCharsMap = {};
+    if (game && discordIds.length) {
+      bot.prepare(`
+        SELECT c.discord_user_id, c.character_name, c.level,
+               COALESCE(cl.name,'') as class_name, COALESCE(cl.emoji,'') as class_emoji
+        FROM characters c
+        JOIN game_info gi ON gi.id = c.game_id
+        LEFT JOIN classes cl ON cl.id = c.class_id
+        WHERE gi.command_key = ? AND c.is_active = 1
+        ORDER BY c.is_main DESC, c.points DESC
+      `).all(game).forEach(c => {
+        if (!mainCharsMap[c.discord_user_id]) mainCharsMap[c.discord_user_id] = c;
+      });
+    }
+
     const enriched = users.map(u => {
       const d = webUsers[u.discord_user_id];
       const uid = userIdMap[u.discord_user_id];
       return {
-        discord_id:   u.discord_user_id,
-        username:     d?.username || u.display_name || `User${u.discord_user_id.slice(-4)}`,
-        display_name: u.display_name,
-        avatar:       d?.avatar   || defaultAvatar(u.discord_user_id),
-        joined_bot:   u.created_at,
-        total_points: u.total_points,
-        game_count:   u.game_count,
-        games:        uid ? (gamesByUserId[uid] || []) : [],
+        discord_id:     u.discord_user_id,
+        username:       d?.username || u.display_name || `User${u.discord_user_id.slice(-4)}`,
+        display_name:   u.display_name,
+        avatar:         d?.avatar   || defaultAvatar(u.discord_user_id),
+        joined_bot:     u.created_at,
+        total_points:   u.total_points,
+        game_count:     u.game_count,
+        games:          uid ? (gamesByUserId[uid] || []) : [],
+        main_character: game ? (mainCharsMap[u.discord_user_id] || null) : null,
       };
     });
 

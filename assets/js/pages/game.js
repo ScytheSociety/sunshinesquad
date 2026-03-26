@@ -242,10 +242,7 @@ function renderGrid(items, containerId, gameKey) {
 
 // ── Clan ────────────────────────────────────────────────────────────
 function buildProfileUrl(discordId) {
-  // Funciona tanto en páginas anidadas (juegos/ragnarok/) como en raíz
-  const depth = location.pathname.split("/").filter(Boolean).length;
-  const prefix = depth >= 3 ? "../../" : depth >= 2 ? "../" : "";
-  return `${prefix}pages/perfil/perfil.html?id=${discordId}`;
+  return `/pages/perfil/perfil.html?id=${discordId}`;
 }
 
 async function renderClan(gameKey) {
