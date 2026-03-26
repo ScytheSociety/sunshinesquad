@@ -32,120 +32,124 @@
     </div>
 
     <div id="admin-content" style="display:none;">
-      <div class="row g-4">
 
-        <!-- Lista de juegos -->
-        <div class="col-lg-7">
-          <div class="card-dark">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <div class="admin-form-title mb-0">Juegos registrados</div>
-              <button class="btn-indigo" style="font-size:.8125rem;" id="btn-new-game">+ Nuevo juego</button>
+      <!-- ── Vista: lista de juegos + formulario ───────────────────── -->
+      <div id="games-view">
+        <div class="row g-4">
+
+          <!-- Lista de juegos -->
+          <div class="col-lg-7">
+            <div class="card-dark">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="admin-form-title mb-0">Juegos registrados</div>
+                <button class="btn-indigo" style="font-size:.8125rem;" id="btn-new-game">+ Nuevo juego</button>
+              </div>
+              <div id="games-list"><div class="admin-loading">Cargando...</div></div>
             </div>
-            <div id="games-list"><div class="admin-loading">Cargando...</div></div>
           </div>
-        </div>
 
-        <!-- Formulario -->
-        <div class="col-lg-5">
-          <div class="card-dark" id="game-form-card">
-            <div class="admin-form-title mb-3" id="form-title">Nuevo juego</div>
-            <form id="game-form" autocomplete="off">
-              <input type="hidden" id="f-id">
-              <div class="mb-2">
-                <label class="admin-label">Nombre *</label>
-                <input type="text" class="form-control" id="f-nombre" required>
-              </div>
-              <div class="mb-2" style="font-size:.72rem;color:rgba(255,255,255,.3);padding:.4rem .6rem;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid rgba(255,255,255,.06);">
-                🖼️ La imagen del juego se gestiona en <a href="multimedia.html" style="color:#a5b4fc;">Multimedia → Icono</a>
-              </div>
-              <div class="mb-2">
-                <label class="admin-label">Descripción</label>
-                <input type="text" class="form-control" id="f-descripcion">
-              </div>
-              <div class="mb-2">
-                <label class="admin-label">Servidor</label>
-                <input type="text" class="form-control" id="f-servidor">
-              </div>
-              <div class="mb-2">
-                <label class="admin-label">URL de la página</label>
-                <input type="text" class="form-control" id="f-url" placeholder="pages/juegos/nombre/nombre.html">
-              </div>
-              <div class="mb-2 d-flex gap-3 flex-wrap">
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="f-guild">
-                  <label class="form-check-label" for="f-guild">⭐ Guild activo</label>
+          <!-- Formulario -->
+          <div class="col-lg-5">
+            <div class="card-dark" id="game-form-card">
+              <div class="admin-form-title mb-3" id="form-title">Nuevo juego</div>
+              <form id="game-form" autocomplete="off">
+                <input type="hidden" id="f-id">
+                <div class="mb-2">
+                  <label class="admin-label">Nombre *</label>
+                  <input type="text" class="form-control" id="f-nombre" required>
                 </div>
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="f-serie">
-                  <label class="form-check-label" for="f-serie">🎬 Serie stream</label>
+                <div class="mb-2" style="font-size:.72rem;color:rgba(255,255,255,.3);padding:.4rem .6rem;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid rgba(255,255,255,.06);">
+                  🖼️ La imagen del juego se gestiona en <a href="multimedia.html" style="color:#a5b4fc;">Multimedia → Icono</a>
                 </div>
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="f-sss">
-                  <label class="form-check-label" for="f-sss">🎮 SSS (juego propio)</label>
+                <div class="mb-2">
+                  <label class="admin-label">Descripción</label>
+                  <input type="text" class="form-control" id="f-descripcion">
                 </div>
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="f-activo" checked>
-                  <label class="form-check-label" for="f-activo">✓ Activo</label>
+                <div class="mb-2">
+                  <label class="admin-label">Servidor</label>
+                  <input type="text" class="form-control" id="f-servidor">
                 </div>
-              </div>
-              <div class="mb-3">
-                <label class="admin-label">Juego del bot Discord</label>
-                <select class="form-select" id="f-bot-key" style="background:#1a1d27;color:#fff;border-color:rgba(255,255,255,.15);">
-                  <option value="">— Sin vincular —</option>
-                </select>
-              </div>
-              <!-- Solo visible al crear (no editar) -->
-              <div id="generate-page-wrap" class="mb-3">
-                <label class="d-flex align-items-start gap-2" style="cursor:pointer;">
-                  <input type="checkbox" id="f-generate-page" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
-                  <span style="font-size:.82rem;color:rgba(255,255,255,.7);">
-                    Generar página del juego automáticamente
-                    <div style="font-size:.7rem;color:rgba(255,255,255,.35);margin-top:.15rem;">
-                      Crea el HTML y el JSON de datos. Requiere hacer git push para publicarlo en GitHub Pages.
-                    </div>
-                  </span>
-                </label>
-              </div>
+                <div class="mb-2">
+                  <label class="admin-label">URL de la página</label>
+                  <input type="text" class="form-control" id="f-url" placeholder="pages/juegos/nombre/nombre.html">
+                </div>
+                <div class="mb-2 d-flex gap-3 flex-wrap">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="f-guild">
+                    <label class="form-check-label" for="f-guild">⭐ Guild activo</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="f-serie">
+                    <label class="form-check-label" for="f-serie">🎬 Serie stream</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="f-sss">
+                    <label class="form-check-label" for="f-sss">🎮 SSS (juego propio)</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="f-activo" checked>
+                    <label class="form-check-label" for="f-activo">✓ Activo</label>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="admin-label">Juego del bot Discord</label>
+                  <select class="form-select" id="f-bot-key" style="background:#1a1d27;color:#fff;border-color:rgba(255,255,255,.15);">
+                    <option value="">— Sin vincular —</option>
+                  </select>
+                </div>
+                <!-- Solo visible al crear (no editar) -->
+                <div id="generate-page-wrap" class="mb-3">
+                  <label class="d-flex align-items-start gap-2" style="cursor:pointer;">
+                    <input type="checkbox" id="f-generate-page" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+                    <span style="font-size:.82rem;color:rgba(255,255,255,.7);">
+                      Generar página del juego automáticamente
+                      <div style="font-size:.7rem;color:rgba(255,255,255,.35);margin-top:.15rem;">
+                        Crea el HTML y el JSON de datos. Requiere hacer git push para publicarlo en GitHub Pages.
+                      </div>
+                    </span>
+                  </label>
+                </div>
 
-              <div class="d-flex gap-2">
-                <button type="submit" class="btn-indigo flex-fill">Guardar</button>
-                <button type="button" class="btn-ss flex-fill" id="btn-cancel-game">Cancelar</button>
-              </div>
-            </form>
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn-indigo flex-fill">Guardar</button>
+                  <button type="button" class="btn-ss flex-fill" id="btn-cancel-game">Cancelar</button>
+                </div>
+              </form>
+            </div>
           </div>
+
         </div>
+      </div><!-- /#games-view -->
 
-      </div>
+      <!-- ── Vista: secciones de un juego ──────────────────────────── -->
+      <div id="secciones-view" style="display:none;">
+        <div class="card-dark">
 
-      <!-- Sección Guías & Builds por juego -->
-      <div class="card-dark mt-4">
-        <div class="d-flex align-items-center justify-content-between mb-3 gap-2 flex-wrap">
-          <div class="admin-form-title mb-0">📖 Guías &amp; 🔧 Builds</div>
-          <div style="display:flex;align-items:center;gap:.5rem;">
-            <select id="sel-content-game" class="form-select form-select-sm"
-              style="background:#1a1d27;color:#fff;border-color:rgba(255,255,255,.15);max-width:200px;">
-              <option value="">— Seleccionar juego —</option>
-            </select>
-            <button id="btn-load-content" class="btn-indigo" style="font-size:.8rem;padding:.35rem .8rem;">Cargar</button>
+          <!-- Cabecera: Volver + título -->
+          <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+            <button id="btn-volver" class="btn-ss" style="width:auto;flex-shrink:0;">← Volver</button>
+            <div style="min-width:0;">
+              <div class="admin-form-title mb-0" id="sec-game-title">Secciones</div>
+              <div class="text-muted-ss" style="font-size:.73rem;">Publicaciones del juego por sección</div>
+            </div>
           </div>
+
+          <!-- Tabs de sección -->
+          <div class="d-flex gap-2 mb-4 flex-wrap" id="sec-tabs"></div>
+
+          <!-- Barra de acción: búsqueda + botón nueva -->
+          <div class="d-flex align-items-center justify-content-between mb-3 gap-2 flex-wrap">
+            <input type="search" id="sec-search" placeholder="Buscar publicación…"
+              class="form-control form-control-sm"
+              style="max-width:220px;background:#1a1d27;color:#fff;border-color:rgba(255,255,255,.15);">
+            <a id="btn-new-sec" href="#" class="btn-indigo" style="font-size:.82rem;text-decoration:none;flex-shrink:0;">+ Nueva</a>
+          </div>
+
+          <!-- Lista de publicaciones -->
+          <div id="sec-posts-list"><div class="admin-loading">Cargando…</div></div>
+
         </div>
-
-        <div id="content-editor-wrap" style="display:none;">
-          <!-- Tabs Guías / Builds -->
-          <div class="d-flex gap-2 mb-3">
-            <button class="mm-tab-btn active" id="tab-btn-guia" data-ctipo="guia">📖 Guías</button>
-            <button class="mm-tab-btn" id="tab-btn-build" data-ctipo="build">🔧 Builds</button>
-          </div>
-
-          <!-- Botón nueva publicación -->
-          <div class="d-flex justify-content-end mb-2">
-            <a id="btn-new-content" href="#" class="btn-indigo" style="font-size:.8rem;text-decoration:none;">+ Nueva publicación</a>
-          </div>
-
-          <!-- Lista de posts -->
-          <div id="content-list"><div class="admin-empty">Selecciona un juego para ver sus publicaciones.</div></div>
-        </div>
-      </div>
+      </div><!-- /#secciones-view -->
 
     </div>
 

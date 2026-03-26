@@ -22,12 +22,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await Promise.all([loadGames(), loadBotGames()]);
   bindForm();
-  bindContentSection();
 
   document.getElementById("btn-new-game").addEventListener("click", () => resetForm());
   document.getElementById("btn-cancel-game").addEventListener("click", () => resetForm());
+  document.getElementById("btn-volver").addEventListener("click", () => closeSecciones());
 });
 
+// ── Bot games ────────────────────────────────────────────────────────
 async function loadBotGames() {
   try {
     const res = await fetch(`${API}/games/bot-games`);
@@ -50,13 +51,13 @@ function populateBotDropdown(selectedKey) {
   });
 }
 
+// ── Juegos list ──────────────────────────────────────────────────────
 async function loadGames() {
   const el = document.getElementById("games-list");
   el.innerHTML = `<div class="admin-loading">Cargando...</div>`;
   const res = await apiFetch("/games?_t=" + Date.now());
   if (!res?.ok) { el.innerHTML = `<div class="admin-empty">Error al cargar juegos</div>`; return; }
   allGames = await res.json();
-  // Sort by name
   allGames.sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
   renderGames(allGames);
 }
@@ -90,6 +91,7 @@ function renderGames(games) {
       </div>
       <div class="admin-row-actions">
         <button class="btn btn-sm btn-outline-secondary btn-edit-game" data-id="${g.id}" style="font-size:.7rem;padding:.2rem .5rem;">Editar</button>
+        <button class="btn btn-sm btn-outline-primary btn-secciones-game" data-id="${g.id}" style="font-size:.7rem;padding:.2rem .5rem;">Secciones</button>
         ${user?.role === "admin" ? `<button class="btn btn-sm btn-outline-danger btn-delete-game" data-id="${g.id}" style="font-size:.7rem;padding:.2rem .5rem;">✕</button>` : ""}
       </div>`;
     rows.appendChild(row);
@@ -97,6 +99,9 @@ function renderGames(games) {
 
   rows.querySelectorAll(".btn-edit-game").forEach(b =>
     b.addEventListener("click", () => editGame(parseInt(b.dataset.id)))
+  );
+  rows.querySelectorAll(".btn-secciones-game").forEach(b =>
+    b.addEventListener("click", () => openSecciones(parseInt(b.dataset.id)))
   );
   rows.querySelectorAll(".btn-delete-game").forEach(b =>
     b.addEventListener("click", () => deleteGame(parseInt(b.dataset.id), b.closest(".admin-row")))
@@ -186,105 +191,150 @@ function resetForm() {
   populateBotDropdown(null);
 }
 
-// ── Guías & Builds ──────────────────────────────────────────────────
-let currentContentGame = null;
-let currentContentTipo = "guia";
+// ── Secciones (drill-down) ───────────────────────────────────────────
+// Secciones disponibles — fácil de ampliar en el futuro
+const SECCIONES = [
+  { tipo: "guia",  label: "📖 Guías" },
+  { tipo: "build", label: "🔧 Builds" },
+];
 
-function bindContentSection() {
-  // Poblar selector de juegos (reutiliza allGames cuando estén cargados)
-  const sel = document.getElementById("sel-content-game");
-  const populateSel = () => {
-    sel.innerHTML = `<option value="">— Seleccionar juego —</option>`;
-    allGames.forEach(g => {
-      const urlKey = g.url?.match(/juegos\/([^/]+)\//)?.[1];
-      if (!urlKey) return;
-      const opt = document.createElement("option");
-      opt.value = urlKey;
-      opt.textContent = g.nombre;
-      sel.appendChild(opt);
-    });
+let secGameKey  = null;   // game_key derivado de la URL del juego
+let secTipo     = "guia"; // sección activa
+let secSearchTimer = null;
+
+function openSecciones(gameId) {
+  const g = allGames.find(x => x.id === gameId);
+  if (!g) return;
+
+  // Derivar game_key desde la URL del juego
+  const urlKey = g.url?.match(/juegos\/([^/]+)\//)?.[1];
+  if (!urlKey) {
+    toast("Este juego no tiene una página generada aún.", true);
+    return;
+  }
+
+  secGameKey = urlKey;
+  secTipo    = SECCIONES[0].tipo;
+
+  // Título
+  document.getElementById("sec-game-title").textContent = `Secciones — ${g.nombre}`;
+
+  // Tabs
+  renderSecTabs();
+
+  // Buscar: debounce
+  const searchEl = document.getElementById("sec-search");
+  searchEl.value = "";
+  searchEl.oninput = () => {
+    clearTimeout(secSearchTimer);
+    secSearchTimer = setTimeout(() => loadSecPosts(), 350);
   };
-  // allGames puede estar vacío aún; se llama tras loadGames
-  setTimeout(populateSel, 600);
 
-  document.getElementById("btn-load-content").addEventListener("click", () => {
-    const key = sel.value;
-    if (!key) return toast("Selecciona un juego", true);
-    currentContentGame = key;
-    document.getElementById("content-editor-wrap").style.display = "block";
-    updateNewContentBtn();
-    loadContentList();
-  });
+  // Mostrar vista
+  document.getElementById("games-view").style.display = "none";
+  document.getElementById("secciones-view").style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
 
-  // Tabs Guía / Build
-  document.querySelectorAll("[data-ctipo]").forEach(btn => {
+  loadSecPosts();
+}
+
+function closeSecciones() {
+  document.getElementById("secciones-view").style.display = "none";
+  document.getElementById("games-view").style.display = "block";
+  secGameKey = null;
+}
+
+function renderSecTabs() {
+  const container = document.getElementById("sec-tabs");
+  container.innerHTML = "";
+  SECCIONES.forEach(s => {
+    const btn = document.createElement("button");
+    btn.className = "mm-tab-btn" + (s.tipo === secTipo ? " active" : "");
+    btn.textContent = s.label;
     btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-ctipo]").forEach(b => b.classList.remove("active"));
+      secTipo = s.tipo;
+      container.querySelectorAll(".mm-tab-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      currentContentTipo = btn.dataset.ctipo;
-      updateNewContentBtn();
-      if (currentContentGame) loadContentList();
+      document.getElementById("sec-search").value = "";
+      updateSecNewBtn();
+      loadSecPosts();
     });
+    container.appendChild(btn);
   });
+  updateSecNewBtn();
 }
 
-function updateNewContentBtn() {
-  const btn = document.getElementById("btn-new-content");
-  if (!btn || !currentContentGame) return;
-  btn.href = `../../pages/guia/editor.html?game=${currentContentGame}&tipo=${currentContentTipo}`;
-  btn.textContent = `+ Nueva ${currentContentTipo === "build" ? "Build" : "Guía"}`;
+function updateSecNewBtn() {
+  const btn = document.getElementById("btn-new-sec");
+  if (!btn || !secGameKey) return;
+  btn.href = `../../pages/guia/editor.html?game=${secGameKey}&tipo=${secTipo}`;
+  btn.textContent = `+ Nueva ${secTipo === "build" ? "Build" : "Guía"}`;
 }
 
-async function loadContentList() {
-  const el = document.getElementById("content-list");
-  if (!currentContentGame) return;
-  el.innerHTML = `<div class="admin-loading">Cargando...</div>`;
+async function loadSecPosts() {
+  const el = document.getElementById("sec-posts-list");
+  if (!secGameKey) return;
+  el.innerHTML = `<div class="admin-loading">Cargando…</div>`;
+
+  const q = document.getElementById("sec-search").value.trim();
+  let url = `/content?game_key=${secGameKey}&tipo=${secTipo}`;
+  if (q) url += `&q=${encodeURIComponent(q)}`;
+
   try {
-    const res = await apiFetch(`/content?game_key=${currentContentGame}&tipo=${currentContentTipo}`);
+    const res = await apiFetch(url);
     if (!res?.ok) throw new Error();
-    const { posts } = await res.json();
-    renderContentList(posts);
+    const data = await res.json();
+    renderSecPosts(data.posts || []);
   } catch {
     el.innerHTML = `<div class="admin-empty">Error al cargar publicaciones.</div>`;
   }
 }
 
-function renderContentList(posts) {
-  const el = document.getElementById("content-list");
-  if (!posts?.length) {
-    el.innerHTML = `<div class="admin-empty">Sin publicaciones aún. Crea la primera.</div>`;
+function renderSecPosts(posts) {
+  const el = document.getElementById("sec-posts-list");
+  if (!posts.length) {
+    el.innerHTML = `<div class="admin-empty">Sin publicaciones en esta sección. ¡Crea la primera!</div>`;
     return;
   }
+
   el.innerHTML = posts.map(p => {
     const fecha = new Date(p.created_at).toLocaleDateString("es", { day:"2-digit", month:"short", year:"numeric" });
-    const draft = !p.publicado ? `<span style="font-size:.6rem;font-weight:700;padding:.1rem .35rem;border-radius:4px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:#fde047;margin-left:.4rem;">Borrador</span>` : "";
+    const draft = !p.publicado
+      ? `<span style="font-size:.6rem;font-weight:700;padding:.1rem .35rem;border-radius:4px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:#fde047;margin-left:.4rem;">Borrador</span>`
+      : "";
+    const ratingHtml = p.rating
+      ? `<span style="font-size:.65rem;color:rgba(255,255,255,.35);">⭐ ${p.rating} (${p.votos})</span>`
+      : "";
     return `
-      <div class="admin-row" style="align-items:center;gap:10px;">
+      <div class="admin-row" style="align-items:center;gap:10px;" data-post-id="${p.id}">
         <div style="flex:1;min-width:0;">
           <div class="admin-row-name" style="font-size:.85rem;">${p.titulo}${draft}</div>
-          <div class="admin-row-meta" style="font-size:.68rem;">${p.autor_nombre} · ${fecha}</div>
+          <div class="admin-row-meta" style="font-size:.68rem;display:flex;gap:.5rem;align-items:center;">
+            <span>${p.autor_nombre} · ${fecha}</span>
+            ${ratingHtml}
+          </div>
         </div>
         <div class="admin-row-actions d-flex gap-1 flex-shrink-0">
-          <a href="../../pages/guia/editor.html?game=${currentContentGame}&slug=${p.slug}"
+          <a href="../../pages/guia/editor.html?game=${secGameKey}&slug=${p.slug}"
              class="btn btn-sm btn-outline-secondary" style="font-size:.7rem;padding:.2rem .5rem;">Editar</a>
-          <button class="btn btn-sm btn-outline-danger btn-del-content" data-id="${p.id}" style="font-size:.7rem;padding:.2rem .5rem;">✕</button>
+          <button class="btn btn-sm btn-outline-danger btn-del-sec-post" data-id="${p.id}" style="font-size:.7rem;padding:.2rem .5rem;">✕</button>
         </div>
       </div>`;
   }).join("");
 
-  el.querySelectorAll(".btn-del-content").forEach(btn =>
-    btn.addEventListener("click", () => deleteContent(parseInt(btn.dataset.id), btn.closest(".admin-row")))
+  el.querySelectorAll(".btn-del-sec-post").forEach(btn =>
+    btn.addEventListener("click", () => deleteSecPost(parseInt(btn.dataset.id), btn.closest(".admin-row")))
   );
 }
 
-async function deleteContent(id, rowEl) {
+async function deleteSecPost(id, rowEl) {
   if (!confirm("¿Eliminar esta publicación? Se borrarán también sus comentarios y valoraciones.")) return;
   const res = await apiFetch(`/content/${id}`, { method: "DELETE" });
   if (res?.ok) {
     rowEl.remove();
     toast("Publicación eliminada");
-    if (!document.querySelectorAll("#content-list .admin-row").length) {
-      document.getElementById("content-list").innerHTML = `<div class="admin-empty">Sin publicaciones aún.</div>`;
+    if (!document.querySelectorAll("#sec-posts-list .admin-row").length) {
+      document.getElementById("sec-posts-list").innerHTML = `<div class="admin-empty">Sin publicaciones en esta sección.</div>`;
     }
   } else {
     const err = await res?.json().catch(() => ({}));
@@ -292,10 +342,11 @@ async function deleteContent(id, rowEl) {
   }
 }
 
+// ── Toast ────────────────────────────────────────────────────────────
 function toast(msg, isError = false) {
   const el = document.getElementById("admin-toast");
   if (!el) return;
   el.textContent = msg;
   el.className = `show${isError ? " error" : ""}`;
-  setTimeout(() => el.className = "", 3000);
+  setTimeout(() => el.className = "", 3500);
 }
