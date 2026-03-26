@@ -16,6 +16,8 @@ function matchChatHeight() {
   const p = document.getElementById("player-wrap");
   const c = document.getElementById("chat-wrap");
   if (!p || !c) return;
+  // On mobile (stacked layout) let CSS control the height
+  if (window.innerWidth <= 767) { c.style.height = ""; return; }
   c.style.height = (p.offsetWidth * 9 / 16) + "px";
 }
 window.addEventListener("resize", matchChatHeight);

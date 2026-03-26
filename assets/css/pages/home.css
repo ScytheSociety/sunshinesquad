@@ -1,3 +1,58 @@
+/* ===================== STREAM SECTION ===================== */
+#stream-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+#player-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  position: relative;
+}
+#chat-wrap {
+  width: 300px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+}
+#stream-channels-col {
+  width: 130px;
+  flex-shrink: 0;
+}
+/* Tablet: shrink sidebar widths */
+@media (max-width: 1199px) {
+  #chat-wrap { width: 260px; }
+  #stream-channels-col { width: 110px; }
+}
+/* Mobile: stack vertically */
+@media (max-width: 767px) {
+  #stream-row { flex-direction: column; }
+  #player-wrap { width: 100%; }
+  #chat-wrap {
+    width: 100%;
+    height: 360px !important; /* override JS-set height */
+    order: 3;
+  }
+  #chat-wrap iframe { min-height: 360px; }
+  #stream-channels-col {
+    width: 100%;
+    order: 2;
+  }
+  #stream-channels-col #channel-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  #stream-channels-col #channel-list .btn-ss {
+    width: auto !important;
+    display: inline-block !important;
+  }
+}
+
 /* ===================== HERO ===================== */
 .hero { padding-top: 2.2rem; padding-bottom: 1.4rem; }
 .hero h1 { font-weight: 800; letter-spacing: .4px; }

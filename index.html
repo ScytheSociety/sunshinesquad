@@ -55,16 +55,16 @@
         <div style="font-weight:700;">📺 Twitch</div>
         <div class="text-muted-ss">Cambia de canal sin recargar la página</div>
       </div>
-      <div id="stream-row" style="display:flex;gap:12px;align-items:stretch;">
-        <div id="player-wrap" style="flex:1 1 0;min-width:0;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);position:relative;">
+      <div id="stream-row">
+        <div id="player-wrap">
           <div style="aspect-ratio:16/9;position:relative;">
             <iframe id="stream-iframe" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>
           </div>
         </div>
-        <div id="chat-wrap" style="width:300px;flex-shrink:0;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);">
-          <iframe id="chat-iframe" style="width:100%;height:100%;border:0;display:block;min-height:300px;"></iframe>
+        <div id="chat-wrap">
+          <iframe id="chat-iframe" style="width:100%;height:100%;border:0;display:block;"></iframe>
         </div>
-        <div style="width:130px;flex-shrink:0;">
+        <div id="stream-channels-col">
           <div style="font-weight:600;margin-bottom:.75rem;font-size:.9rem;">Canales</div>
           <div id="channel-list"></div>
         </div>
