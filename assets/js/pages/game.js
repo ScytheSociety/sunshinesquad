@@ -232,10 +232,17 @@ function renderGrid(items, containerId) {
 }
 
 // ── Clan ────────────────────────────────────────────────────────────
+function buildProfileUrl(discordId) {
+  // Funciona tanto en páginas anidadas (juegos/ragnarok/) como en raíz
+  const depth = location.pathname.split("/").filter(Boolean).length;
+  const prefix = depth >= 3 ? "../../" : depth >= 2 ? "../" : "";
+  return `${prefix}pages/perfil/perfil.html?id=${discordId}`;
+}
+
 async function renderClan(gameKey) {
   const el = document.getElementById("clan-content");
   if (!el) return;
-  el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.85rem;">Cargando...</div>`;
+  el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.85rem;padding:.5rem 0;">Cargando...</div>`;
   try {
     const res = await fetch(`${API}/clan/${gameKey}`);
     if (!res.ok) throw new Error();
@@ -244,16 +251,37 @@ async function renderClan(gameKey) {
       el.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:.85rem;">Sin miembros registrados aún.</div>`;
       return;
     }
-    el.innerHTML = miembros.map((u, i) => `
-      <div class="d-flex align-items-center gap-2 mb-2 p-2" style="border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
-        <div style="font-size:.8rem;min-width:20px;text-align:center;color:rgba(255,255,255,.3);">#${i+1}</div>
-        ${u.avatar_url ? `<img src="${u.avatar_url}" width="32" height="32" style="border-radius:50%;object-fit:cover;flex-shrink:0;" loading="lazy">` : `<div style="width:32px;height:32px;border-radius:50%;background:rgba(99,102,241,.2);flex-shrink:0;"></div>`}
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:.88rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.username}</div>
-          ${u.rank_name ? `<div style="font-size:.72rem;color:rgba(255,255,255,.4);">${u.rank_name}</div>` : ""}
-        </div>
-        ${u.puntos != null ? `<div style="font-size:.85rem;font-weight:700;color:#fbbf24;">${Number(u.puntos).toLocaleString()} pts</div>` : ""}
-      </div>`).join("");
+    el.innerHTML = miembros.map((u, i) => {
+      const mc   = u.main_character;
+      const pts  = u.puntos != null ? Number(u.puntos).toLocaleString() : "0";
+      const href = buildProfileUrl(u.discord_id);
+
+      const charLine = mc
+        ? `<div style="font-size:.72rem;color:rgba(255,255,255,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+             ${mc.class_emoji ? `<span>${mc.class_emoji}</span> ` : ""}${mc.character_name}${mc.class_name ? ` · ${mc.class_name}` : ""}${mc.level ? ` · Nv ${mc.level}` : ""}
+           </div>`
+        : "";
+
+      return `
+        <a href="${href}" style="text-decoration:none;display:block;">
+          <div style="display:flex;align-items:center;gap:10px;padding:.5rem .6rem;border-radius:10px;
+                      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+                      margin-bottom:.4rem;transition:background .15s;"
+               onmouseover="this.style.background='rgba(99,102,241,.1)'"
+               onmouseout="this.style.background='rgba(255,255,255,.03)'">
+            <div style="font-size:.72rem;min-width:22px;text-align:center;color:rgba(255,255,255,.25);font-weight:700;">#${i+1}</div>
+            <img src="${u.avatar_url}" width="38" height="38"
+                 style="border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(99,102,241,.3);"
+                 loading="lazy"
+                 onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:.88rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.username}</div>
+              ${charLine}
+            </div>
+            <div style="font-size:.82rem;font-weight:700;color:#fbbf24;flex-shrink:0;">${pts} pts</div>
+          </div>
+        </a>`;
+    }).join("");
   } catch {
     el.innerHTML = `<div style="color:rgba(255,255,255,.25);font-size:.82rem;">Datos del clan no disponibles.</div>`;
   }

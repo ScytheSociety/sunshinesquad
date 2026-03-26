@@ -1,6 +1,7 @@
 const express  = require("express");
 const router   = express.Router();
 const { botDB } = require("../db/bot");
+const { webDB } = require("../db/web");
 
 // GET /api/clan/:game
 // Devuelve los miembros del clan para un juego específico
@@ -68,13 +69,35 @@ router.get("/:game", (req, res) => {
         LIMIT 5
       `).all(r.discord_user_id, ...matchIds);
       return {
-        discord_id: r.discord_user_id,
-        username:   r.username,
-        puntos:     r.puntos,
-        avatar_url: null,
-        rank_name:  null,
+        discord_id:    r.discord_user_id,
+        username:      r.username,
+        puntos:        r.puntos,
+        avatar_url:    null,         // se rellena abajo en batch
+        main_character: characters[0] || null,
         characters,
       };
+    });
+
+    // Enriquecer avatares en batch desde discord_users (web DB)
+    const discordIds = result.map(r => r.discord_id);
+    if (discordIds.length) {
+      const web = webDB();
+      const ph  = discordIds.map(() => "?").join(",");
+      web.prepare(`SELECT discord_id, avatar FROM discord_users WHERE discord_id IN (${ph})`)
+        .all(...discordIds)
+        .forEach(d => {
+          const member = result.find(r => r.discord_id === d.discord_id);
+          if (member) member.avatar_url = d.avatar || null;
+        });
+    }
+
+    // Fallback: avatar por defecto de Discord si no hay cacheo
+    result.forEach(r => {
+      if (!r.avatar_url) {
+        try {
+          r.avatar_url = `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(r.discord_id) % 6n)}.png`;
+        } catch { r.avatar_url = "https://cdn.discordapp.com/embed/avatars/0.png"; }
+      }
     });
 
     res.json(result);
