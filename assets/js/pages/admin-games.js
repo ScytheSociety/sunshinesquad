@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await Promise.all([loadGames(), loadBotGames()]);
   bindForm();
-  bindImagePreview();
+  bindContentSection();
 
   document.getElementById("btn-new-game").addEventListener("click", () => resetForm());
   document.getElementById("btn-cancel-game").addEventListener("click", () => resetForm());
@@ -110,7 +110,6 @@ function editGame(id) {
   document.getElementById("form-title").textContent = "Editar juego";
   document.getElementById("f-id").value          = g.id;
   document.getElementById("f-nombre").value       = g.nombre;
-  document.getElementById("f-imagen").value       = g.imagen || "";
   document.getElementById("f-descripcion").value  = g.descripcion || "";
   document.getElementById("f-servidor").value     = g.servidor || "";
   document.getElementById("f-url").value          = g.url || "";
@@ -120,9 +119,6 @@ function editGame(id) {
   document.getElementById("f-activo").checked     = !!g.activo;
   populateBotDropdown(g.bot_command_key || g.command_key || null);
   document.getElementById("game-form-card").scrollIntoView({ behavior: "smooth", block: "start" });
-
-  // Trigger image preview
-  document.getElementById("f-imagen").dispatchEvent(new Event("input"));
 }
 
 async function deleteGame(id, rowEl) {
@@ -143,7 +139,6 @@ function bindForm() {
     e.preventDefault();
     const body = {
       nombre:              document.getElementById("f-nombre").value.trim(),
-      imagen:              document.getElementById("f-imagen").value.trim(),
       descripcion:         document.getElementById("f-descripcion").value.trim(),
       servidor:            document.getElementById("f-servidor").value.trim(),
       url:                 document.getElementById("f-url").value.trim(),
@@ -171,31 +166,119 @@ function bindForm() {
   });
 }
 
-function bindImagePreview() {
-  const input = document.getElementById("f-imagen");
-  input.addEventListener("input", () => {
-    const val = input.value.trim();
-    const previewWrap = document.getElementById("f-imagen-preview");
-    const previewImg  = document.getElementById("img-preview-el");
-    if (val) {
-      const src = val.startsWith("http") || val.startsWith("/") ? val : `../../${val}`;
-      previewImg.src = src;
-      previewWrap.style.display = "block";
-      previewImg.onerror = () => previewWrap.style.display = "none";
-    } else {
-      previewWrap.style.display = "none";
-    }
-  });
-}
-
 function resetForm() {
   editingId = null;
   document.getElementById("form-title").textContent = "Nuevo juego";
   document.getElementById("game-form").reset();
   document.getElementById("f-id").value = "";
-  document.getElementById("f-activo").checked    = true;
-  document.getElementById("f-imagen-preview").style.display = "none";
+  document.getElementById("f-activo").checked = true;
   populateBotDropdown(null);
+}
+
+// ── Guías & Builds ──────────────────────────────────────────────────
+let currentContentGame = null;
+let currentContentTipo = "guia";
+
+function bindContentSection() {
+  // Poblar selector de juegos (reutiliza allGames cuando estén cargados)
+  const sel = document.getElementById("sel-content-game");
+  const populateSel = () => {
+    sel.innerHTML = `<option value="">— Seleccionar juego —</option>`;
+    allGames.forEach(g => {
+      const urlKey = g.url?.match(/juegos\/([^/]+)\//)?.[1];
+      if (!urlKey) return;
+      const opt = document.createElement("option");
+      opt.value = urlKey;
+      opt.textContent = g.nombre;
+      sel.appendChild(opt);
+    });
+  };
+  // allGames puede estar vacío aún; se llama tras loadGames
+  setTimeout(populateSel, 600);
+
+  document.getElementById("btn-load-content").addEventListener("click", () => {
+    const key = sel.value;
+    if (!key) return toast("Selecciona un juego", true);
+    currentContentGame = key;
+    document.getElementById("content-editor-wrap").style.display = "block";
+    updateNewContentBtn();
+    loadContentList();
+  });
+
+  // Tabs Guía / Build
+  document.querySelectorAll("[data-ctipo]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-ctipo]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentContentTipo = btn.dataset.ctipo;
+      updateNewContentBtn();
+      if (currentContentGame) loadContentList();
+    });
+  });
+}
+
+function updateNewContentBtn() {
+  const btn = document.getElementById("btn-new-content");
+  if (!btn || !currentContentGame) return;
+  btn.href = `../../pages/guia/editor.html?game=${currentContentGame}&tipo=${currentContentTipo}`;
+  btn.textContent = `+ Nueva ${currentContentTipo === "build" ? "Build" : "Guía"}`;
+}
+
+async function loadContentList() {
+  const el = document.getElementById("content-list");
+  if (!currentContentGame) return;
+  el.innerHTML = `<div class="admin-loading">Cargando...</div>`;
+  try {
+    const res = await apiFetch(`/content?game_key=${currentContentGame}&tipo=${currentContentTipo}`);
+    if (!res?.ok) throw new Error();
+    const { posts } = await res.json();
+    renderContentList(posts);
+  } catch {
+    el.innerHTML = `<div class="admin-empty">Error al cargar publicaciones.</div>`;
+  }
+}
+
+function renderContentList(posts) {
+  const el = document.getElementById("content-list");
+  if (!posts?.length) {
+    el.innerHTML = `<div class="admin-empty">Sin publicaciones aún. Crea la primera.</div>`;
+    return;
+  }
+  el.innerHTML = posts.map(p => {
+    const fecha = new Date(p.created_at).toLocaleDateString("es", { day:"2-digit", month:"short", year:"numeric" });
+    const draft = !p.publicado ? `<span style="font-size:.6rem;font-weight:700;padding:.1rem .35rem;border-radius:4px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:#fde047;margin-left:.4rem;">Borrador</span>` : "";
+    return `
+      <div class="admin-row" style="align-items:center;gap:10px;">
+        <div style="flex:1;min-width:0;">
+          <div class="admin-row-name" style="font-size:.85rem;">${p.titulo}${draft}</div>
+          <div class="admin-row-meta" style="font-size:.68rem;">${p.autor_nombre} · ${fecha}</div>
+        </div>
+        <div class="admin-row-actions d-flex gap-1 flex-shrink-0">
+          <a href="../../pages/guia/editor.html?game=${currentContentGame}&slug=${p.slug}"
+             class="btn btn-sm btn-outline-secondary" style="font-size:.7rem;padding:.2rem .5rem;">Editar</a>
+          <button class="btn btn-sm btn-outline-danger btn-del-content" data-id="${p.id}" style="font-size:.7rem;padding:.2rem .5rem;">✕</button>
+        </div>
+      </div>`;
+  }).join("");
+
+  el.querySelectorAll(".btn-del-content").forEach(btn =>
+    btn.addEventListener("click", () => deleteContent(parseInt(btn.dataset.id), btn.closest(".admin-row")))
+  );
+}
+
+async function deleteContent(id, rowEl) {
+  if (!confirm("¿Eliminar esta publicación? Se borrarán también sus comentarios y valoraciones.")) return;
+  const res = await apiFetch(`/content/${id}`, { method: "DELETE" });
+  if (res?.ok) {
+    rowEl.remove();
+    toast("Publicación eliminada");
+    if (!document.querySelectorAll("#content-list .admin-row").length) {
+      document.getElementById("content-list").innerHTML = `<div class="admin-empty">Sin publicaciones aún.</div>`;
+    }
+  } else {
+    const err = await res?.json().catch(() => ({}));
+    toast(err?.error || "Error al eliminar", true);
+  }
 }
 
 function toast(msg, isError = false) {

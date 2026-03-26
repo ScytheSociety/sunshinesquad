@@ -160,6 +160,40 @@ function initSchema(db) {
       PRIMARY KEY (event_id, user_id)
     );
 
+    CREATE TABLE IF NOT EXISTS content_posts (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      tipo        TEXT NOT NULL CHECK(tipo IN ('guia','build')),
+      game_key    TEXT NOT NULL,
+      slug        TEXT UNIQUE NOT NULL,
+      titulo      TEXT NOT NULL,
+      resumen     TEXT DEFAULT '',
+      portada     TEXT DEFAULT '',
+      contenido   TEXT NOT NULL DEFAULT '',
+      autor_id    TEXT NOT NULL,
+      autor_nombre TEXT NOT NULL,
+      autor_avatar TEXT DEFAULT '',
+      publicado   INTEGER DEFAULT 0,
+      created_at  TEXT DEFAULT (datetime('now')),
+      updated_at  TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS content_comentarios (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      post_id     INTEGER NOT NULL REFERENCES content_posts(id) ON DELETE CASCADE,
+      autor_id    TEXT NOT NULL,
+      autor_nombre TEXT NOT NULL,
+      autor_avatar TEXT DEFAULT '',
+      contenido   TEXT NOT NULL,
+      created_at  TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS content_ratings (
+      post_id     INTEGER NOT NULL REFERENCES content_posts(id) ON DELETE CASCADE,
+      user_id     TEXT NOT NULL,
+      estrellas   INTEGER NOT NULL CHECK(estrellas BETWEEN 1 AND 5),
+      PRIMARY KEY (post_id, user_id)
+    );
+
     CREATE TABLE IF NOT EXISTS uploads (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       filename        TEXT NOT NULL,

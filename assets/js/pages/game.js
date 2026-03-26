@@ -170,13 +170,23 @@ function renderVideos(rawItems) {
 }
 
 // ── Grid de guías / builds con búsqueda ───────────────────────────
-function drawGridCards(items, el, q) {
+function buildGuiaHref(item, gameKey) {
+  // Si el item viene de la API tiene slug; si viene del JSON estático tiene url
+  if (item.slug) {
+    return `${ROOT}pages/guia/guia.html?game=${gameKey}&slug=${item.slug}`;
+  }
+  if (item.url) return item.url.startsWith("http") ? item.url : ROOT + item.url;
+  return "#";
+}
+
+function drawGridCards(items, el, q, gameKey) {
   const filtered = q
     ? items.filter(item =>
         item.nombre?.toLowerCase().includes(q) ||
+        item.titulo?.toLowerCase().includes(q)  ||
         item.descripcion?.toLowerCase().includes(q) ||
-        item.autor?.toLowerCase().includes(q) ||
-        item.tags?.some(t => t.toLowerCase().includes(q))
+        item.resumen?.toLowerCase().includes(q)  ||
+        item.autor_nombre?.toLowerCase().includes(q)
       )
     : items;
 
@@ -186,29 +196,28 @@ function drawGridCards(items, el, q) {
   }
 
   el.innerHTML = filtered.map(item => {
-    const imgSrc = item.imagen ? (item.imagen.startsWith("http") ? item.imagen : ROOT + item.imagen) : null;
-    const href   = item.url   ? (item.url.startsWith("http")    ? item.url    : ROOT + item.url)    : "#";
-    const tags   = item.tags?.length
-      ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.4rem;">${item.tags.map(t =>
-          `<span style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;
-                        background:rgba(99,102,241,.18);color:#a5b4fc;border-radius:20px;padding:.1rem .45rem;">${t}</span>`
-        ).join("")}</div>` : "";
-    const autor = item.autor
-      ? `<div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.3rem;">Por ${item.autor}</div>` : "";
+    // Normalizar campos (API usa titulo/resumen/portada; JSON estático usa nombre/descripcion/imagen)
+    const nombre = item.titulo || item.nombre || "";
+    const desc   = item.resumen || item.descripcion || "";
+    const imgSrc = item.portada || (item.imagen ? (item.imagen.startsWith("http") ? item.imagen : ROOT + item.imagen) : null);
+    const href   = buildGuiaHref(item, gameKey);
+    const autor  = item.autor_nombre || item.autor || null;
+    const fecha  = item.created_at ? new Date(item.created_at).toLocaleDateString("es", { day:"2-digit", month:"short", year:"numeric" }) : null;
+    const draft  = item.publicado === 0 ? `<span style="font-size:.6rem;font-weight:700;padding:.1rem .3rem;border-radius:4px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:#fde047;margin-left:.3rem;">Borrador</span>` : "";
     return `
       <a href="${href}" class="ro-card" style="text-decoration:none;">
-        ${imgSrc ? `<img src="${imgSrc}" alt="${item.nombre}" onerror="this.style.display='none'" loading="lazy">` : ""}
+        ${imgSrc ? `<img src="${imgSrc}" alt="${nombre}" onerror="this.style.display='none'" loading="lazy">` : ""}
         <div class="ro-card-body">
-          ${tags}
-          <div class="ro-card-title">${item.nombre}</div>
-          <div class="ro-card-desc">${item.descripcion || ""}</div>
-          ${autor}
+          <div class="ro-card-title">${nombre}${draft}</div>
+          <div class="ro-card-desc">${desc}</div>
+          ${autor  ? `<div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.3rem;">Por ${autor}</div>` : ""}
+          ${fecha  ? `<div style="font-size:.68rem;color:rgba(255,255,255,.25);margin-top:.15rem;">${fecha}</div>` : ""}
         </div>
       </a>`;
   }).join("");
 }
 
-function renderGrid(items, containerId) {
+function renderGrid(items, containerId, gameKey) {
   const el = document.getElementById(containerId);
   if (!el) return;
   if (!items?.length) {
@@ -222,13 +231,13 @@ function renderGrid(items, containerId) {
     const inp = document.createElement("input");
     inp.id = searchId;
     inp.type = "search";
-    inp.placeholder = "Buscar por título, tags o autor...";
+    inp.placeholder = "Buscar por título o autor...";
     inp.style.cssText = "width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.5rem 1rem;color:#fff;font-size:.83rem;outline:none;margin-bottom:.75rem;";
     el.parentElement.insertBefore(inp, el);
-    inp.addEventListener("input", () => drawGridCards(items, el, inp.value.toLowerCase().trim()));
+    inp.addEventListener("input", () => drawGridCards(items, el, inp.value.toLowerCase().trim(), gameKey));
   }
 
-  drawGridCards(items, el, "");
+  drawGridCards(items, el, "", gameKey);
 }
 
 // ── Clan ────────────────────────────────────────────────────────────
@@ -351,7 +360,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     : (staticData.videos || []);
   renderVideos(videoItems);
 
-  renderGrid(staticData.guias,  "guias-grid");
-  renderGrid(staticData.builds, "builds-grid");
+  // Guías y Builds: intentar API primero, fallback a JSON estático
+  let apiGuias  = null;
+  let apiBuilds = null;
+  try {
+    const rg = await fetch(`${API}/content?game_key=${GAME_KEY}&tipo=guia`);
+    if (rg.ok) { const d = await rg.json(); apiGuias = d.posts || []; }
+  } catch {}
+  try {
+    const rb = await fetch(`${API}/content?game_key=${GAME_KEY}&tipo=build`);
+    if (rb.ok) { const d = await rb.json(); apiBuilds = d.posts || []; }
+  } catch {}
+
+  const guias  = apiGuias?.length  ? apiGuias  : (staticData.guias  || []);
+  const builds = apiBuilds?.length ? apiBuilds : (staticData.builds || []);
+
+  renderGrid(guias,  "guias-grid",  GAME_KEY);
+  renderGrid(builds, "builds-grid", GAME_KEY);
   renderClan(GAME_KEY);
 });
