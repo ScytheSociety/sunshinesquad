@@ -40,15 +40,25 @@ router.get("/", (req, res) => {
     const botByName = {};
     botGames.forEach(g => { botByName[g.name.toLowerCase()] = g; });
 
+    // Obtener icon_url por game_key desde game_server_config
+    const iconRows = (() => {
+      try { return webDB().prepare("SELECT game_key, icon_url FROM game_server_config WHERE icon_url != ''").all(); }
+      catch { return []; }
+    })();
+    const iconByKey = {};
+    iconRows.forEach(r => { iconByKey[r.game_key] = r.icon_url; });
+
     const enriched = games.map(g => {
-      const bot = botByName[g.nombre.toLowerCase()];
+      const bot    = botByName[g.nombre.toLowerCase()];
+      const urlKey = g.url?.match(/juegos\/([^/]+)\//)?.[1] || null;
       return {
         ...g,
-        command_key:   bot?.command_key  || null,
-        abbreviation:  bot?.abbreviation || null,
-        emoji:         bot?.emoji        || "🎮",
-        game_timezone: bot?.timezone     || "UTC",
-        in_bot: !!bot,
+        command_key:    bot?.command_key  || null,
+        abbreviation:   bot?.abbreviation || null,
+        emoji:          bot?.emoji        || "🎮",
+        game_timezone:  bot?.timezone     || "UTC",
+        in_bot:         !!bot,
+        site_icon_url:  urlKey ? (iconByKey[urlKey] || null) : null,
       };
     });
 

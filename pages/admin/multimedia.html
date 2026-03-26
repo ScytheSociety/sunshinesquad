@@ -58,6 +58,7 @@
           <button class="mm-tab-btn active" data-tab="galeria">📷 Galería</button>
           <button class="mm-tab-btn" data-tab="videos">▶️ Videos</button>
           <button class="mm-tab-btn" data-tab="servidor">⚙️ Servidor</button>
+          <button class="mm-tab-btn" data-tab="icono">🎮 Icono</button>
         </div>
 
         <!-- TAB: Galería -->
@@ -164,6 +165,30 @@
                 <button type="submit" class="btn-indigo flex-fill">Guardar configuración</button>
               </div>
             </form>
+          </div>
+        </div>
+
+        <!-- TAB: Icono del juego -->
+        <div id="tab-icono" class="mm-tab-content" style="display:none;">
+          <div class="card-dark">
+            <div class="admin-form-title mb-1">Icono del juego</div>
+            <p style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:1.2rem;">
+              Imagen pequeña que representa al juego en perfiles, sección de miembros y navbar. Reemplaza el emoji.
+            </p>
+            <div class="row g-3 align-items-end">
+              <div class="col-md-9">
+                <label class="admin-label">URL del icono</label>
+                <input type="text" id="icon-url" class="form-control" placeholder="https://... (PNG, WEBP, JPG recomendado 64×64)">
+              </div>
+              <div class="col-md-3">
+                <button id="btn-save-icon" class="btn-indigo w-100">Guardar icono</button>
+              </div>
+            </div>
+            <div id="icon-preview-wrap" style="margin-top:.75rem;display:none;">
+              <img id="icon-preview-el" src="" alt="preview"
+                   style="width:64px;height:64px;object-fit:contain;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);">
+              <span style="font-size:.72rem;color:rgba(255,255,255,.35);margin-left:.6rem;">Vista previa</span>
+            </div>
           </div>
         </div>
 

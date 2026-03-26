@@ -44,6 +44,10 @@ const router = Router();
      )`,
   ];
   stmts.forEach(s => { try { db.prepare(s).run(); } catch {} });
+  // Idempotent column additions
+  ["icon_url TEXT DEFAULT ''"].forEach(col => {
+    try { db.prepare(`ALTER TABLE game_server_config ADD COLUMN ${col}`).run(); } catch {}
+  });
 })();
 
 // GET /api/game-media/:key — all media for a game (public)
@@ -56,6 +60,20 @@ router.get("/:key", (req, res) => {
     const cfg     = db.prepare("SELECT * FROM game_server_config WHERE game_key=?").get(key) || null;
     const info    = db.prepare("SELECT * FROM game_server_info   WHERE game_key=? ORDER BY orden ASC, id ASC").all(key);
     res.json({ gallery, videos, servidor: cfg ? { ...cfg, info } : null });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PUT /api/game-media/:key/icon — upsert solo el icon_url del juego (editor+)
+router.put("/:key/icon", requireRole("editor"), (req, res) => {
+  try {
+    const key = req.params.key;
+    const { icon_url } = req.body;
+    const db = webDB();
+    db.prepare(`INSERT INTO game_server_config (game_key, icon_url, updated_at)
+      VALUES (?, ?, datetime('now'))
+      ON CONFLICT(game_key) DO UPDATE SET icon_url=excluded.icon_url, updated_at=excluded.updated_at`)
+      .run(key, icon_url || "");
+    res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

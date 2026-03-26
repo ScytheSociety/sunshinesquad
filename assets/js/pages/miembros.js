@@ -2,6 +2,14 @@ import { getUser, apiFetch } from "/assets/js/auth.js";
 
 const API = "https://sunshinesquad.es/api";
 
+function gameIconHtml(g, size = 20) {
+  const url = g.site_icon_url || g.icon_url || null;
+  if (url) return `<img src="${url}" alt="${g.name || ''}" title="${g.name || ''}"
+    style="width:${size}px;height:${size}px;object-fit:contain;border-radius:3px;vertical-align:middle;"
+    onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${g.emoji || '🎮'}',title:'${g.name || ''}'}))">`;
+  return `<span title="${g.name || ''}">${g.emoji || '🎮'}</span>`;
+}
+
 let allMembers = [];
 let activeGame  = "";
 
@@ -40,7 +48,7 @@ function renderMembers(members) {
       <div class="member-name">${m.display_name || m.username}</div>
       <div class="member-pts">${fmtPts(m.total_points)} pts</div>
       <div class="member-games">
-        ${(m.games || []).map(g => `<span title="${g.name}" style="cursor:pointer;" data-game-key="${g.command_key}">${g.emoji}</span>`).join("")}
+        ${(m.games || []).map(g => `<span style="cursor:pointer;" data-game-key="${g.command_key}">${gameIconHtml(g, 22)}</span>`).join("")}
       </div>
     </a>
   `).join("");
@@ -60,7 +68,7 @@ async function buildFilters() {
       btn.className = "btn btn-sm";
       btn.style.cssText = "background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);";
       btn.dataset.game = g.command_key;
-      btn.innerHTML = `${g.emoji || "🎮"} ${g.nombre}`;
+      btn.innerHTML = `${gameIconHtml(g, 18)} ${g.nombre}`;
       bar.appendChild(btn);
     });
   } catch {}

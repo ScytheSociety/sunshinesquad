@@ -5,6 +5,29 @@ const { webDB } = require("../db/web");
 
 const router = Router();
 
+// Construye un mapa { command_key → site_icon_url } desde game_server_config (web DB)
+function getGameIconMap(web) {
+  try {
+    const siteGames = web.prepare(
+      "SELECT bot_command_key, url FROM site_games WHERE bot_command_key IS NOT NULL AND url != ''"
+    ).all();
+    const ckToGameKey = {};
+    siteGames.forEach(sg => {
+      const m = sg.url?.match(/juegos\/([^/]+)\//);
+      if (m) ckToGameKey[sg.bot_command_key] = m[1];
+    });
+    const gameKeys = [...new Set(Object.values(ckToGameKey))];
+    if (!gameKeys.length) return {};
+    const icons = {};
+    web.prepare(
+      `SELECT game_key, icon_url FROM game_server_config WHERE game_key IN (${gameKeys.map(() => "?").join(",")}) AND icon_url != ''`
+    ).all(...gameKeys).forEach(r => { icons[r.game_key] = r.icon_url; });
+    const result = {};
+    Object.entries(ckToGameKey).forEach(([ck, gk]) => { if (icons[gk]) result[ck] = icons[gk]; });
+    return result;
+  } catch { return {}; }
+}
+
 function defaultAvatar(discord_id) {
   try { return `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(discord_id) % 6n)}.png`; }
   catch { return `https://cdn.discordapp.com/embed/avatars/0.png`; }
@@ -42,6 +65,10 @@ function buildProfile(discord_id) {
       gameStats.push({ ...cg, points: 0 });
     }
   });
+
+  // Adjuntar icon_url gestionado desde multimedia
+  const iconMap = getGameIconMap(web);
+  gameStats.forEach(gs => { gs.site_icon_url = iconMap[gs.command_key] || null; });
 
   const characters = bot.prepare(`
     SELECT c.character_name, c.level, c.is_main, c.points,
@@ -183,10 +210,12 @@ router.get("/members", (req, res) => {
       WHERE gi.is_active = 1
       ORDER BY ugs.points DESC
     `).all();
+    const iconMap = getGameIconMap(web);
     const gamesByUserId = {};
     allGames.forEach(g => {
       if (!gamesByUserId[g.user_id]) gamesByUserId[g.user_id] = [];
-      if (gamesByUserId[g.user_id].length < 4) gamesByUserId[g.user_id].push(g);
+      if (gamesByUserId[g.user_id].length < 4)
+        gamesByUserId[g.user_id].push({ ...g, site_icon_url: iconMap[g.command_key] || null });
     });
 
     // Mapa discord_user_id → user.id (batch)

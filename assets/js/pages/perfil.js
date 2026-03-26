@@ -1,6 +1,14 @@
 import { getUser, apiFetch } from "/assets/js/auth.js";
 import { isPushSupported, isPushSubscribed, subscribeToPush, unsubscribeFromPush } from "/assets/js/push-manager.js";
 
+function gameIconHtml(g, size = 28) {
+  const url = g.site_icon_url || g.icon_url || null;
+  if (url) return `<img src="${url}" alt="${g.name || ''}"
+    style="width:${size}px;height:${size}px;object-fit:contain;border-radius:4px;"
+    onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${g.emoji || '🎮'}',className:'game-stat-emoji'}))">`;
+  return `<span class="game-stat-emoji">${g.emoji || '🎮'}</span>`;
+}
+
 const API = "https://sunshinesquad.es/api";
 
 function fmtDate(iso) {
@@ -124,7 +132,7 @@ function renderProfile(p) {
     document.getElementById("p-games").innerHTML = p.game_stats.map(g => `
       <div class="col-sm-6">
         <div class="game-stat-card">
-          <span class="game-stat-emoji">${g.emoji}</span>
+          ${gameIconHtml(g, 28)}
           <div>
             <div class="game-stat-name">${g.name}</div>
             <div class="game-stat-pts">${g.abbreviation || ""} · <span>${fmtPts(g.points)} pts</span></div>

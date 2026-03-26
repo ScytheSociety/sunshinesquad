@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   bindImgForm();
   bindVidForm();
   bindServerForm();
+  bindIconForm();
 
   document.getElementById("btn-load-game").addEventListener("click", () => {
     const key = document.getElementById("sel-game").value;
@@ -80,6 +81,7 @@ async function loadGame(key) {
   renderGallery();
   renderVideos();
   populateServerForm();
+  populateIconForm();
 }
 
 async function loadStaticJson(key) {
@@ -484,6 +486,45 @@ function bindServerForm() {
 
     if (res?.ok) {
       toast("Configuración guardada");
+      await loadGame(currentGame);
+    } else {
+      const err = await res?.json().catch(() => ({}));
+      toast(err?.error || "Error al guardar", true);
+    }
+  });
+}
+
+// ── Icono del juego ──────────────────────────────────────────────────
+function populateIconForm() {
+  const url = mediaData.servidor?.icon_url || "";
+  document.getElementById("icon-url").value = url;
+  updateIconPreview(url);
+}
+
+function updateIconPreview(val) {
+  const wrap = document.getElementById("icon-preview-wrap");
+  const img  = document.getElementById("icon-preview-el");
+  if (val) {
+    img.src = val;
+    wrap.style.display = "block";
+    img.onerror = () => { wrap.style.display = "none"; };
+  } else {
+    wrap.style.display = "none";
+  }
+}
+
+function bindIconForm() {
+  document.getElementById("icon-url").addEventListener("input", function () {
+    updateIconPreview(this.value.trim());
+  });
+
+  document.getElementById("btn-save-icon").addEventListener("click", async () => {
+    const icon_url = document.getElementById("icon-url").value.trim();
+    const res = await apiFetch(`/game-media/${currentGame}/icon`, {
+      method: "PUT", body: JSON.stringify({ icon_url }),
+    });
+    if (res?.ok) {
+      toast("Icono guardado");
       await loadGame(currentGame);
     } else {
       const err = await res?.json().catch(() => ({}));
