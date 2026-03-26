@@ -107,6 +107,7 @@ function editGame(id) {
   const g = allGames.find(x => x.id === id);
   if (!g) return;
   editingId = id;
+  document.getElementById("generate-page-wrap").style.display = "none";
   document.getElementById("form-title").textContent = "Editar juego";
   document.getElementById("f-id").value          = g.id;
   document.getElementById("f-nombre").value       = g.nombre;
@@ -137,26 +138,34 @@ async function deleteGame(id, rowEl) {
 function bindForm() {
   document.getElementById("game-form").addEventListener("submit", async e => {
     e.preventDefault();
+    const isEdit = !!editingId;
     const body = {
-      nombre:              document.getElementById("f-nombre").value.trim(),
-      descripcion:         document.getElementById("f-descripcion").value.trim(),
-      servidor:            document.getElementById("f-servidor").value.trim(),
-      url:                 document.getElementById("f-url").value.trim(),
-      guild:               document.getElementById("f-guild").checked,
-      serie:               document.getElementById("f-serie").checked,
-      sss:                 document.getElementById("f-sss").checked,
-      activo:              document.getElementById("f-activo").checked,
-      bot_command_key:     document.getElementById("f-bot-key").value || null,
+      nombre:          document.getElementById("f-nombre").value.trim(),
+      descripcion:     document.getElementById("f-descripcion").value.trim(),
+      servidor:        document.getElementById("f-servidor").value.trim(),
+      url:             document.getElementById("f-url").value.trim(),
+      guild:           document.getElementById("f-guild").checked,
+      serie:           document.getElementById("f-serie").checked,
+      sss:             document.getElementById("f-sss").checked,
+      activo:          document.getElementById("f-activo").checked,
+      bot_command_key: document.getElementById("f-bot-key").value || null,
     };
+    if (!isEdit) {
+      body.generate_page = document.getElementById("f-generate-page").checked;
+    }
     if (!body.nombre) return toast("El nombre es requerido", true);
 
-    const isEdit = !!editingId;
     const res = await apiFetch(
       isEdit ? `/games/${editingId}` : "/games",
       { method: isEdit ? "PUT" : "POST", body: JSON.stringify(body) }
     );
     if (res?.ok) {
-      toast(isEdit ? "Juego actualizado" : "Juego creado");
+      const data = await res.json();
+      if (data.generated) {
+        toast(`Juego creado ✓ — Página generada: ${data.generated.pageUrl} (haz git push para publicar)`);
+      } else {
+        toast(isEdit ? "Juego actualizado" : "Juego creado");
+      }
       resetForm();
       await loadGames();
     } else {
@@ -172,6 +181,8 @@ function resetForm() {
   document.getElementById("game-form").reset();
   document.getElementById("f-id").value = "";
   document.getElementById("f-activo").checked = true;
+  document.getElementById("generate-page-wrap").style.display = "block";
+  document.getElementById("f-generate-page").checked = false;
   populateBotDropdown(null);
 }
 

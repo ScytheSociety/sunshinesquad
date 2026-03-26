@@ -94,6 +94,19 @@
                   <option value="">— Sin vincular —</option>
                 </select>
               </div>
+              <!-- Solo visible al crear (no editar) -->
+              <div id="generate-page-wrap" class="mb-3">
+                <label class="d-flex align-items-start gap-2" style="cursor:pointer;">
+                  <input type="checkbox" id="f-generate-page" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+                  <span style="font-size:.82rem;color:rgba(255,255,255,.7);">
+                    Generar página del juego automáticamente
+                    <div style="font-size:.7rem;color:rgba(255,255,255,.35);margin-top:.15rem;">
+                      Crea el HTML y el JSON de datos. Requiere hacer git push para publicarlo en GitHub Pages.
+                    </div>
+                  </span>
+                </label>
+              </div>
+
               <div class="d-flex gap-2">
                 <button type="submit" class="btn-indigo flex-fill">Guardar</button>
                 <button type="button" class="btn-ss flex-fill" id="btn-cancel-game">Cancelar</button>
