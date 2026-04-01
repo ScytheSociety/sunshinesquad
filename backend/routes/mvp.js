@@ -15,16 +15,28 @@ router.get("/", (req, res) => {
         mk.respawn_time  AS respawn_at,
         mk.status,
         mk.navigation,
+        mk.coord_x,
+        mk.coord_y,
+        mk.user_id,
         mb.hora_respawn,
         mb.nombre_mapa   AS map,
         mb.imagen        AS image_url,
-        mb.categoria
+        mb.categoria,
+        mb.elemento
       FROM mvp_kills mk
       LEFT JOIN mvp_bosses mb ON mk.mvp_id = mb.id
       WHERE mk.status = 'active'
       ORDER BY mk.respawn_time ASC
       LIMIT 20
     `).all();
+
+    // Enriquecer con nombre del registrador
+    mvps.forEach(m => {
+      const u = db.prepare("SELECT display_name FROM users WHERE discord_user_id=? LIMIT 1").get(m.user_id);
+      m.hunter_name = u?.display_name || null;
+      delete m.user_id; // no exponer discord_id en API pública
+    });
+
     res.json(mvps);
   } catch (err) {
     console.error("mvp:", err);
