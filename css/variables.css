@@ -1,0 +1,19 @@
+/* ===================================================================
+   VARIABLES.CSS
+   ---------------------------------------------------------------
+   Que es: variables globales (colores, anchos).
+   Cuando tocarlo: si quieres cambiar la paleta de color del sitio
+   entero (ej. pasar de blanco/negro a otro tema) o el ancho maximo
+   del contenido. Un solo cambio aqui afecta TODO el sitio.
+   Este archivo debe ir SIEMPRE PRIMERO en el <head>, antes que
+   los demas, porque los otros archivos usan estas variables.
+   =================================================================== */
+
+:root {
+  --bg:        #ffffff;   /* fondo de la pagina */
+  --ink:       #0a0a0a;   /* texto principal (negro suave) */
+  --muted:     #6b6b6b;   /* fechas y textos secundarios (gris) */
+  --rule:      #e6e6e6;   /* linea divisoria suave */
+  --ink-rule:  #0a0a0a;   /* linea divisoria fuerte */
+  --max:       1100px;    /* ancho maximo del contenido (.wrap) */
+}

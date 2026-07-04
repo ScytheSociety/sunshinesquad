@@ -8,21 +8,34 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+
+  <!-- CSS separado por funcion. El orden importa: variables primero,
+       responsive.css siempre al final para que pueda sobreescribir. -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/article.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
   <div class="wrap">
 
     <header class="masthead">
-      <h1 class="nameplate">Sunshine Squad<span class="cursor"></span></h1>
+      <!-- Logo con gif entre las dos palabras. El .cursor de antes
+           se reemplazo por img.nameplate-gif (ver css/header.css) -->
+      <h1 class="nameplate">
+        Sunshine
+        <img src="img/logo.gif" alt="" class="nameplate-gif">
+        Squad
+      </h1>
       <p class="tagline">Scythe Society · comunidad de juego, blog y guias</p>
     </header>
 
-    <nav class="nav">
-      <a href="index.html" aria-current="page">Inicio</a>
-      <a href="blog.html">Blog</a>
-      <a href="guias.html">Guias</a>
-    </nav>
+    <!-- Nav y footer ya NO se escriben aqui: layout.js los inyecta.
+         SITE_ROOT = "" porque index.html esta en la raiz del sitio. -->
+    <div id="site-nav"></div>
 
     <main>
       <p class="lead">Aqui escribo lo que voy aprendiendo y armo guias directas para los
@@ -49,11 +62,12 @@
       </ul>
     </main>
 
-    <footer class="foot">
-      <span>&copy; 2026 Scythe Society</span>
-      <a href="https://github.com/ScytheSociety/sunshinesquad">github</a>
-    </footer>
+    <div id="site-footer"></div>
 
   </div>
+
+  <!-- SITE_ROOT debe declararse ANTES de layout.js -->
+  <script>const SITE_ROOT = "";</script>
+  <script src="js/layout.js"></script>
 </body>
 </html>

@@ -1,0 +1,47 @@
+/* ===================================================================
+   BASE.CSS
+   ---------------------------------------------------------------
+   Que es: reset basico + estilos generales del <body> + el
+   contenedor ".wrap" que centra y limita el ancho de TODO el sitio.
+   Cuando tocarlo: si quieres cambiar la fuente global, el tamano
+   de letra base, el interlineado, o el ancho/padding del contenedor
+   principal (esto afecta header, nav, main y footer por igual,
+   ya que todos viven dentro de .wrap).
+   =================================================================== */
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Courier New', monospace;
+  font-size: 18px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Contenedor central: limita el ancho maximo (--max) y centra
+   todo el contenido. El padding lateral evita que el texto toque
+   el borde de la pantalla en movil. */
+.wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- ACCESIBILIDAD --------------------------------------------------
+   Resalta con un contorno cualquier link enfocado con teclado
+   (Tab), para que se pueda navegar el sitio sin mouse. */
+a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Si el usuario tiene activado "reducir movimiento" en su sistema,
+   apagamos animaciones (ej. el parpadeo del cursor si lo vuelves
+   a usar en algun lado). */
+@media (prefers-reduced-motion: reduce) {
+  .nameplate .cursor { animation: none; }
+}

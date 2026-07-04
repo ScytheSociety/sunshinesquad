@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Summer Festival 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Misma lista de CSS que index.html, pero con "../" porque esta
+       pagina esta un nivel mas adentro (dentro de /guias/) -->
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="stylesheet" href="../css/article.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <div class="wrap">
+
+    <header class="masthead">
+      <h1 class="nameplate">
+        Sunshine
+        <img src="../img/logo.gif" alt="" class="nameplate-gif">
+        Squad
+      </h1>
+      <p class="tagline">Scythe Society · comunidad de juego, blog y guias</p>
+    </header>
+
+    <div id="site-nav"></div>
+
+    <main>
+      <article>
+        <h1>Summer Festival 2026</h1>
+
+        <!-- Meta con fecha: el texto de la izquierda es el juego,
+             a la derecha la fecha de creacion/edicion. El atributo
+             datetime (formato ISO) es para SEO/lectores; el texto
+             visible es el que editas a mano cada vez que actualizas
+             la guia. -->
+        <p class="meta">
+          <span>Ragnarok Online · guia base</span>
+          <time datetime="2026-07-03">Actualizado: 3 jul 2026</time>
+        </p>
+
+        <p>El Festival de Verano ofrece seis actividades. Puedes participar en tantas como quieras; todas otorgan las
+          mismas monedas.</p>
+
+        <h2>Daily Supply Run</h2>
+        <p>Cada día, el Almirante Jack te pide que recolectes una breve lista de objetos de los monstruos de campo de una región específica. Tráelos de vuelta para obtener monedas.</p>
+
+        <ol class="step-list">
+          <li>
+            <button class="navi-btn" onclick="copyNavi(this, '/navi alberta 147/66')">NAVI</button> Habla con el Almirante Jack en Alberta.
+            <img src="https://wiki.uaro.net/img/summer_supply_run.webp" alt="Almirante Jack" class="guide-img step-img"
+              onclick="openLightbox(this.src)">
+          </li>
+        </ol>
+
+        <table class="daily-table">
+          <colgroup>
+            <col style="width: 5%">
+            <col style="width: 15%">
+            <col style="width: 45%">
+            <col style="width: 10%">
+            <col style="width: 25%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Día</th>
+              <th>Región</th>              
+              <th>Items</th>
+              <th>Ubicación</th>
+              <th>Recompensa</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="day-cell">1</td>
+              <td>Payon Fields</td>              
+              <td>34 Red Herb + 26 Strawberry</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi alberta 147/66')">NAVI</button></td>
+              <td>10 Coin + 5 Juice</td>
+            </tr>
+            <tr>
+              <td class="day-cell">2</td>
+              <td>Prontera Fields</td>              
+              <td>15 Shoot, 13 Green Herb, 12 Sticky Mucus</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi alberta 147/66')">NAVI</button></td>
+              <td>12 Coin + 5 Juice</td>
+            </tr>
+            <tr>
+              <td class="day-cell">3</td>
+              <td>Umbala Fields</td>              
+              <td>28 Worm Peeling, 35 Insect Feeler,  35 Stone</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi alberta 147/66')">NAVI</button></td>
+              <td>15 Coin + 5 Juice</td>
+            </tr>
+            <tr>
+              <td class="day-cell">4</td>
+              <td>Región día 4</td>              
+              <td>Items día 4</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi alberta 147/66')">NAVI</button></td>
+              <td>Recompensa día 4</td>
+            </tr>
+            <tr>
+              <td class="day-cell">5</td>
+              <td>Región día 5</td>              
+              <td>Items día 5</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi alberta 147/66')">NAVI</button></td>
+              <td>Recompensa día 5</td>
+            </tr>
+            <tr>
+              <td class="day-cell">6</td>
+              <td>Región día 6</td>              
+              <td>Items día 6</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi alberta 147/66')">NAVI</button></td>
+              <td>Recompensa día 6</td>
+            </tr>
+            <tr>
+              <td class="day-cell">7</td>
+              <td>Región día 7</td>              
+              <td>Items día 7</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi alberta 147/66')">NAVI</button></td>
+              <td>Recompensa día 7</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Yen's Summer Adventure</h2>
+        <p>Completa las 8 tareas para ganar el titulo "Summer Hero"</p>
+
+        <!-- Imagen clickeable: al hacer click abre el lightbox
+             (definido en components.css + lightbox.js) -->
+        <img src="../img/summer-festival-tasks.jpg" alt="Yen's Summer Adventure - lista de tareas" class="guide-img"
+          onclick="openLightbox(this.src)">
+
+        <!-- NPC y Ubicacion ahora son 2 columnas separadas: el nombre
+             del NPC va arriba (npc-name) y el boton NAVI que copia
+             la coordenada va debajo, dentro de la columna
+             "Ubicación" (td.loc-cell la centra, ver article.css). -->
+        <table>
+          <thead>
+            <tr>
+              <th>Tarea</th>
+              <th>NPC</th>
+              <th>Ubicación</th>
+              <th>Objetivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Furious Mummies</td>
+              <td>Volunteer Researcher</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi morocc 60/287')">NAVI</button></td>
+              <td>Derrota 6 Furious Mummies</td>
+            </tr>
+            <tr>
+              <td>Hungry Cats</td>
+              <td>Yen the Explorer</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi morocc 57/136')">NAVI</button></td>
+              <td>Alimenta a 3 Stray Cats nearby</td>
+            </tr>
+            <tr>
+              <td>A Little Errand</td>
+              <td>Little Girl</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi morocc 113/92')">NAVI</button></td>
+              <td>Compra un poco de jugo por 300z</td>
+            </tr>
+            <tr>
+              <td>Old Man's Project</td>
+              <td>Old Grandpa</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi morocc 273/237')">NAVI</button></td>
+              <td>Entrega 24 Feather of Birds + 24 Resin</td>
+            </tr>
+            <tr>
+              <td>The Sisters' Tale</td>
+              <td>Elira / Mavelle / Sariyah</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi morocc 204/285')">NAVI</button></td>
+              <td>Escucha su historia completa</td>
+            </tr>
+            <tr>
+              <td>Peco Problem</td>
+              <td>Desert Guard</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi morocc 177/39')">NAVI</button></td>
+              <td>Derrota 15 Peco Peco Eggs</td>
+            </tr>
+            <tr>
+              <td>Summer Trivia</td>
+              <td>Scholar</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi morocc 133/268')">NAVI</button></td>
+              <td>Responde 10 preguntas</td>
+            </tr>
+            <tr>
+              <td>Special Delivery</td>
+              <td>Spice Merchant</td>
+              <td class="loc-cell"><button class="navi-btn" onclick="copyNavi(this, '/navi morocc 90/33')">NAVI</button></td>
+              <td>Deliver a package to Izlude 94, 136 and report back</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>The Poring Journal</h2>
+        <h2>Beat the Heat</h2>
+        <h2>Festival Spirit</h2>
+        <h2>Furious Phreeoni</h2>
+
+        <a class="back" href="../guias.html">&larr; volver a guias</a>
+      </article>
+    </main>
+
+    <div id="site-footer"></div>
+
+  </div>
+
+  <!-- SITE_ROOT = "../" porque esta pagina esta dentro de /guias/ -->
+  <script>const SITE_ROOT = "../";</script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/lightbox.js"></script>
+</body>
+</html>

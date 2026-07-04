@@ -1,0 +1,123 @@
+/* ===================================================================
+   COMPONENTS.CSS
+   ---------------------------------------------------------------
+   Que es: piezas pequenas y reutilizables que se repiten en varias
+   guias: la imagen clickeable con su lightbox (modal de zoom) y el
+   boton NAVI que copia coordenadas.
+   Cuando tocarlo: si quieres cambiar el tamano de las imagenes de
+   guia, el fondo/animacion del lightbox, o el color/forma del
+   boton NAVI.
+   El HTML del lightbox lo inyecta js/lightbox.js, no hace falta
+   escribirlo en cada pagina.
+   =================================================================== */
+
+/* ---- IMAGEN CLICKEABLE ---------------------------------------------- */
+.guide-img {
+  display: block;
+  max-width: 500px;   /* tamano estandar para todas las guias */
+  width: 100%;         /* pero nunca mas ancho que su contenedor (responsive) */
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 8px;
+  cursor: zoom-in;
+  transition: opacity 0.2s;
+}
+.guide-img:hover { opacity: 0.85; }
+
+/* ---- IMAGEN DE PASO (dentro de un <li> de .step-list) ----------------
+   Version mas chica y "enmarcada" de .guide-img, para cuando la
+   imagen ilustra un paso puntual en vez de ser el contenido
+   principal. Se agranda recien al hacer click (mismo lightbox de
+   .guide-img); el hover solo la levanta un poco para insinuar que
+   es clickeable. */
+.step-img {
+  max-width: 240px;
+  margin: 10px 0 2px;
+  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.step-img:hover {
+  opacity: 1;
+  transform: scale(1.03);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+}
+
+/* ---- LISTA DE PASOS (ej. "Daily Supply Run") --------------------------
+   <ol class="step-list"> numerada para guiar paso a paso; cada
+   <li> puede llevar texto, boton NAVI e imagen juntos. */
+.step-list {
+  list-style-position: inside;   /* el numero "1." arranca pegado al
+                                     margen izquierdo, igual que el
+                                     texto del parrafo de arriba, en
+                                     vez de quedar "flotando" afuera */
+  padding-left: 0;
+  margin: 8px 0 24px;
+}
+.step-list li { margin-bottom: 16px; }
+
+/* ---- LIGHTBOX (modal de imagen ampliada) ----------------------------- */
+.lightbox {
+  display: none;              /* oculto hasta que se activa con .active */
+  position: fixed;
+  z-index: 999;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  justify-content: center;
+  align-items: center;
+  cursor: zoom-out;
+}
+.lightbox.active { display: flex; }
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* ---- BOTON NAVI (copia comando /navi al portapapeles) ----------------
+   Antes iba pegado al texto del NPC (margin-left). Ahora vive en su
+   propia columna de la tabla (columna "Ubicacion"), asi que no
+   necesita separacion a la izquierda. */
+.navi-btn {
+  display: inline-block;
+  min-width: 64px;    /* mismo ancho para "NAVI" y "Copiado", asi el
+                          boton no se agranda/deforma al cambiar de texto */
+  padding: 2px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  vertical-align: middle;
+}
+.navi-btn:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+/* Se agrega con JS por un instante despues de hacer click, para
+   confirmar visualmente que el texto se copio. */
+.navi-btn.copied {
+  background: var(--ink);
+  color: var(--bg);
+}

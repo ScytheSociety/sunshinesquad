@@ -1,0 +1,21 @@
+/* ===================================================================
+   RESPONSIVE.CSS
+   ---------------------------------------------------------------
+   Que es: ajustes que SOLO aplican en pantallas angostas (celular).
+   Cuando tocarlo: si algo se ve mal o muy apretado en movil.
+   Este archivo va AL FINAL de todos los <link> en el <head>, para
+   que sus reglas puedan sobreescribir a las de los demas archivos
+   cuando la pantalla es chica.
+   =================================================================== */
+
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .masthead { padding: 40px 0 22px; }
+  .nav { gap: 18px; letter-spacing: 0.12em; }
+  .entry { flex-wrap: wrap; gap: 4px 16px; }
+
+  /* En movil no hay "hover", asi que el dropdown de Guias no se
+     puede abrir pasando el mouse. Lo dejamos oculto: el link
+     "Guias" sigue funcionando normal y lleva a guias.html. */
+  .nav-dropdown-menu { display: none !important; }
+}

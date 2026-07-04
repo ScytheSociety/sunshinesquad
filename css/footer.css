@@ -1,0 +1,22 @@
+/* ===================================================================
+   FOOTER.CSS
+   ---------------------------------------------------------------
+   Que es: el pie de pagina (copyright + link a github).
+   Cuando tocarlo: si quieres cambiar el estilo visual del footer
+   (colores, espaciado). El TEXTO del footer ya no se edita aqui:
+   se edita en js/layout.js, porque el footer se inyecta igual en
+   todas las paginas.
+   =================================================================== */
+
+.foot {
+  border-top: 2px solid var(--ink-rule);
+  padding: 24px 0 48px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.foot a { color: var(--ink); text-decoration: none; }
+.foot a:hover { text-decoration: underline; }

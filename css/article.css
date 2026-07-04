@@ -1,0 +1,174 @@
+/* ===================================================================
+   ARTICLE.CSS
+   ---------------------------------------------------------------
+   Que es: todo lo relacionado a CONTENIDO:
+     1) el bloque "lead" e index (listas de blog/guias en index.html)
+     2) el contenido de un articulo/guia individual (h1, h2, p,
+        tablas, meta con fecha, boton "volver").
+   Cuando tocarlo: si quieres cambiar como se ven los titulos dentro
+   de una guia, el espaciado de parrafos, el estilo de las tablas,
+   o como se muestra la fecha de creacion/edicion.
+   =================================================================== */
+
+main { padding: 40px 0 64px; }
+
+.lead {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin: 0 0 8px;
+  max-width: 60ch;
+}
+
+.section-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ink);
+  margin: 48px 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+/* la linea horizontal que sigue al texto del label (ej. "Ultimo del blog ————") */
+.section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* ---- LISTA DE ENTRADAS (blog / guias en index.html) ----------------- */
+.entries { list-style: none; margin: 0; padding: 0; }
+.entries li { border-bottom: 1px solid var(--rule); }
+
+.entry {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: 16px 0;
+  text-decoration: none;
+  color: var(--ink);
+  transition: padding 0.12s ease;
+}
+.entry:hover { background: #f6f6f6; padding-left: 10px; padding-right: 10px; }
+.entry .date { color: var(--muted); font-size: 0.82rem; white-space: nowrap; flex: 0 0 auto; }
+.entry .title { flex: 1; font-weight: 500; }
+.entry .arrow { color: var(--muted); }
+.entry:hover .arrow { color: var(--ink); }
+
+/* ---- ARTICULO (contenido de una guia o post individual) -------------
+   Antes: max-width: 68ch (limitaba el ancho para que las lineas de
+   texto no fueran demasiado largas). Ahora: sin limite propio, para
+   que ocupe TODO el ancho de .wrap (el mismo ancho de la linea del
+   header y el nav). Si en el futuro un texto muy largo se ve
+   incomodo de leer, se puede volver a poner un max-width aqui. */
+article { max-width: none; }
+
+article h1 {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 8px 0 6px;
+}
+
+/* Linea de "meta": juego + fecha de creacion/edicion.
+   display:flex con justify-content:space-between separa el texto
+   del juego (izquierda) y la fecha (derecha). flex-wrap hace que
+   en pantallas angostas la fecha baje a una segunda linea en vez
+   de encimarse. */
+article .meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 32px;
+}
+article .meta time { font-size: 0.8rem; }
+
+article h2 { font-size: 1.3rem; font-weight: 700; margin: 40px 0 8px; }
+article h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 28px 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+/* text-align:justify estira cada linea para que el texto llegue
+   parejo al borde derecho (como en un periodico/libro). hyphens:auto
+   ayuda a que no queden espacios muy grandes entre palabras cuando
+   una palabra larga no entra completa en la linea. */
+article p {
+  margin: 0 0 18px;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+}
+article a { color: var(--ink); text-underline-offset: 3px; }
+article ul, article ol { padding-left: 1.2em; }
+article li { margin: 6px 0; }
+article code { background: #f2f2f2; padding: 1px 6px; border: 1px solid var(--rule); font-size: 0.9em; }
+article pre { background: #0a0a0a; color: #f5f5f5; padding: 18px 20px; overflow-x: auto; font-size: 0.86rem; line-height: 1.5; }
+article pre code { background: none; border: none; padding: 0; color: inherit; }
+article blockquote { margin: 20px 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--ink); color: var(--muted); }
+
+article table { border-collapse: collapse; width: 100%; margin: 20px 0; font-size: 0.9rem; }
+article th, article td {
+  border: 1px solid var(--rule);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+/* El texto de las celdas de tabla NO se justifica (se ve raro en
+   columnas cortas); solo se justifican los parrafos normales. */
+article td { text-align: left; }
+
+/* Encabezado: un azul-gris muy suave, elegante, no un gris plano. */
+article th {
+  background: #eef1f5;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  border-bottom: 2px solid #d8dee6;
+}
+
+/* Zebra striping: filas pares en gris muy claro, impares en blanco.
+   nth-child(even) cuenta las filas del <tbody>, no del <table>
+   completo, asi que el <thead> no se ve afectado. */
+article tbody tr:nth-child(odd)  { background: #ffffff; }
+article tbody tr:nth-child(even) { background: #f7f8fa; }
+
+/* Columna "Ubicación": centrada, para que el boton NAVI quede
+   prolijo en el medio de la columna en vez de pegado a un texto. */
+article td.loc-cell {
+  text-align: center;
+}
+
+/* Tabla de Daily Supply Run (.daily-table): con layout automatico
+   el navegador reparte el ancho sobrante entre columnas sin mirar
+   cuanto contenido tienen de verdad (por eso "Día" y "Ubicación"
+   quedaban tan anchas como "Región" o "Items"). table-layout:fixed
+   + los <col style="width:%"> del <colgroup> en el HTML fuerzan el
+   ancho exacto de cada columna. */
+.daily-table { table-layout: fixed; }
+.daily-table td.day-cell { text-align: center; }
+.daily-table th:nth-child(1),
+.daily-table th:nth-child(4) {
+  text-align: center;
+}
+
+.back {
+  display: inline-block;
+  margin-top: 40px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink);
+  text-decoration: none;
+}
+.back:hover { text-decoration: underline; }
