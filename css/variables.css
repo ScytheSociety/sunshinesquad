@@ -34,4 +34,10 @@
   --stream:    #4f46e5;
   --stream-soft:#eef2ff;
   --stream-bd: #c7d2fe;
+
+  /* ── Género — bordes de avatar ───────────────────── */
+  --female:    #f472b6;   /* rosa  — rol 1426916942622756924 */
+  --female-bg: #fdf2f8;
+  --male:      #fbbf24;   /* amarillo — rol 1426917000550285382 */
+  --male-bg:   #fffbeb;
 }

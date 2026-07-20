@@ -200,10 +200,11 @@
     try {
       const b = await fetch(`${API}api/birthdays/next`).then(r => r.json());
       if (!b || !b.display_name) return;
-      const zodiac = getZodiac(b.birthday_date);
+      const zodiac  = getZodiac(b.birthday_date);
+      const gClass  = b.gender === 'female' ? 'avatar-f' : 'avatar-m';
       document.getElementById('bday-container').innerHTML = `
         <div class="bday-card">
-          <div class="bday-avatar">
+          <div class="bday-avatar ${gClass}">
             ${b.avatar
               ? `<img src="${b.avatar}" alt="${escH(b.display_name)}">`
               : (b.gender === 'female' ? '👩' : '👨')}
