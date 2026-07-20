@@ -17,17 +17,19 @@
   min-height: 60px;
 }
 
-/* Logo */
+/* Logo — el JS reemplaza el texto con la imagen */
 .site-logo {
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
   text-decoration: none;
-  color: var(--ink);
-  white-space: nowrap;
   flex-shrink: 0;
-  line-height: 1.1;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.site-logo img {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 
 /* ── NAV ─────────────────────────────────────────────── */
@@ -50,14 +52,13 @@
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s;
   line-height: 1;
 }
 
 .site-nav a:hover,
-.site-nav .nav-dropdown > span:hover { color: var(--ink); border-bottom-color: var(--ink); }
-.site-nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+.site-nav .nav-dropdown > span:hover { color: var(--ink); }
+.site-nav a[aria-current="page"] { color: var(--ink); }
 
 /* Auth links al extremo derecho */
 .nav-auth {
@@ -80,6 +81,52 @@
   height: 28px;
   border-radius: 50%;
   border: 1px solid var(--rule);
+}
+
+/* ── BOTONES DE AUTH (alta especificidad para no quedar aplastados por .site-nav a:hover) */
+.nav-auth .btn {
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  border: 2px solid var(--ink);
+  color: var(--ink) !important;
+  background: transparent;
+  border-radius: 6px;
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  display: inline-block;
+}
+.nav-auth .btn:hover {
+  background: var(--ink) !important;
+  color: #fff !important;
+  border-color: var(--ink) !important;
+}
+
+/* Botón Admin — morado */
+.nav-auth .btn-admin {
+  border-color: var(--bday) !important;
+  color: var(--bday) !important;
+}
+.nav-auth .btn-admin:hover {
+  background: var(--bday) !important;
+  border-color: var(--bday) !important;
+  color: #fff !important;
+}
+
+/* Botón Salir — rojo */
+.nav-auth .btn-logout {
+  border-color: var(--ro) !important;
+  color: var(--ro) !important;
+}
+.nav-auth .btn-logout:hover {
+  background: var(--ro) !important;
+  border-color: var(--ro) !important;
+  color: #fff !important;
 }
 
 /* ── DROPDOWN ────────────────────────────────────────── */
@@ -133,12 +180,52 @@
   line-height: 0.95;
   text-transform: uppercase;
   margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.hero-gif {
+  height: clamp(60px, 10vw, 100px);
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
 .hero-tagline {
   font-size: 0.95rem;
   color: var(--muted);
   letter-spacing: 0.06em;
+}
+
+/* ── SECCIÓN INTRO ───────────────────────────────────── */
+.intro-section {
+  padding: 52px 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.intro-section .inner {
+  max-width: 860px;
+  text-align: center;
+}
+
+.intro-lead {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+.intro-motto {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 /* ── HAMBURGER (móvil) ───────────────────────────────── */

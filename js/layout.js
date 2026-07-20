@@ -26,6 +26,12 @@
   `;
 
   document.addEventListener('DOMContentLoaded', () => {
+    /* ── Logo: reemplazar texto por imagen ──────────── */
+    const logoEl = document.querySelector('.site-logo');
+    if (logoEl) {
+      logoEl.innerHTML = `<img src="${R}img/logo/sunshine_squad.png" alt="Sunshine Squad">`;
+    }
+
     /* ── Inyectar nav ─────────────────────────────── */
     const navSlot = document.getElementById('site-nav-slot');
     if (navSlot) navSlot.outerHTML = NAV_HTML;
@@ -59,10 +65,10 @@
         .then(r => r.ok ? r.json() : null)
         .then(user => {
           if (!user) {
-            authArea.innerHTML = `<a href="${R}api/auth/discord" class="btn btn-sm">Login Discord</a>`;
+            authArea.innerHTML = `<a href="${R}api/auth/discord" class="btn">Login Discord</a>`;
           } else {
             const adminLink = user.is_owner
-              ? `<a href="${R}admin.html" class="btn btn-sm" style="border-color:var(--bday);color:var(--bday)">Admin</a>`
+              ? `<a href="${R}admin.html" class="btn btn-admin">Admin</a>`
               : '';
             authArea.innerHTML = `
               <div class="nav-user">
@@ -70,12 +76,12 @@
                 <span>${user.username}</span>
               </div>
               ${adminLink}
-              <a href="${R}api/auth/logout" class="btn btn-sm">Salir</a>
+              <a href="${R}api/auth/logout" class="btn btn-logout">Salir</a>
             `;
           }
         })
         .catch(() => {
-          authArea.innerHTML = `<a href="${R}api/auth/discord" class="btn btn-sm">Login Discord</a>`;
+          authArea.innerHTML = `<a href="${R}api/auth/discord" class="btn">Login Discord</a>`;
         });
     }
   });
