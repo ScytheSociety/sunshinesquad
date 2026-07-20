@@ -4,59 +4,118 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog · Sunshine Squad</title>
-  <meta name="description" content="Blog de Sunshine Squad.">
-  <link rel="icon" type="image/png" href="img/sunshine_squad.png">
+  <meta name="description" content="Todas las entradas del blog de Sunshine Squad.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-
-  <!-- CSS separado por funcion. El orden importa: variables primero,
-       responsive.css siempre al final para que pueda sobreescribir. -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/footer.css">
-  <link rel="stylesheet" href="css/article.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <div class="wrap">
 
-    <header class="masthead">
-      <!-- Logo con gif entre las dos palabras (ver css/header.css) -->
-      <h1 class="nameplate">
-        Sunshine
-        <img src="img/sunshine_squad_animated.gif" alt="" class="nameplate-gif">
-        Squad
-      </h1>
-      <p class="tagline">Scythe Society · comunidad de juego, blog y guias</p>
-    </header>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="site-logo" href="index.html">Sunshine<br>Squad</a>
+      <div id="site-nav-slot"></div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menú">☰</button>
+    </div>
+  </header>
 
-    <!-- Nav y footer ya NO se escriben aqui: layout.js los inyecta.
-         SITE_ROOT = "" porque blog.html esta en la raiz del sitio. -->
-    <div id="site-nav"></div>
+  <main>
+    <section class="section">
+      <div class="inner">
+        <div class="section-head">
+          <h1 class="section-title blog">Blog</h1>
+          <button class="btn btn-sm" id="btn-new-post" style="display:none">+ Nuevo post</button>
+        </div>
 
-    <main>
-      <p class="lead">Todo lo que escribo, de lo mas nuevo a lo mas viejo.</p>
+        <div class="blog-grid" id="blog-grid"></div>
 
-      <!-- LISTA DE POSTS: duplica un <li> por cada entrada nueva.
-           Lo mas reciente arriba. Formato de fecha: AAAA.MM.DD -->
-      <ul class="entries" style="margin-top:32px">
-        <li><a class="entry" href="posts/bienvenida.html">
-          <span class="date">2026.07.03</span>
-          <span class="title">Arranca la nueva web</span>
-          <span class="arrow">&rarr;</span>
-        </a></li>
-      </ul>
-    </main>
+        <div style="text-align:center;margin-top:36px" id="load-more-wrap" hidden>
+          <button class="btn" id="btn-load-more">Cargar más &darr;</button>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <div id="site-footer"></div>
+  <div id="site-footer-slot"></div>
 
-  </div>
-
-  <!-- SITE_ROOT debe declararse ANTES de layout.js -->
   <script>const SITE_ROOT = "";</script>
   <script src="js/layout.js"></script>
+  <script>
+  let page = 0;
+  const PER_PAGE = 12;
+
+  function escH(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  async function loadPosts() {
+    const grid = document.getElementById('blog-grid');
+    const btn  = document.getElementById('btn-load-more');
+    if (btn) btn.textContent = 'Cargando…';
+    try {
+      const data = await fetch(`api/posts?limit=${PER_PAGE}&offset=${page * PER_PAGE}`).then(r => r.json());
+      if (!data.length && page === 0) {
+        grid.innerHTML = '<p style="color:var(--muted)">Sin entradas todavía.</p>';
+        return;
+      }
+      data.forEach(p => {
+        const card = document.createElement('a');
+        card.className = 'blog-card';
+        card.href = `post.html?id=${p.id}`;
+        card.innerHTML = `
+          ${p.thumbnail
+            ? `<img class="blog-card-thumb" src="${p.thumbnail}" alt="${escH(p.title)}" loading="lazy">`
+            : `<div class="blog-card-thumb-placeholder">✏️</div>`}
+          <div class="blog-card-body">
+            <span class="blog-card-date">${fmtDate(p.created_at)}</span>
+            <span class="blog-card-title">${escH(p.title)}</span>
+            <span class="blog-card-excerpt">${escH(p.excerpt || '')}</span>
+            <span class="blog-card-more">Leer más &rarr;</span>
+          </div>`;
+        grid.appendChild(card);
+      });
+      page++;
+      const wrap = document.getElementById('load-more-wrap');
+      if (data.length < PER_PAGE) {
+        if (wrap) wrap.hidden = true;
+      } else {
+        if (wrap) wrap.hidden = false;
+        if (btn) btn.textContent = 'Cargar más ↓';
+      }
+    } catch {
+      if (page === 0) document.getElementById('blog-grid').innerHTML =
+        '<p style="color:var(--muted)">No se pudo cargar el blog.</p>';
+      if (btn) btn.textContent = 'Reintentar';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadPosts();
+    document.getElementById('btn-load-more')?.addEventListener('click', loadPosts);
+
+    /* Mostrar botón "Nuevo post" si owner */
+    fetch('api/auth/me', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(u => {
+        if (u?.is_owner) {
+          const btn = document.getElementById('btn-new-post');
+          if (btn) {
+            btn.style.display = '';
+            btn.addEventListener('click', () => { location.href = 'post-editor.html'; });
+          }
+        }
+      }).catch(() => {});
+  });
+  </script>
 </body>
 </html>

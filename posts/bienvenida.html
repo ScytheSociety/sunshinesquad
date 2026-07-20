@@ -3,71 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- CAMBIA el titulo por el de tu post -->
   <title>Arranca la nueva web · Sunshine Squad</title>
-  <link rel="icon" type="image/png" href="../img/sunshine_squad.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-
-  <!-- OJO: al estar en la carpeta /posts, las rutas de CSS/img llevan ../ -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/header.css">
-  <link rel="stylesheet" href="../css/footer.css">
-  <link rel="stylesheet" href="../css/article.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/responsive.css">
 </head>
 <body>
-  <div class="wrap">
 
-    <header class="masthead">
-      <h1 class="nameplate">
-        Sunshine
-        <img src="../img/sunshine_squad_animated.gif" alt="" class="nameplate-gif">
-        Squad
-      </h1>
-      <p class="tagline">Scythe Society · comunidad de juego, blog y guias</p>
-    </header>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="site-logo" href="../index.html">Sunshine<br>Squad</a>
+      <div id="site-nav-slot"></div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menú">☰</button>
+    </div>
+  </header>
 
-    <!-- Nav y footer ya NO se escriben aqui: layout.js los inyecta.
-         SITE_ROOT = "../" porque esta pagina esta dentro de /posts/. -->
-    <div id="site-nav"></div>
+  <main>
+    <div class="inner">
+      <div class="article-wrap">
+        <a class="article-back" href="../blog.html">&larr; Blog</a>
 
-    <main>
-      <article>
-        <!-- ====== DE AQUI PARA ABAJO ES TU CONTENIDO ====== -->
-        <h1>Arranca la nueva web</h1>
-        <p class="meta">2026.07.03 · Geancarlo</p>
+        <h1 class="article-title">Arranca la nueva web</h1>
+        <div class="article-meta">
+          <span>Geancarlo</span>
+          <time datetime="2026-07-03">2026.07.03</time>
+        </div>
 
-        <p>Reinicie la pagina desde cero. La idea es simple: algo directo, en blanco
-        y negro, con fuente monoespaciada, donde pueda escribir y publicar guias sin
-        pelear con nada.</p>
+        <div class="article-body">
+          <p>Reinicié la página desde cero. La idea es simple: algo directo, limpio, con fuente monoespaciada, donde pueda escribir y publicar guías sin pelear con nada.</p>
 
-        <h2>Que vas a encontrar</h2>
-        <p>Dos cosas, nada mas:</p>
-        <ul>
-          <li>El <a href="../blog.html">blog</a>, donde escribo lo que voy pensando.</li>
-          <li>Las <a href="../guias.html">guias</a> por juego, cortas y al grano.</li>
-        </ul>
+          <h2>Qué vas a encontrar</h2>
+          <p>Tres cosas:</p>
+          <ul>
+            <li>El <a href="../blog.html">blog</a>, donde escribo lo que voy pensando.</li>
+            <li>Las <a href="../guias.html">guías</a> por juego, cortas y al grano.</li>
+            <li>El stream de Twitch integrado en la página de inicio.</li>
+          </ul>
 
-        <h2>Como se ve un bloque de codigo</h2>
-        <pre><code>/navi prontera 155/183</code></pre>
+          <h2>Por qué JetBrains Mono</h2>
+          <p>Porque me gusta cómo se lee en pantalla y porque es lo que uso para programar. El sitio está hecho con la misma mentalidad: sin adornos, al grano.</p>
 
-        <blockquote>Solo se pierde la lucha que se abandona.</blockquote>
+          <blockquote>Solo se pierde la lucha que se abandona.</blockquote>
+        </div>
 
-        <!-- ====== FIN DEL CONTENIDO ====== -->
+        <div class="comments-section">
+          <h2 class="comments-title">Comentarios</h2>
+          <ul class="comment-list">
+            <li style="color:var(--muted);font-size:.9rem">Sin comentarios todavía. ¡Sé el primero!</li>
+          </ul>
+          <p class="comment-login-note">
+            <a href="../api/auth/discord">Inicia sesión con Discord</a> para comentar.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
 
-        <a class="back" href="../blog.html">&larr; volver al blog</a>
-      </article>
-    </main>
+  <div id="site-footer-slot"></div>
 
-    <div id="site-footer"></div>
-
-  </div>
-
-  <!-- SITE_ROOT debe declararse ANTES de layout.js -->
   <script>const SITE_ROOT = "../";</script>
   <script src="../js/layout.js"></script>
 </body>

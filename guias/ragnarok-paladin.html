@@ -4,77 +4,144 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Paladin — build y arranque · Sunshine Squad</title>
-  <link rel="icon" type="image/png" href="../img/sunshine_squad.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-
-  <!-- Misma lista de CSS que index.html, pero con "../" porque esta
-       pagina esta un nivel mas adentro (dentro de /guias/) -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/header.css">
-  <link rel="stylesheet" href="../css/footer.css">
-  <link rel="stylesheet" href="../css/article.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/responsive.css">
 </head>
 <body>
-  <div class="wrap">
 
-    <header class="masthead">
-      <h1 class="nameplate">
-        Sunshine
-        <img src="../img/sunshine_squad_animated.gif" alt="" class="nameplate-gif">
-        Squad
-      </h1>
-      <p class="tagline">Scythe Society · comunidad de juego, blog y guias</p>
-    </header>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="site-logo" href="../index.html">Sunshine<br>Squad</a>
+      <div id="site-nav-slot"></div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menú">☰</button>
+    </div>
+  </header>
 
-    <!-- Nav y footer ya NO se escriben aqui: layout.js los inyecta.
-         SITE_ROOT = "../" porque esta pagina esta dentro de /guias/. -->
-    <div id="site-nav"></div>
+  <main>
+    <div class="inner">
+      <div class="article-wrap">
+        <a class="article-back" href="../guias.html">&larr; Guías</a>
 
-    <main>
-      <article>
-        <h1>Paladin — build y arranque</h1>
-        <p class="meta">Ragnarok Online · guia base</p>
+        <h1 class="article-title">Paladin — build y arranque</h1>
+        <div class="article-meta">
+          <span class="game-badge ro">Ragnarok Online</span>
+          <span>uaRO · guía base</span>
+        </div>
 
-        <p>Guia corta para levantar un Paladin sin marearte. Solo lo esencial para
-        arrancar bien.</p>
+        <div class="article-body">
+          <p>Guía corta para levantar un Paladin sin marearte. Solo lo esencial para arrancar bien.</p>
 
-        <h2>Reparto de stats</h2>
-        <table>
-          <thead>
-            <tr><th>Stat</th><th>Para que</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>VIT</td><td>Aguante, base del tanque</td></tr>
-            <tr><td>STR</td><td>Dano cuerpo a cuerpo</td></tr>
-            <tr><td>DEX</td><td>Precision y cast</td></tr>
-          </tbody>
-        </table>
+          <h2>Reparto de stats</h2>
+          <table>
+            <thead><tr><th>Stat</th><th>Para qué</th></tr></thead>
+            <tbody>
+              <tr><td>VIT</td><td>Aguante, base del tanque</td></tr>
+              <tr><td>STR</td><td>Daño cuerpo a cuerpo</td></tr>
+              <tr><td>DEX</td><td>Precisión y cast</td></tr>
+            </tbody>
+          </table>
 
-        <h2>Primeros pasos</h2>
-        <ol>
-          <li>Pasa por Eden Group para equipo inicial gratis.</li>
-          <li>Sube en zonas acordes a tu nivel.</li>
-          <li>Ajusta la build segun juegues solo o en party.</li>
-        </ol>
+          <h2>Primeros pasos</h2>
+          <ol>
+            <li>Pasa por Eden Group para equipo inicial gratis.</li>
+            <li>Sube en zonas acordes a tu nivel.</li>
+            <li>Ajusta la build según juegues solo o en party.</li>
+          </ol>
 
-        <h3>Comando util</h3>
-        <pre><code>/navi prontera 155/183</code></pre>
+          <h3>Comando útil</h3>
+          <pre><code>/navi prontera 155/183</code></pre>
+        </div>
 
-        <a class="back" href="../guias.html">&larr; volver a guias</a>
-      </article>
-    </main>
+        <div class="comments-section" id="comments">
+          <h2 class="comments-title">Comentarios</h2>
+          <ul class="comment-list" id="comment-list">
+            <li style="color:var(--muted);font-size:.9rem">Cargando comentarios&hellip;</li>
+          </ul>
+          <div id="comment-form-wrap">
+            <p class="comment-login-note">
+              <a href="../api/auth/discord">Inicia sesión con Discord</a> para comentar.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 
-    <div id="site-footer"></div>
+  <div id="site-footer-slot"></div>
 
-  </div>
-
-  <!-- SITE_ROOT debe declararse ANTES de layout.js -->
   <script>const SITE_ROOT = "../";</script>
   <script src="../js/layout.js"></script>
+  <script src="../js/lightbox.js"></script>
+  <script>
+  /* Este archivo es una guía estática (legado).
+     En Fase 5 será reemplazado por guia.html?id=X con datos de la API. */
+  const GUIDE_SLUG = 'ragnarok-paladin';
+
+  function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtDate(iso) {
+    const d = new Date(iso);
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const user = await fetch('../api/auth/me', { credentials: 'include' }).then(r => r.ok ? r.json() : null).catch(() => null);
+
+      /* Formulario de comentario si logueado */
+      if (user) {
+        document.getElementById('comment-form-wrap').innerHTML = `
+          <form class="comment-form" id="comment-form">
+            <textarea placeholder="Tu comentario…" required maxlength="1000"></textarea>
+            <div><button class="btn btn-sm" type="submit">Comentar</button></div>
+          </form>`;
+        document.getElementById('comment-form').addEventListener('submit', async e => {
+          e.preventDefault();
+          const text = e.target.querySelector('textarea').value.trim();
+          if (!text) return;
+          await fetch('../api/comments', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'guide', target_slug: GUIDE_SLUG, content: text }),
+          });
+          e.target.querySelector('textarea').value = '';
+          loadComments();
+        });
+      }
+
+      /* Cargar comentarios */
+      loadComments();
+    } catch { /* sin backend */ }
+
+    async function loadComments() {
+      try {
+        const comments = await fetch(`../api/comments?type=guide&slug=${GUIDE_SLUG}`).then(r => r.json());
+        const list = document.getElementById('comment-list');
+        if (!comments.length) { list.innerHTML = '<li style="color:var(--muted);font-size:.9rem">Sin comentarios todavía. ¡Sé el primero!</li>'; return; }
+        list.innerHTML = comments.map(c => `
+          <li class="comment">
+            <div class="comment-avatar">
+              ${c.avatar ? `<img src="${escH(c.avatar)}" alt="${escH(c.username)}">` : ''}
+            </div>
+            <div class="comment-body">
+              <div class="comment-header">
+                <span class="comment-author">${escH(c.username)}</span>
+                <span class="comment-date">${fmtDate(c.created_at)}</span>
+              </div>
+              <p class="comment-text">${escH(c.content)}</p>
+            </div>
+          </li>`).join('');
+      } catch {
+        document.getElementById('comment-list').innerHTML = '';
+      }
+    }
+  });
+  </script>
 </body>
 </html>

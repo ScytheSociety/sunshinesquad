@@ -4,71 +4,258 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunshine Squad</title>
-  <meta name="description" content="Comunidad de juego de Scythe Society. Blog y guias.">
-  <link rel="icon" type="image/png" href="img/sunshine_squad.png">
+  <meta name="description" content="Comunidad gaming de Scythe Society — blog, guías de Ragnarok Online y World of Warcraft.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-
-  <!-- CSS separado por funcion. El orden importa: variables primero,
-       responsive.css siempre al final para que pueda sobreescribir. -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/footer.css">
-  <link rel="stylesheet" href="css/article.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <div class="wrap">
 
-    <header class="masthead">
-      <!-- Logo con gif entre las dos palabras. El .cursor de antes
-           se reemplazo por img.nameplate-gif (ver css/header.css) -->
-      <h1 class="nameplate">
-        Sunshine
-        <img src="img/sunshine_squad_animated.gif" alt="" class="nameplate-gif">
-        Squad
-      </h1>
-      <p class="tagline">Scythe Society · comunidad de juego, blog y guias</p>
-    </header>
+  <!-- ── HEADER ─────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="site-logo" href="index.html">Sunshine<br>Squad</a>
+      <div id="site-nav-slot"></div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menú">☰</button>
+    </div>
+  </header>
 
-    <!-- Nav y footer ya NO se escriben aqui: layout.js los inyecta.
-         SITE_ROOT = "" porque index.html esta en la raiz del sitio. -->
-    <div id="site-nav"></div>
-
-    <main>
-      <p class="lead">Aqui escribo lo que voy aprendiendo y armo guias directas para los
-      juegos de la comunidad. Sin adornos: al grano.</p>
-
-      <!-- ULTIMO DEL BLOG: pega aqui las 3-4 entradas mas recientes -->
-      <h2 class="section-label">Ultimo del blog</h2>
-      <ul class="entries">
-        <li><a class="entry" href="posts/bienvenida.html">
-          <span class="date">2026.07.03</span>
-          <span class="title">Arranca la nueva web</span>
-          <span class="arrow">&rarr;</span>
-        </a></li>
-      </ul>
-
-      <!-- GUIAS: pega aqui las guias destacadas -->
-      <h2 class="section-label">Guias</h2>
-      <ul class="entries">
-        <li><a class="entry" href="guias/ragnarok-paladin.html">
-          <span class="date">Ragnarok</span>
-          <span class="title">Paladin — build y arranque</span>
-          <span class="arrow">&rarr;</span>
-        </a></li>
-      </ul>
-    </main>
-
-    <div id="site-footer"></div>
-
+  <!-- ── HERO ───────────────────────────────────────── -->
+  <div class="site-hero">
+    <div class="inner">
+      <h1 class="hero-title">Sunshine Squad</h1>
+      <p class="hero-tagline">Scythe Society &mdash; comunidad gaming &mdash; blog &amp; guías</p>
+    </div>
   </div>
 
-  <!-- SITE_ROOT debe declararse ANTES de layout.js -->
+  <main>
+
+    <!-- ── STREAM ─────────────────────────────────────── -->
+    <section class="section stream-section" id="section-stream">
+      <div class="inner">
+        <div class="section-head">
+          <h2 class="section-title stream">Stream en vivo</h2>
+        </div>
+        <div class="stream-layout" id="stream-layout">
+          <!-- Se carga por JS con el canal desde config -->
+          <div class="stream-offline" id="stream-embed">
+            <span style="font-size:2rem">📺</span>
+            <span>Cargando stream&hellip;</span>
+          </div>
+          <div class="stream-frame" id="stream-chat" style="min-height:400px">
+            <div class="stream-offline">
+              <span style="font-size:1.5rem">💬</span>
+              <span>Chat</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── BLOG ───────────────────────────────────────── -->
+    <section class="section" id="section-blog">
+      <div class="inner">
+        <div class="section-head">
+          <h2 class="section-title blog">Últimas entradas</h2>
+          <a href="blog.html" class="section-link">Ver todas &rarr;</a>
+        </div>
+        <div class="blog-grid" id="blog-grid">
+          <!-- Placeholder mientras carga la API -->
+          <div class="blog-card" style="pointer-events:none;opacity:.5">
+            <div class="blog-card-thumb-placeholder">✏️</div>
+            <div class="blog-card-body">
+              <span class="blog-card-date">Cargando&hellip;</span>
+              <span class="blog-card-title">—</span>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:28px">
+          <a href="blog.html" class="btn">Ver todos los posts &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── GUÍAS ──────────────────────────────────────── -->
+    <section class="section" id="section-guides">
+      <div class="inner">
+        <div class="section-head">
+          <h2 class="section-title">Últimas guías</h2>
+          <a href="guias.html" class="section-link">Ver todas &rarr;</a>
+        </div>
+        <ul class="guide-list" id="guide-list">
+          <li style="padding:14px 0;color:var(--muted);font-size:.9rem">Cargando&hellip;</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ── CUMPLEAÑOS ─────────────────────────────────── -->
+    <section class="section bday-section" id="section-birthday">
+      <div class="inner">
+        <div class="section-head">
+          <h2 class="section-title bday">Próximo cumpleaños</h2>
+        </div>
+        <div id="bday-container">
+          <div class="bday-card" style="opacity:.5">
+            <div class="bday-avatar">🎂</div>
+            <div class="bday-info">
+              <div class="bday-label">Próximo cumpleaños</div>
+              <div class="bday-name">Cargando&hellip;</div>
+              <div class="bday-date">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="site-footer-slot"></div>
+
   <script>const SITE_ROOT = "";</script>
   <script src="js/layout.js"></script>
+  <script>
+  /* ── Cargar datos dinámicos desde la API ─── */
+  const API = '';
+
+  /* Stream */
+  (async () => {
+    try {
+      const cfg = await fetch(`${API}api/config`).then(r => r.json());
+      const ch  = cfg.twitch_channel || 'sunshinesquadsss';
+      const host = encodeURIComponent(location.hostname || 'sunshinesquad.es');
+
+      document.getElementById('stream-embed').outerHTML = `
+        <div class="stream-frame">
+          <iframe
+            src="https://player.twitch.tv/?channel=${ch}&parent=${host}&autoplay=true&muted=false"
+            allowfullscreen>
+          </iframe>
+        </div>`;
+
+      document.getElementById('stream-chat').outerHTML = `
+        <div class="stream-frame">
+          <iframe
+            src="https://www.twitch.tv/embed/${ch}/chat?parent=${host}&darkpopout"
+            >
+          </iframe>
+        </div>`;
+    } catch {
+      document.getElementById('stream-embed').innerHTML =
+        '<span style="font-size:2rem">📺</span><span>Stream no disponible</span>';
+    }
+  })();
+
+  /* Blog — últimas 5 */
+  (async () => {
+    try {
+      const posts = await fetch(`${API}api/posts?limit=5`).then(r => r.json());
+      const grid  = document.getElementById('blog-grid');
+      if (!posts.length) { grid.innerHTML = '<p style="color:var(--muted)">Sin entradas aún.</p>'; return; }
+      grid.innerHTML = posts.map(p => `
+        <a class="blog-card" href="post.html?id=${p.id}">
+          ${p.thumbnail
+            ? `<img class="blog-card-thumb" src="${p.thumbnail}" alt="${escH(p.title)}" loading="lazy">`
+            : `<div class="blog-card-thumb-placeholder">✏️</div>`}
+          <div class="blog-card-body">
+            <span class="blog-card-date">${fmtDate(p.created_at)}</span>
+            <span class="blog-card-title">${escH(p.title)}</span>
+            <span class="blog-card-excerpt">${escH(p.excerpt || '')}</span>
+            <span class="blog-card-more">Leer más &rarr;</span>
+          </div>
+        </a>`).join('');
+    } catch {
+      document.getElementById('blog-grid').innerHTML =
+        '<p style="color:var(--muted)">No se pudieron cargar las entradas.</p>';
+    }
+  })();
+
+  /* Guías — últimas 10 combinadas */
+  (async () => {
+    try {
+      const guides = await fetch(`${API}api/guides?limit=10`).then(r => r.json());
+      const list   = document.getElementById('guide-list');
+      if (!guides.length) { list.innerHTML = '<li style="color:var(--muted)">Sin guías aún.</li>'; return; }
+      list.innerHTML = guides.map(g => `
+        <li>
+          <a class="guide-item" href="guia.html?id=${g.id}">
+            <span class="game-badge ${g.game}">${g.game === 'ro' ? 'Ragnarok' : 'WoW'}</span>
+            <span class="guide-item-title">${escH(g.title)}</span>
+            <span class="guide-item-date">${fmtDate(g.created_at)}</span>
+            <span class="guide-item-arrow">&rarr;</span>
+          </a>
+        </li>`).join('');
+    } catch {
+      document.getElementById('guide-list').innerHTML =
+        '<li style="color:var(--muted)">No se pudieron cargar las guías.</li>';
+    }
+  })();
+
+  /* Cumpleaños */
+  (async () => {
+    try {
+      const b = await fetch(`${API}api/birthdays/next`).then(r => r.json());
+      if (!b || !b.display_name) return;
+      const zodiac = getZodiac(b.birthday_date);
+      document.getElementById('bday-container').innerHTML = `
+        <div class="bday-card">
+          <div class="bday-avatar">
+            ${b.avatar
+              ? `<img src="${b.avatar}" alt="${escH(b.display_name)}">`
+              : (b.gender === 'female' ? '👩' : '👨')}
+          </div>
+          <div class="bday-info">
+            <div class="bday-label">Próximo cumpleaños</div>
+            <div class="bday-name">${escH(b.display_name)} ${zodiac.emoji}</div>
+            <div class="bday-date">${zodiac.sign} &mdash; ${fmtBday(b.birthday_date)}</div>
+            <div class="bday-days">${b.days_until === 0 ? '🎉 ¡Hoy!' : `En ${b.days_until} día${b.days_until !== 1 ? 's' : ''}`}</div>
+          </div>
+        </div>`;
+    } catch { /* silencioso */ }
+  })();
+
+  /* Helpers */
+  function escH(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function fmtBday(mmdd) {
+    if (!mmdd) return '';
+    const [m, d] = mmdd.split('-');
+    const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    return `${parseInt(d)} de ${months[parseInt(m)-1]}`;
+  }
+  function getZodiac(mmdd) {
+    if (!mmdd) return { emoji: '', sign: '' };
+    const [m, d] = mmdd.split('-').map(Number);
+    const signs = [
+      { sign:'Capricornio', emoji:'♑', m:1,  d:19 },
+      { sign:'Acuario',     emoji:'♒', m:2,  d:18 },
+      { sign:'Piscis',      emoji:'♓', m:3,  d:20 },
+      { sign:'Aries',       emoji:'♈', m:4,  d:19 },
+      { sign:'Tauro',       emoji:'♉', m:5,  d:20 },
+      { sign:'Géminis',     emoji:'♊', m:6,  d:20 },
+      { sign:'Cáncer',      emoji:'♋', m:7,  d:22 },
+      { sign:'Leo',         emoji:'♌', m:8,  d:22 },
+      { sign:'Virgo',       emoji:'♍', m:9,  d:22 },
+      { sign:'Libra',       emoji:'♎', m:10, d:22 },
+      { sign:'Escorpio',    emoji:'♏', m:11, d:21 },
+      { sign:'Sagitario',   emoji:'♐', m:12, d:21 },
+      { sign:'Capricornio', emoji:'♑', m:12, d:31 },
+    ];
+    for (const s of signs) {
+      if (m < s.m || (m === s.m && d <= s.d)) return s;
+    }
+    return { emoji:'♑', sign:'Capricornio' };
+  }
+  </script>
 </body>
 </html>

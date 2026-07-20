@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World of Warcraft · Sunshine Squad</title>
+  <meta name="description" content="Guías y recursos de World of Warcraft Midnight del clan Sunshine Squad.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="site-logo" href="../index.html">Sunshine<br>Squad</a>
+      <div id="site-nav-slot"></div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menú">☰</button>
+    </div>
+  </header>
+
+  <!-- HERO ─────────────────────────────────────────────── -->
+  <div class="game-hero wow">
+    <div class="inner">
+      <h1 class="game-hero-title">
+        <span class="game-badge wow" style="font-size:.85rem;padding:4px 12px">WoW</span>
+        World of Warcraft
+      </h1>
+      <p class="game-hero-desc">
+        Jugamos <strong>WoW Retail</strong> en la expansión <strong>Midnight</strong>.
+        Estamos en el servidor latino <strong>Ragnaros</strong>, facción <strong>Horda</strong>.
+        Nuestro clan es <strong>Sunshine Squad</strong>, apuntando a ser el mejor clan PvM y PvP del servidor.
+      </p>
+      <div class="game-info-grid">
+        <div class="game-info-item">
+          <div class="game-info-label">Versión</div>
+          <div class="game-info-value">WoW Retail</div>
+        </div>
+        <div class="game-info-item">
+          <div class="game-info-label">Expansión</div>
+          <div class="game-info-value">Midnight</div>
+        </div>
+        <div class="game-info-item">
+          <div class="game-info-label">Servidor</div>
+          <div class="game-info-value">Ragnaros (Latino)</div>
+        </div>
+        <div class="game-info-item">
+          <div class="game-info-label">Facción</div>
+          <div class="game-info-value">Horda</div>
+        </div>
+        <div class="game-info-item">
+          <div class="game-info-label">Región</div>
+          <div class="game-info-value">Latinoamérica</div>
+        </div>
+        <div class="game-info-item">
+          <div class="game-info-label">Clan</div>
+          <div class="game-info-value">Sunshine Squad</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- IMÁGENES ─────────────────────────────────────── -->
+    <section class="section">
+      <div class="inner">
+        <div class="section-head">
+          <h2 class="section-title wow">Galería</h2>
+        </div>
+        <div class="carousel-wrap carousel-images" id="carousel-wow-imgs">
+          <button class="carousel-btn prev">&#8592;</button>
+          <div class="carousel-track" id="track-wow-imgs">
+            <div class="carousel-item" style="color:var(--muted);font-size:.85rem;padding:20px;display:flex;align-items:center;justify-content:center;min-width:200px;background:var(--wow-soft);border-radius:6px">
+              Sin imágenes aún
+            </div>
+          </div>
+          <button class="carousel-btn next">&#8594;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIDEOS ──────────────────────────────────────── -->
+    <section class="section" style="background:var(--surface)">
+      <div class="inner">
+        <div class="section-head">
+          <h2 class="section-title wow">Videos</h2>
+        </div>
+        <div class="carousel-wrap carousel-videos" id="carousel-wow-vids">
+          <button class="carousel-btn prev">&#8592;</button>
+          <div class="carousel-track" id="track-wow-vids">
+            <div class="carousel-item" style="color:var(--muted);font-size:.85rem;padding:20px;display:flex;align-items:center;justify-content:center;min-width:280px;background:var(--wow-soft);border-radius:6px;aspect-ratio:16/9">
+              Sin videos aún
+            </div>
+          </div>
+          <button class="carousel-btn next">&#8594;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- GUÍAS ───────────────────────────────────────── -->
+    <section class="section">
+      <div class="inner">
+        <div class="section-head">
+          <h2 class="section-title wow">Guías de WoW</h2>
+          <a href="../guias.html#wow" class="section-link">Ver todas &rarr;</a>
+        </div>
+        <ul class="guide-list" id="list-wow-guides">
+          <li style="padding:14px 0;color:var(--muted)">Cargando&hellip;</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer-slot"></div>
+
+  <script>const SITE_ROOT = "../";</script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/carousel.js"></script>
+  <script src="../js/lightbox.js"></script>
+  <script>
+  function escH(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const media = await fetch('../api/media?game=wow').then(r => r.json());
+      const imgs  = media.filter(m => m.type === 'image');
+      const vids  = media.filter(m => m.type === 'video');
+
+      if (imgs.length) {
+        document.getElementById('track-wow-imgs').innerHTML = imgs.map(m => `
+          <div class="carousel-item">
+            <img src="../${m.url}" alt="${escH(m.caption || '')}" loading="lazy">
+          </div>`).join('');
+      }
+      if (vids.length) {
+        document.getElementById('track-wow-vids').innerHTML = vids.map(m => `
+          <div class="carousel-item">
+            <div class="video-thumb">
+              <iframe src="${escH(m.url)}" allowfullscreen loading="lazy"></iframe>
+            </div>
+          </div>`).join('');
+      }
+    } catch { /* silencioso */ }
+
+    try {
+      const guides = await fetch('../api/guides?game=wow').then(r => r.json());
+      const list   = document.getElementById('list-wow-guides');
+      if (!guides.length) { list.innerHTML = '<li style="color:var(--muted);padding:14px 0">Sin guías todavía.</li>'; return; }
+      list.innerHTML = guides.map(g => `
+        <li>
+          <a class="guide-item" href="../guia.html?id=${g.id}">
+            <span class="game-badge wow">WoW</span>
+            <span class="guide-item-title">${escH(g.title)}</span>
+            <span class="guide-item-date">${fmtDate(g.created_at)}</span>
+            <span class="guide-item-arrow">&rarr;</span>
+          </a>
+        </li>`).join('');
+    } catch { document.getElementById('list-wow-guides').innerHTML = '<li style="color:var(--muted)">Error al cargar.</li>'; }
+  });
+  </script>
+</body>
+</html>

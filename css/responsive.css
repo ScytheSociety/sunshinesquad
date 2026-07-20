@@ -1,88 +1,93 @@
-/* ===================================================================
-   RESPONSIVE.CSS
-   ---------------------------------------------------------------
-   Que es: ajustes que SOLO aplican por debajo de ciertos anchos de
-   pantalla (tablet / celular). Este archivo va AL FINAL de todos los
-   <link> en el <head>, para que sus reglas puedan sobreescribir a
-   las de los demas archivos cuando la pantalla es chica.
-
-   Breakpoints usados en todo el archivo:
-     900px -> tablets / notebooks angostas
-     640px -> celulares en general
-     400px -> celulares chicos
-   =================================================================== */
-
-/* ---- TABLET (<= 900px) ------------------------------------------------
-   El contenido ya no tiene que competir con tanto padding lateral
-   ni con el ancho maximo pensado para desktop. */
+/* ── TABLET (≤ 900px) ─────────────────────────────────── */
 @media (max-width: 900px) {
-  .wrap { padding: 0 20px; }
-  article table { font-size: 0.85rem; }
+  .stream-layout {
+    grid-template-columns: 1fr;
+  }
+  .stream-chat { min-height: 300px; }
+
+  .carousel-images .carousel-item { width: calc((100% - 24px) / 3); }
+  .carousel-videos .carousel-item { width: calc((100% - 12px) / 2); }
+
+  .game-info-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ---- CELULAR (<= 640px) ------------------------------------------------ */
+/* ── MÓVIL (≤ 640px) ──────────────────────────────────── */
 @media (max-width: 640px) {
   body { font-size: 16px; }
-  .wrap { padding: 0 16px; }
 
-  .masthead { padding: 36px 0 20px; }
-  .nav { gap: 16px; letter-spacing: 0.1em; padding: 14px 0; }
-  .entry { flex-wrap: wrap; gap: 4px 16px; }
+  .inner         { padding: 0 16px; }
+  .header-inner  { padding: 0 16px; }
+  .footer-inner  { padding: 0 16px; }
 
-  /* En movil no hay "hover", asi que el dropdown de Guias no se
-     puede abrir pasando el mouse. Lo dejamos oculto: el link
-     "Guias" sigue funcionando normal y lleva a guias.html. */
-  .nav-dropdown-menu { display: none !important; }
+  /* Nav hamburguesa */
+  .nav-toggle { display: flex !important; }
 
-  article h1 { line-height: 1.15; }
-  article h2 { margin: 32px 0 10px; flex-wrap: wrap; }
-
-  /* ---- TABLAS: en vez de achicar columnas hasta que el texto quede
-     ilegible, la tabla mantiene su ancho natural y aparece un scroll
-     horizontal (deslizar con el dedo). display:block sobre <table>
-     es el truco estandar para esto: el navegador arma una tabla
-     interna "anonima" con sus filas/columnas de siempre, pero el
-     bloque que la contiene ya puede scrollear. */
-  article table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
+  .site-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-bottom: 2px solid var(--ink-rule);
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 0;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    z-index: 200;
   }
-  /* En layout de scroll no tiene sentido table-layout:fixed (fuerza
-     un ancho que ya no aplica cuando display deja de ser "table") */
-  article table.daily-table { table-layout: auto; }
-  article th, article td { padding: 8px 10px; }
+  .site-nav.open { display: flex !important; }
 
-  /* Botones NAVI dentro de celdas que ahora pueden envolver texto:
-     que no se corten ni se vean apretados. */
-  .navi-btn { min-width: 56px; }
-
-  /* ---- BLOQUE POR REGION: en pantallas angostas, la lista de NAVI
-     y el mapa ya no entran comodos lado a lado, asi que se apilan
-     (mapa debajo). Al apilarse, el flex-stretch que le da el alto
-     "automatico" al mapa deja de aplicar, asi que se le pone un
-     alto fijo razonable + object-fit:cover para que no quede
-     gigante ni deforme. */
-  .region-row { flex-direction: column; }
-  .region-col,
-  .region-col + .region-col {
-    width: 100%;
-    border-left: none;
+  .site-nav a,
+  .site-nav .nav-dropdown > span {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rule);
+    border-left: none !important;
+    font-size: 0.85rem;
   }
-  .region-row + .region-row { border-top: none; }
-  .region-col + .region-col { border-top: 1px solid var(--rule); }
-  .region-col-map { height: 200px; }
 
-  /* Imagenes de paso (.step-img) un poco mas chicas para que no
-     dominen la pantalla en celulares angostos. */
-  .step-img { max-width: 190px; }
+  .nav-dropdown-menu {
+    position: static !important;
+    box-shadow: none;
+    border: none !important;
+    border-top: none !important;
+    background: var(--surface);
+    display: block !important;
+    padding: 0;
+  }
+  .nav-dropdown-menu a {
+    padding: 12px 36px !important;
+    border-bottom: 1px solid var(--rule) !important;
+  }
+
+  .nav-auth { margin-left: 0; }
+
+  /* Hero */
+  .site-hero { padding: 32px 0 28px; }
+
+  /* Secciones */
+  .section { padding: 36px 0; }
+
+  /* Blog grid: 1 columna */
+  .blog-grid { grid-template-columns: 1fr; }
+
+  /* Carrusel */
+  .carousel-images .carousel-item { width: calc((100% - 12px) / 2); }
+  .carousel-videos .carousel-item { width: 100%; }
+
+  /* Birthday */
+  .bday-card { flex-direction: column; text-align: center; }
+
+  /* Article */
+  .article-wrap { padding: 32px 0 48px; }
+  .article-title { font-size: 1.8rem; }
+
+  /* Game info */
+  .game-info-grid { grid-template-columns: 1fr; }
+
+  /* Tabs */
+  .tab-btn { padding: 10px 14px; font-size: 0.75rem; }
+
+  /* Section head */
+  .section-head { gap: 8px; }
 }
-
-/* ---- CELULAR CHICO (<= 400px) ------------------------------------------ */
-@media (max-width: 400px) {
-  .nameplate { letter-spacing: -0.03em; }
-  .nav { gap: 12px; font-size: 0.74rem; }
-  .region-col-map { height: 160px; }
-}
-

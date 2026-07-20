@@ -1,47 +1,111 @@
-/* ===================================================================
-   BASE.CSS
-   ---------------------------------------------------------------
-   Que es: reset basico + estilos generales del <body> + el
-   contenedor ".wrap" que centra y limita el ancho de TODO el sitio.
-   Cuando tocarlo: si quieres cambiar la fuente global, el tamano
-   de letra base, el interlineado, o el ancho/padding del contenedor
-   principal (esto afecta header, nav, main y footer por igual,
-   ya que todos viven dentro de .wrap).
-   =================================================================== */
-
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
 body {
-  margin: 0;
   background: var(--bg);
   color: var(--ink);
   font-family: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Courier New', monospace;
   font-size: 18px;
-  line-height: 1.7;
+  line-height: 1.75;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Contenedor central: limita el ancho maximo (--max) y centra
-   todo el contenido. El padding lateral evita que el texto toque
-   el borde de la pantalla en movil. */
-.wrap {
+/* Contenedor central con máximo de ancho */
+.inner {
   max-width: var(--max);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 32px;
 }
 
-/* ---- ACCESIBILIDAD --------------------------------------------------
-   Resalta con un contorno cualquier link enfocado con teclado
-   (Tab), para que se pueda navegar el sitio sin mouse. */
-a:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
+/* Secciones de página */
+.section { padding: 56px 0; }
+.section + .section { border-top: 1px solid var(--rule); }
+
+/* Cabecera de sección: título izquierda + link derecha */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 
-/* Si el usuario tiene activado "reducir movimiento" en su sistema,
-   apagamos animaciones (ej. el parpadeo del cursor si lo vuelves
-   a usar en algun lado). */
-@media (prefers-reduced-motion: reduce) {
-  .nameplate .cursor { animation: none; }
+.section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+.section-title::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--ink);
+  flex-shrink: 0;
+}
+.section-title.blog::before   { background: var(--blog); }
+.section-title.ro::before     { background: var(--ro); }
+.section-title.wow::before    { background: var(--wow); }
+.section-title.bday::before   { background: var(--bday); }
+.section-title.stream::before { background: var(--stream); }
+
+.section-link {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+.section-link:hover { color: var(--ink); }
+
+/* Links base */
+a { color: var(--ink); }
+a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* Badge de juego */
+.game-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.game-badge.ro  { background: var(--ro-soft);  color: var(--ro-text);  border: 1px solid var(--ro-bd); }
+.game-badge.wow { background: var(--wow-soft); color: var(--wow-text); border: 1px solid var(--wow-bd); }
+
+/* Botón base */
+.btn {
+  display: inline-block;
+  padding: 8px 20px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--ink); color: var(--bg); }
+
+.btn-sm { padding: 4px 12px; font-size: 0.75rem; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

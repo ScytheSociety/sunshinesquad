@@ -1,19 +1,37 @@
-/* ===================================================================
-   VARIABLES.CSS
-   ---------------------------------------------------------------
-   Que es: variables globales (colores, anchos).
-   Cuando tocarlo: si quieres cambiar la paleta de color del sitio
-   entero (ej. pasar de blanco/negro a otro tema) o el ancho maximo
-   del contenido. Un solo cambio aqui afecta TODO el sitio.
-   Este archivo debe ir SIEMPRE PRIMERO en el <head>, antes que
-   los demas, porque los otros archivos usan estas variables.
-   =================================================================== */
-
 :root {
-  --bg:        #ffffff;   /* fondo de la pagina */
-  --ink:       #0a0a0a;   /* texto principal (negro suave) */
-  --muted:     #6b6b6b;   /* fechas y textos secundarios (gris) */
-  --rule:      #e6e6e6;   /* linea divisoria suave */
-  --ink-rule:  #0a0a0a;   /* linea divisoria fuerte */
-  --max:       1100px;    /* ancho maximo del contenido (.wrap) */
+  /* ── Base ─────────────────────────────────────────── */
+  --bg:        #ffffff;
+  --surface:   #f9f9fb;
+  --ink:       #111111;
+  --muted:     #666666;
+  --rule:      #e8e8e8;
+  --ink-rule:  #222222;
+  --max:       1280px;
+
+  /* ── Blog — menta ────────────────────────────────── */
+  --blog:      #16a34a;
+  --blog-soft: #dcfce7;
+  --blog-bd:   #bbf7d0;
+
+  /* ── Ragnarok Online — rosa ───────────────────────── */
+  --ro:        #e11d48;
+  --ro-soft:   #fff1f2;
+  --ro-bd:     #fecdd3;
+  --ro-text:   #9f1239;
+
+  /* ── World of Warcraft — azul ────────────────────── */
+  --wow:       #2563eb;
+  --wow-soft:  #eff6ff;
+  --wow-bd:    #bfdbfe;
+  --wow-text:  #1e40af;
+
+  /* ── Cumpleaños — violeta ────────────────────────── */
+  --bday:      #7c3aed;
+  --bday-soft: #f5f3ff;
+  --bday-bd:   #ddd6fe;
+
+  /* ── Stream — índigo ─────────────────────────────── */
+  --stream:    #4f46e5;
+  --stream-soft:#eef2ff;
+  --stream-bd: #c7d2fe;
 }

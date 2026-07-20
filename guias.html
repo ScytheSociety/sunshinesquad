@@ -3,76 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guias · Sunshine Squad</title>
-  <meta name="description" content="Guias de juegos de Sunshine Squad.">
-  <link rel="icon" type="image/png" href="img/sunshine_squad.png">
+  <title>Guías · Sunshine Squad</title>
+  <meta name="description" content="Guías de Ragnarok Online y World of Warcraft de Sunshine Squad.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-
-  <!-- CSS separado por funcion. El orden importa: variables primero,
-       responsive.css siempre al final para que pueda sobreescribir. -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/footer.css">
-  <link rel="stylesheet" href="css/article.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <div class="wrap">
 
-    <header class="masthead">
-      <!-- Logo con gif entre las dos palabras (ver css/header.css) -->
-      <h1 class="nameplate">
-        Sunshine
-        <img src="img/sunshine_squad_animated.gif" alt="" class="nameplate-gif">
-        Squad
-      </h1>
-      <p class="tagline">Scythe Society · comunidad de juego, blog y guias</p>
-    </header>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="site-logo" href="index.html">Sunshine<br>Squad</a>
+      <div id="site-nav-slot"></div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menú">☰</button>
+    </div>
+  </header>
 
-    <!-- Nav y footer ya NO se escriben aqui: layout.js los inyecta.
-         SITE_ROOT = "" porque guias.html esta en la raiz del sitio. -->
-    <div id="site-nav"></div>
+  <main>
+    <section class="section">
+      <div class="inner">
+        <div class="section-head">
+          <h1 class="section-title">Guías</h1>
+          <button class="btn btn-sm" id="btn-new-guide" style="display:none">+ Nueva guía</button>
+        </div>
 
-    <main>
-      <p class="lead">Guias directas por juego. Lo justo para arrancar y no perder el tiempo.</p>
+        <div class="tabs">
+          <button class="tab-btn ro active" data-tab="ro">Ragnarok Online</button>
+          <button class="tab-btn wow"       data-tab="wow">World of Warcraft</button>
+        </div>
 
-      <!-- Agrupa por juego con una etiqueta de seccion, y lista guias debajo. -->
-      <h2 class="section-label">Ragnarok Online</h2>
-      <ul class="entries">
-        <li><a class="entry" href="guias/ragnarok-paladin.html">
-          <span class="date">Clase</span>
-          <span class="title">Paladin — build y arranque</span>
-          <span class="arrow">&rarr;</span>
-        </a></li>
-        <li><a class="entry" href="guias/ragnarok-summer_event_2026.html">
-          <span class="date">Evento</span>
-          <span class="title">Summer Festival 2026</span>
-          <span class="arrow">&rarr;</span>
-        </a></li>
-      </ul>
+        <div class="tab-panel active" id="tab-ro">
+          <div style="margin-bottom:20px">
+            <a href="juego/ragnarok.html" class="btn btn-sm" style="border-color:var(--ro);color:var(--ro)">Ver página de RO &rarr;</a>
+          </div>
+          <ul class="guide-list" id="list-ro">
+            <li style="padding:14px 0;color:var(--muted)">Cargando&hellip;</li>
+          </ul>
+        </div>
 
-      <!-- Copia este bloque para otro juego:
-      <h2 class="section-label">World of Warcraft</h2>
-      <ul class="entries">
-        <li><a class="entry" href="guias/wow-tank.html">
-          <span class="date">Clase</span>
-          <span class="title">Tanque — arranque TBC</span>
-          <span class="arrow">&rarr;</span>
-        </a></li>
-      </ul>
-      -->
-    </main>
+        <div class="tab-panel" id="tab-wow">
+          <div style="margin-bottom:20px">
+            <a href="juego/wow.html" class="btn btn-sm" style="border-color:var(--wow);color:var(--wow)">Ver página de WoW &rarr;</a>
+          </div>
+          <ul class="guide-list" id="list-wow">
+            <li style="padding:14px 0;color:var(--muted)">Cargando&hellip;</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <div id="site-footer"></div>
+  <div id="site-footer-slot"></div>
 
-  </div>
-
-  <!-- SITE_ROOT debe declararse ANTES de layout.js -->
   <script>const SITE_ROOT = "";</script>
   <script src="js/layout.js"></script>
+  <script>
+  function escH(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function renderGuides(listId, guides) {
+    const list = document.getElementById(listId);
+    if (!guides.length) { list.innerHTML = '<li style="color:var(--muted);padding:14px 0">Sin guías todavía.</li>'; return; }
+    list.innerHTML = guides.map(g => `
+      <li>
+        <a class="guide-item" href="guia.html?id=${g.id}">
+          <span class="game-badge ${g.game}">${g.game === 'ro' ? 'RO' : 'WoW'}</span>
+          <span class="guide-item-title">${escH(g.title)}</span>
+          <span class="guide-item-date">${fmtDate(g.created_at)}</span>
+          <span class="guide-item-arrow">&rarr;</span>
+        </a>
+      </li>`).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+      });
+    });
+    if (location.hash === '#wow') document.querySelector('[data-tab="wow"]')?.click();
+
+    try {
+      const [ro, wow] = await Promise.all([
+        fetch('api/guides?game=ro').then(r => r.json()),
+        fetch('api/guides?game=wow').then(r => r.json()),
+      ]);
+      renderGuides('list-ro', ro);
+      renderGuides('list-wow', wow);
+    } catch {
+      document.getElementById('list-ro').innerHTML  = '<li style="color:var(--muted)">Error al cargar.</li>';
+      document.getElementById('list-wow').innerHTML = '<li style="color:var(--muted)">Error al cargar.</li>';
+    }
+
+    fetch('api/auth/me', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(u => {
+        if (u?.is_owner) {
+          const b = document.getElementById('btn-new-guide');
+          if (b) { b.style.display = ''; b.onclick = () => location.href = 'guia-editor.html'; }
+        }
+      }).catch(() => {});
+  });
+  </script>
 </body>
 </html>

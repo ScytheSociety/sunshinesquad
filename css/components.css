@@ -1,180 +1,458 @@
-/* ===================================================================
-   COMPONENTS.CSS
-   ---------------------------------------------------------------
-   Que es: piezas pequenas y reutilizables que se repiten en varias
-   guias: la imagen clickeable con su lightbox (modal de zoom) y el
-   boton NAVI que copia coordenadas.
-   Cuando tocarlo: si quieres cambiar el tamano de las imagenes de
-   guia, el fondo/animacion del lightbox, o el color/forma del
-   boton NAVI.
-   El HTML del lightbox lo inyecta js/lightbox.js, no hace falta
-   escribirlo en cada pagina.
-   =================================================================== */
-
-/* ---- IMAGEN CLICKEABLE ---------------------------------------------- */
-.guide-img {
-  display: block;
-  max-width: 500px;   /* tamano estandar para todas las guias */
-  width: 100%;         /* pero nunca mas ancho que su contenedor (responsive) */
-  height: auto;
-  margin: 1rem 0;
-  border-radius: 8px;
-  cursor: zoom-in;
-  transition: opacity 0.2s;
+/* ── BLOG CARDS ──────────────────────────────────────── */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
 }
-.guide-img:hover { opacity: 0.85; }
 
-/* ---- IMAGEN DE PASO (dentro de un <li> de .step-list) ----------------
-   Version mas chica y "enmarcada" de .guide-img, para cuando la
-   imagen ilustra un paso puntual en vez de ser el contenido
-   principal. Se agranda recien al hacer click (mismo lightbox de
-   .guide-img); el hover solo la levanta un poco para insinuar que
-   es clickeable. */
-.step-img {
-  max-width: 240px;
-  margin: 10px 0 2px;
-  padding: 6px;
+.blog-card {
   background: var(--bg);
   border: 1px solid var(--rule);
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.step-img:hover {
-  opacity: 1;
-  transform: scale(1.03);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
-}
-
-/* ---- LISTA DE PASOS (ej. "Daily Supply Run") --------------------------
-   <ol class="step-list"> numerada para guiar paso a paso; cada
-   <li> puede llevar texto, boton NAVI e imagen juntos. */
-.step-list {
-  list-style-position: inside;   /* el numero "1." arranca pegado al
-                                     margen izquierdo, igual que el
-                                     texto del parrafo de arriba, en
-                                     vez de quedar "flotando" afuera */
-  padding-left: 0;
-  margin: 8px 0 24px;
-}
-.step-list li { margin-bottom: 16px; }
-
-/* ---- BLOQUE POR REGION (ej. "The Poring Journal") ----------------------
-   Es flexbox a proposito, NO <table>: un <table> no puede estirar una
-   imagen al alto real de la fila sin trucos fragiles (percent-height
-   no funciona si la fila mide "auto"). En flexbox, display:flex +
-   align-items:stretch (el valor por defecto) hacen que las dos
-   columnas midan SIEMPRE lo mismo, asi que height:100% en la imagen
-   si funciona: el mapa termina midiendo exactamente lo que mide la
-   lista de botones NAVI, sea de 7 o de 14 filas. */
-.region-block {
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  overflow: hidden;      /* redondea tambien las esquinas del mapa */
-  margin: 20px 0;
-}
-.region-row { display: flex; }
-.region-row + .region-row { border-top: 1px solid var(--rule); }
-
-.region-col {
-  padding: 10px 12px;
-  width: 30%;
-}
-.region-col + .region-col {
-  width: 70%;
-  border-left: 1px solid var(--rule);
-}
-
-/* Encabezado ("Prontera" / "Mapa"): mismo estilo que los <th> del
-   resto de las tablas, para que se vea consistente con el sitio. */
-.region-row-head .region-col {
-  background: #eef1f5;
+  border-left: 4px solid var(--blog);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
   color: var(--ink);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 0.78rem;
-  font-weight: 700;
-  border-bottom: 2px solid #d8dee6;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.18s, transform 0.18s;
+}
+.blog-card:hover {
+  box-shadow: 0 6px 24px rgba(22,163,74,0.12);
+  transform: translateY(-2px);
 }
 
-.navi-list {
-  list-style-position: inside;
-  padding-left: 0;
-  margin: 0;
+.blog-card-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  background: var(--blog-soft);
+  display: block;
 }
-.navi-list li { margin-bottom: 10px; }
-.navi-list li:last-child { margin-bottom: 0; }
+.blog-card-thumb-placeholder {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--blog-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--blog);
+}
 
-.region-col-map { padding: 0; }
-.map-img {
+.blog-card-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.blog-card-date { font-size: 0.75rem; color: var(--muted); }
+.blog-card-title { font-size: 1rem; font-weight: 700; line-height: 1.3; }
+.blog-card-excerpt { font-size: 0.85rem; color: var(--muted); line-height: 1.5; flex: 1; }
+.blog-card-more { font-size: 0.78rem; font-weight: 700; color: var(--blog); margin-top: 4px; }
+
+/* ── GUIDE LIST ──────────────────────────────────────── */
+.guide-list { list-style: none; }
+
+.guide-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: var(--ink);
+  transition: padding-left 0.12s;
+}
+.guide-item:hover { padding-left: 6px; }
+
+.guide-item-title { flex: 1; font-weight: 500; font-size: 0.95rem; }
+.guide-item-date  { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+.guide-item-arrow { color: var(--muted); font-size: 0.9rem; }
+.guide-item:hover .guide-item-arrow { color: var(--ink); }
+
+/* ── CARRUSEL ────────────────────────────────────────── */
+.carousel-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 12px;
+  transition: transform 0.3s ease;
+}
+
+.carousel-item {
+  flex-shrink: 0;
+}
+
+/* 5 imágenes visibles */
+.carousel-images .carousel-item  { width: calc((100% - 48px) / 5); }
+/* 3 videos visibles */
+.carousel-videos .carousel-item  { width: calc((100% - 24px) / 3); }
+
+.carousel-item img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: zoom-in;
+  border: 1px solid var(--rule);
+  display: block;
+  transition: opacity 0.15s;
+}
+.carousel-item img:hover { opacity: 0.85; }
+
+.carousel-item .video-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  position: relative;
+  cursor: pointer;
+}
+.carousel-item .video-thumb iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.carousel-btn:hover { background: var(--ink); color: var(--bg); }
+.carousel-btn.prev { left: -18px; }
+.carousel-btn.next { right: -18px; }
+.carousel-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* ── STREAM ──────────────────────────────────────────── */
+.stream-section {
+  background: var(--stream-soft);
+  border-bottom: 1px solid var(--stream-bd);
+  padding: 40px 0;
+}
+
+.stream-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.stream-frame, .stream-chat {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--stream-bd);
+  background: #0e0e10;
+}
+
+.stream-frame iframe, .stream-chat iframe {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;   /* la imagen llena la columna sin deformarse */
-  cursor: zoom-in;
-  transition: opacity 0.2s;
+  border: none;
+  min-height: 400px;
 }
-.map-img:hover { opacity: 0.85; }
 
-/* ---- LIGHTBOX (modal de imagen ampliada) ----------------------------- */
+.stream-offline {
+  aspect-ratio: 16/9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #adadb8;
+  font-size: 0.9rem;
+  background: #0e0e10;
+  border-radius: 8px;
+}
+
+/* ── BIRTHDAY CARD ───────────────────────────────────── */
+.bday-section { background: var(--bday-soft); border-top: 1px solid var(--bday-bd); padding: 40px 0; }
+
+.bday-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--bg);
+  border: 1px solid var(--bday-bd);
+  border-left: 5px solid var(--bday);
+  border-radius: 10px;
+  padding: 24px 28px;
+  max-width: 540px;
+}
+
+.bday-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid var(--bday-bd);
+  flex-shrink: 0;
+  background: var(--bday-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  overflow: hidden;
+}
+.bday-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+.bday-info { flex: 1; }
+.bday-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bday); font-weight: 700; }
+.bday-name  { font-size: 1.3rem; font-weight: 800; line-height: 1.1; margin: 4px 0; }
+.bday-date  { font-size: 0.9rem; color: var(--muted); }
+.bday-days  { font-size: 0.8rem; color: var(--bday); font-weight: 700; margin-top: 6px; }
+
+/* ── JUEGO PAGE ──────────────────────────────────────── */
+.game-hero {
+  padding: 48px 0 40px;
+  border-bottom: 1px solid var(--rule);
+}
+.game-hero.ro  { background: var(--ro-soft);  border-color: var(--ro-bd); }
+.game-hero.wow { background: var(--wow-soft); border-color: var(--wow-bd); }
+
+.game-hero-title {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.game-hero-desc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 70ch;
+  line-height: 1.7;
+}
+
+.game-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+.game-info-item {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.game-info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+.game-info-value { font-size: 0.9rem; font-weight: 700; }
+
+/* ── LIGHTBOX ────────────────────────────────────────── */
 .lightbox {
-  display: none;              /* oculto hasta que se activa con .active */
+  display: none;
   position: fixed;
   z-index: 999;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.85);
+  inset: 0;
+  background: rgba(0,0,0,0.9);
   justify-content: center;
   align-items: center;
   cursor: zoom-out;
 }
 .lightbox.active { display: flex; }
-.lightbox img {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 8px;
-}
+.lightbox img { max-width: 92%; max-height: 90vh; border-radius: 6px; object-fit: contain; }
 .lightbox-close {
   position: absolute;
-  top: 20px;
-  right: 30px;
+  top: 16px; right: 24px;
   color: #fff;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
   cursor: pointer;
   line-height: 1;
+  opacity: 0.8;
+}
+.lightbox-close:hover { opacity: 1; }
+
+/* ── ARTICLE (posts y guías) ─────────────────────────── */
+.article-wrap { max-width: 72ch; padding: 48px 0 64px; }
+
+.article-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 32px;
+}
+.article-back:hover { color: var(--ink); }
+
+.article-title {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 36px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
 }
 
-/* ---- BOTON NAVI (copia comando /navi al portapapeles) ----------------
-   Antes iba pegado al texto del NPC (margin-left). Ahora vive en su
-   propia columna de la tabla (columna "Ubicacion"), asi que no
-   necesita separacion a la izquierda. */
+.article-body { line-height: 1.8; }
+.article-body h2 { font-size: 1.35rem; font-weight: 700; margin: 40px 0 10px; }
+.article-body h3 { font-size: 1.05rem; font-weight: 700; margin: 28px 0 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+.article-body p  { margin-bottom: 18px; }
+.article-body ul, .article-body ol { padding-left: 1.4em; margin-bottom: 18px; }
+.article-body li { margin: 6px 0; }
+.article-body a  { text-underline-offset: 3px; }
+.article-body strong { font-weight: 700; }
+.article-body blockquote {
+  margin: 24px 0;
+  padding: 4px 0 4px 18px;
+  border-left: 3px solid var(--rule);
+  color: var(--muted);
+  font-style: italic;
+}
+.article-body code {
+  background: var(--surface);
+  padding: 1px 6px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+.article-body pre {
+  background: #111;
+  color: #f5f5f5;
+  padding: 18px 20px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.article-body pre code { background: none; border: none; padding: 0; }
+.article-body table { border-collapse: collapse; width: 100%; margin: 20px 0; font-size: 0.9rem; }
+.article-body th, .article-body td { border: 1px solid var(--rule); padding: 10px 12px; text-align: left; }
+.article-body th { background: var(--surface); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.article-body tbody tr:nth-child(even) { background: var(--surface); }
+
+/* ── COMMENTS ────────────────────────────────────────── */
+.comments-section { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--rule); }
+.comments-title   { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 700; margin-bottom: 24px; }
+
+.comment-list { list-style: none; display: flex; flex-direction: column; gap: 20px; margin-bottom: 32px; }
+
+.comment {
+  display: flex;
+  gap: 14px;
+}
+.comment-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  background: var(--surface);
+}
+.comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.comment-body    { flex: 1; }
+.comment-header  { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; margin-bottom: 4px; }
+.comment-author  { font-weight: 700; font-size: 0.9rem; }
+.comment-date    { font-size: 0.75rem; color: var(--muted); }
+.comment-text    { font-size: 0.9rem; line-height: 1.6; color: #333; }
+
+.comment-form { display: flex; flex-direction: column; gap: 12px; }
+.comment-form textarea {
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+}
+.comment-form textarea:focus { outline: 2px solid var(--ink); outline-offset: 1px; border-color: transparent; }
+.comment-login-note { font-size: 0.82rem; color: var(--muted); }
+.comment-login-note a { color: var(--ink); }
+
+/* ── NAVI BTN ────────────────────────────────────────── */
 .navi-btn {
   display: inline-block;
-  min-width: 64px;    /* mismo ancho para "NAVI" y "Copiado", asi el
-                          boton no se agranda/deforma al cambiar de texto */
-  padding: 2px 10px;
-  font-family: 'JetBrains Mono', monospace;
+  min-width: 60px;
+  padding: 2px 8px;
+  font-family: inherit;
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-align: center;
   white-space: nowrap;
   color: var(--ink);
   background: transparent;
-  border: 1px solid var(--ink);
+  border: 1px solid var(--rule);
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.15s;
   vertical-align: middle;
 }
-.navi-btn:hover {
-  background: var(--ink);
-  color: var(--bg);
+.navi-btn:hover, .navi-btn.copied { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* ── TABS ────────────────────────────────────────────── */
+.tabs { display: flex; gap: 0; border-bottom: 2px solid var(--ink-rule); margin-bottom: 32px; }
+.tab-btn {
+  padding: 12px 24px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
 }
-/* Se agrega con JS por un instante despues de hacer click, para
-   confirmar visualmente que el texto se copio. */
-.navi-btn.copied {
-  background: var(--ink);
-  color: var(--bg);
+.tab-btn.ro:hover,  .tab-btn.ro.active  { color: var(--ro);  border-bottom-color: var(--ro); }
+.tab-btn.wow:hover, .tab-btn.wow.active { color: var(--wow); border-bottom-color: var(--wow); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── ADMIN ───────────────────────────────────────────── */
+.admin-notice {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  color: #92400e;
+  margin-bottom: 24px;
 }

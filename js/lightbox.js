@@ -1,50 +1,41 @@
-// ===================================================================
-// LIGHTBOX.JS
-// -------------------------------------------------------------------
-// Que hace: agrega al final de la pagina el HTML del modal (lightbox)
-// que se usa para ampliar imagenes, y expone 3 funciones globales
-// para usar directamente en el HTML con onclick="...":
-//
-//   openLightbox(src)      -> abre el modal con la imagen ampliada
-//   closeLightbox()        -> cierra el modal
-//   copyNavi(boton, texto) -> copia "texto" al portapapeles y
-//                             muestra "Copiado" un instante en el boton
-//
-// No hace falta escribir el <div class="lightbox"> en cada pagina:
-// este script lo agrega solo. Solo se necesita incluir este script
-// en las paginas donde haya imagenes ".guide-img" o botones ".navi-btn".
-// ===================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<span class="lightbox-close">&times;</span><img src="" alt="">';
+  document.body.appendChild(lb);
 
-(function () {
-  const lightboxHTML = `
-    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-      <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
-      <img id="lightbox-img" src="" alt="">
-    </div>
-  `;
+  const img   = lb.querySelector('img');
+  const close = lb.querySelector('.lightbox-close');
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.body.insertAdjacentHTML('beforeend', lightboxHTML);
+  function openLb(src, alt) {
+    img.src = src; img.alt = alt || '';
+    lb.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLb() {
+    lb.classList.remove('active');
+    img.src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('click', e => {
+    if (e.target.matches('.carousel-item img, .guide-img')) openLb(e.target.src, e.target.alt);
   });
+  close.addEventListener('click', closeLb);
+  lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+});
 
-  window.openLightbox = function (src) {
-    document.getElementById('lightbox-img').src = src;
-    document.getElementById('lightbox').classList.add('active');
-  };
+/* Mantener compatibilidad con onclick="openLightbox()" en guías viejas */
+window.openLightbox = src => document.dispatchEvent(
+  Object.assign(new MouseEvent('click'), { target: Object.assign(document.createElement('img'), { src, className: 'guide-img' }) })
+);
 
-  window.closeLightbox = function () {
-    document.getElementById('lightbox').classList.remove('active');
-  };
-
-  window.copyNavi = function (btn, command) {
-    navigator.clipboard.writeText(command).then(() => {
-      const original = btn.textContent;
-      btn.textContent = 'Copiado';
-      btn.classList.add('copied');
-      setTimeout(() => {
-        btn.textContent = original;
-        btn.classList.remove('copied');
-      }, 1200);
-    });
-  };
-})();
+window.copyNavi = function (btn, command) {
+  navigator.clipboard.writeText(command).then(() => {
+    const t = btn.textContent;
+    btn.textContent = 'Copiado';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = t; btn.classList.remove('copied'); }, 1200);
+  });
+};

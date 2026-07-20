@@ -1,110 +1,178 @@
-/* ===================================================================
-   HEADER.CSS
-   ---------------------------------------------------------------
-   Que es: la cabecera del sitio (titulo "Sunshine Squad", tagline)
-   y la barra de navegacion (Inicio / Blog / Guias + dropdown).
-   Cuando tocarlo: si quieres cambiar el tamano del titulo, el gif
-   del logo, los estilos de los links del menu, o el comportamiento
-   del dropdown de "Guias".
-   =================================================================== */
-
-/* ---- CABECERA / NAMEPLATE ------------------------------------------
-   text-align:center centra el tagline (es texto normal). El h1 es un
-   flex container, asi que ademas necesita justify-content:center
-   para centrar sus "hijos" (las palabras + el gif) en el eje
-   horizontal. Los dos juntos centran TODO el bloque del header
-   respecto al ancho completo de .wrap (la misma linea de arriba). */
-.masthead {
-  padding: 56px 0 28px;
+/* ── SITE HEADER ─────────────────────────────────────── */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
   border-bottom: 2px solid var(--ink-rule);
-  text-align: center;
 }
 
-.nameplate {
-  font-size: clamp(2.4rem, 9vw, 4.6rem); /* escala segun ancho de pantalla */
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 0.95;
-  margin: 0;
-  text-transform: uppercase;
-  display: flex;         /* para alinear el texto y el gif en una linea */
-  align-items: center;
-  justify-content: center; /* centra el conjunto "Sunshine [gif] Squad" */
-  flex-wrap: wrap;
-}
-
-/* GIF entre "Sunshine" y "Squad". Al usar unidades "em", el alto del
-   gif se ajusta automaticamente al tamano de letra actual (que
-   cambia con el clamp() de arriba segun el ancho de pantalla). */
-.nameplate-gif {
-  height: 0.75em;
-  width: auto;
-  margin: 0 0.15em;
-  border-radius: 4px;
-  vertical-align: middle;
-}
-
-.tagline {
-  margin: 14px 0 0;
-  color: var(--muted);
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
-}
-
-/* ---- NAVEGACION ---------------------------------------------------- */
-.nav {
+.header-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 32px;
   display: flex;
   align-items: center;
-  gap: 28px;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--rule);
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
+  gap: 32px;
+  min-height: 60px;
 }
-.nav a { color: var(--ink); text-decoration: none; padding-bottom: 2px; }
-.nav a:hover { border-bottom: 2px solid var(--ink); }
-.nav a[aria-current="page"] { border-bottom: 2px solid var(--ink); }
 
-/* ---- DROPDOWN "GUIAS" -----------------------------------------------
-   Al pasar el mouse por encima de ".nav-dropdown" (el link "Guias"),
-   se muestra la lista de juegos debajo. Solo funciona con mouse
-   (hover); en movil no hay hover, asi que ahi el link simplemente
-   lleva directo a guias.html. */
+/* Logo */
+.site-logo {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.1;
+}
+
+/* ── NAV ─────────────────────────────────────────────── */
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+}
+
+.site-nav a,
+.site-nav .nav-dropdown > span {
+  display: block;
+  padding: 20px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  line-height: 1;
+}
+
+.site-nav a:hover,
+.site-nav .nav-dropdown > span:hover { color: var(--ink); border-bottom-color: var(--ink); }
+.site-nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* Auth links al extremo derecho */
+.nav-auth {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.nav-user img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+}
+
+/* ── DROPDOWN ────────────────────────────────────────── */
 .nav-dropdown {
   position: relative;
-  display: inline-block;
 }
 
 .nav-dropdown-menu {
   display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% + 2px);
   left: 0;
   background: var(--bg);
   border: 1px solid var(--rule);
   border-top: 2px solid var(--ink-rule);
   min-width: 220px;
   padding: 6px 0;
-  z-index: 10;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }
 
-.nav-dropdown:hover .nav-dropdown-menu {
-  display: block;
-}
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown.open .nav-dropdown-menu { display: block; }
 
 .nav-dropdown-menu a {
   display: block;
-  padding: 10px 16px;
-  font-size: 0.82rem;
-  text-transform: none;     /* aqui no van mayusculas, para que se lea normal */
-  letter-spacing: 0.02em;
-  color: var(--ink);
-  text-decoration: none;
+  padding: 10px 16px !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+  color: var(--ink) !important;
+  border-bottom: none !important;
+}
+.nav-dropdown-menu a:hover { background: var(--surface); }
+.nav-dropdown-menu a.ro  { border-left: 3px solid var(--ro) !important; }
+.nav-dropdown-menu a.wow { border-left: 3px solid var(--wow) !important; }
+
+/* ── HERO (solo en inicio) ───────────────────────────── */
+.site-hero {
+  border-bottom: 1px solid var(--rule);
+  padding: 48px 0 40px;
+  background: var(--bg);
 }
 
-.nav-dropdown-menu a:hover {
-  background: #f6f6f6;
-  border-bottom: none;
+.site-hero .inner { text-align: center; }
+
+.hero-title {
+  font-size: clamp(2.8rem, 8vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin-bottom: 14px;
 }
+
+.hero-tagline {
+  font-size: 0.95rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+/* ── HAMBURGER (móvil) ───────────────────────────────── */
+.nav-toggle {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--ink);
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.site-footer {
+  border-top: 2px solid var(--ink-rule);
+  padding: 24px 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.footer-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.footer-inner a { color: var(--muted); text-decoration: none; }
+.footer-inner a:hover { color: var(--ink); }
