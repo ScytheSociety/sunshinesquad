@@ -90,7 +90,24 @@ article .meta {
 }
 article .meta time { font-size: 0.8rem; }
 
-article h2 { font-size: 1.3rem; font-weight: 700; margin: 40px 0 8px; }
+/* El icono "▸" + la linea inferior marcan que es un TITULO de
+   seccion, para que no se confunda con la numeracion "1., 2., 3."
+   de las listas de pasos (.step-list) que van debajo de cada uno. */
+article h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 40px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+article h2::before {
+  content: "▸";
+  color: var(--muted);
+  font-size: 1rem;
+}
 article h3 {
   font-size: 1.05rem;
   font-weight: 700;

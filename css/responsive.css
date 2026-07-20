@@ -1,21 +1,88 @@
 /* ===================================================================
    RESPONSIVE.CSS
    ---------------------------------------------------------------
-   Que es: ajustes que SOLO aplican en pantallas angostas (celular).
-   Cuando tocarlo: si algo se ve mal o muy apretado en movil.
-   Este archivo va AL FINAL de todos los <link> en el <head>, para
-   que sus reglas puedan sobreescribir a las de los demas archivos
-   cuando la pantalla es chica.
+   Que es: ajustes que SOLO aplican por debajo de ciertos anchos de
+   pantalla (tablet / celular). Este archivo va AL FINAL de todos los
+   <link> en el <head>, para que sus reglas puedan sobreescribir a
+   las de los demas archivos cuando la pantalla es chica.
+
+   Breakpoints usados en todo el archivo:
+     900px -> tablets / notebooks angostas
+     640px -> celulares en general
+     400px -> celulares chicos
    =================================================================== */
 
-@media (max-width: 560px) {
+/* ---- TABLET (<= 900px) ------------------------------------------------
+   El contenido ya no tiene que competir con tanto padding lateral
+   ni con el ancho maximo pensado para desktop. */
+@media (max-width: 900px) {
+  .wrap { padding: 0 20px; }
+  article table { font-size: 0.85rem; }
+}
+
+/* ---- CELULAR (<= 640px) ------------------------------------------------ */
+@media (max-width: 640px) {
   body { font-size: 16px; }
-  .masthead { padding: 40px 0 22px; }
-  .nav { gap: 18px; letter-spacing: 0.12em; }
+  .wrap { padding: 0 16px; }
+
+  .masthead { padding: 36px 0 20px; }
+  .nav { gap: 16px; letter-spacing: 0.1em; padding: 14px 0; }
   .entry { flex-wrap: wrap; gap: 4px 16px; }
 
   /* En movil no hay "hover", asi que el dropdown de Guias no se
      puede abrir pasando el mouse. Lo dejamos oculto: el link
      "Guias" sigue funcionando normal y lleva a guias.html. */
   .nav-dropdown-menu { display: none !important; }
+
+  article h1 { line-height: 1.15; }
+  article h2 { margin: 32px 0 10px; flex-wrap: wrap; }
+
+  /* ---- TABLAS: en vez de achicar columnas hasta que el texto quede
+     ilegible, la tabla mantiene su ancho natural y aparece un scroll
+     horizontal (deslizar con el dedo). display:block sobre <table>
+     es el truco estandar para esto: el navegador arma una tabla
+     interna "anonima" con sus filas/columnas de siempre, pero el
+     bloque que la contiene ya puede scrollear. */
+  article table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+  /* En layout de scroll no tiene sentido table-layout:fixed (fuerza
+     un ancho que ya no aplica cuando display deja de ser "table") */
+  article table.daily-table { table-layout: auto; }
+  article th, article td { padding: 8px 10px; }
+
+  /* Botones NAVI dentro de celdas que ahora pueden envolver texto:
+     que no se corten ni se vean apretados. */
+  .navi-btn { min-width: 56px; }
+
+  /* ---- BLOQUE POR REGION: en pantallas angostas, la lista de NAVI
+     y el mapa ya no entran comodos lado a lado, asi que se apilan
+     (mapa debajo). Al apilarse, el flex-stretch que le da el alto
+     "automatico" al mapa deja de aplicar, asi que se le pone un
+     alto fijo razonable + object-fit:cover para que no quede
+     gigante ni deforme. */
+  .region-row { flex-direction: column; }
+  .region-col,
+  .region-col + .region-col {
+    width: 100%;
+    border-left: none;
+  }
+  .region-row + .region-row { border-top: none; }
+  .region-col + .region-col { border-top: 1px solid var(--rule); }
+  .region-col-map { height: 200px; }
+
+  /* Imagenes de paso (.step-img) un poco mas chicas para que no
+     dominen la pantalla en celulares angostos. */
+  .step-img { max-width: 190px; }
 }
+
+/* ---- CELULAR CHICO (<= 400px) ------------------------------------------ */
+@media (max-width: 400px) {
+  .nameplate { letter-spacing: -0.03em; }
+  .nav { gap: 12px; font-size: 0.74rem; }
+  .region-col-map { height: 160px; }
+}
+

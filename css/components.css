@@ -59,6 +59,63 @@
 }
 .step-list li { margin-bottom: 16px; }
 
+/* ---- BLOQUE POR REGION (ej. "The Poring Journal") ----------------------
+   Es flexbox a proposito, NO <table>: un <table> no puede estirar una
+   imagen al alto real de la fila sin trucos fragiles (percent-height
+   no funciona si la fila mide "auto"). En flexbox, display:flex +
+   align-items:stretch (el valor por defecto) hacen que las dos
+   columnas midan SIEMPRE lo mismo, asi que height:100% en la imagen
+   si funciona: el mapa termina midiendo exactamente lo que mide la
+   lista de botones NAVI, sea de 7 o de 14 filas. */
+.region-block {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;      /* redondea tambien las esquinas del mapa */
+  margin: 20px 0;
+}
+.region-row { display: flex; }
+.region-row + .region-row { border-top: 1px solid var(--rule); }
+
+.region-col {
+  padding: 10px 12px;
+  width: 30%;
+}
+.region-col + .region-col {
+  width: 70%;
+  border-left: 1px solid var(--rule);
+}
+
+/* Encabezado ("Prontera" / "Mapa"): mismo estilo que los <th> del
+   resto de las tablas, para que se vea consistente con el sitio. */
+.region-row-head .region-col {
+  background: #eef1f5;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-bottom: 2px solid #d8dee6;
+}
+
+.navi-list {
+  list-style-position: inside;
+  padding-left: 0;
+  margin: 0;
+}
+.navi-list li { margin-bottom: 10px; }
+.navi-list li:last-child { margin-bottom: 0; }
+
+.region-col-map { padding: 0; }
+.map-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* la imagen llena la columna sin deformarse */
+  cursor: zoom-in;
+  transition: opacity 0.2s;
+}
+.map-img:hover { opacity: 0.85; }
+
 /* ---- LIGHTBOX (modal de imagen ampliada) ----------------------------- */
 .lightbox {
   display: none;              /* oculto hasta que se activa con .active */
