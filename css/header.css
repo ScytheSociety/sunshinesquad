@@ -218,6 +218,7 @@
   line-height: 1.85;
   color: var(--ink);
   margin-bottom: 20px;
+  text-align: justify;
 }
 
 .intro-motto {

@@ -204,7 +204,6 @@
                 <label>Juego</label>
                 <select id="guide-game">
                   <option value="ro">Ragnarok Online</option>
-                  <option value="wow">World of Warcraft</option>
                 </select>
               </div>
             </div>
@@ -234,7 +233,6 @@
           <label>Juego</label>
           <select id="media-game-filter" style="margin-bottom:12px">
             <option value="ro">Ragnarok Online</option>
-            <option value="wow">World of Warcraft</option>
           </select>
           <label>Tipo</label>
           <select id="media-type-filter" style="margin-bottom:20px">
@@ -253,8 +251,7 @@
           </div>
           <span class="status-msg" id="media-status" style="margin-top:12px"></span>
         </div>
-        <div id="media-grid-ro" class="media-grid" data-game="ro"></div>
-        <div id="media-grid-wow" class="media-grid" data-game="wow" style="display:none"></div>
+        <div id="media-grids-container"></div>
       </div>
 
       <!-- ── PÁGINAS ─────────────────────────────────── -->
@@ -359,6 +356,12 @@
     return r.json();
   }
 
+  /* Nombre legible para un slug de juego */
+  function gameLabel(game, games) {
+    const found = games.find(g => g.slug === game);
+    return found ? found.name : game.toUpperCase();
+  }
+
   /* ── Auth gate ────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', async () => {
     const user = await fetch('api/auth/me', { credentials: 'include' })
@@ -372,8 +375,19 @@
     initAdmin();
   });
 
-  /* ── Navegación lateral ───────────────────────────── */
-  function initAdmin() {
+  /* ── Init principal ───────────────────────────────── */
+  async function initAdmin() {
+    /* Cargar lista de juegos primero — todo lo demás depende de esto */
+    let games = [];
+    try { games = await api('GET', 'games'); } catch {}
+
+    /* Poblar selects de juego */
+    populateGameSelects(games);
+
+    /* Construir grids de media */
+    buildMediaGrids(games);
+
+    /* Navegación lateral */
     document.querySelectorAll('.admin-nav-link').forEach(link => {
       link.addEventListener('click', e => {
         e.preventDefault();
@@ -385,27 +399,72 @@
       });
     });
 
-    /* Ir al panel del hash si hay uno */
+    /* Procesar hash de la URL */
     const hash = location.hash.slice(1);
+    let pendingEditType = null;
+    let pendingEditId   = null;
+
     if (hash) {
-      const map = { posts: 'posts', guides: 'guides', media: 'media', pages: 'pages', config: 'config' };
-      if (map[hash]) document.querySelector(`[data-panel="${map[hash]}"]`)?.click();
-      else if (hash.startsWith('post-') || hash.startsWith('guide-')) {
-        const type = hash.startsWith('post-') ? 'posts' : 'guides';
-        document.querySelector(`[data-panel="${type}"]`)?.click();
+      const directPanels = { posts: 'posts', guides: 'guides', media: 'media', pages: 'pages', config: 'config' };
+      if (directPanels[hash]) {
+        document.querySelector(`[data-panel="${directPanels[hash]}"]`)?.click();
+      } else if (/^post-\d+$/.test(hash)) {
+        pendingEditType = 'post';
+        pendingEditId   = parseInt(hash.slice(5), 10);
+        document.querySelector('[data-panel="posts"]')?.click();
+      } else if (/^guide-\d+$/.test(hash)) {
+        pendingEditType = 'guide';
+        pendingEditId   = parseInt(hash.slice(6), 10);
+        document.querySelector('[data-panel="guides"]')?.click();
       }
     }
 
-    loadDashboard();
-    loadPosts();
-    loadGuides();
-    loadMedia();
-    loadConfig();
+    /* Cargar datos en paralelo */
+    await Promise.all([
+      loadDashboard(),
+      loadPosts(pendingEditType === 'post' ? pendingEditId : null),
+      loadGuides(games, pendingEditType === 'guide' ? pendingEditId : null),
+      loadMedia(games),
+      loadConfig(),
+    ]);
+
+    /* Árbol de páginas */
+    loadPages(games);
+
+    /* Inicializar formularios e interacciones */
     initPostForm();
     initGuideForm();
-    initMediaUpload();
+    initMediaUpload(games);
     initConfigForm();
-    initNewGameForm();
+    initNewGameForm(games);
+  }
+
+  /* ── Poblar selects de juego ──────────────────────── */
+  function populateGameSelects(games) {
+    const guideSelect = document.getElementById('guide-game');
+    const mediaSelect = document.getElementById('media-game-filter');
+
+    const options = games.map(g => `<option value="${escH(g.slug)}">${escH(g.name)}</option>`).join('');
+
+    if (guideSelect) guideSelect.innerHTML = options || '<option value="ro">Ragnarok Online</option>';
+    if (mediaSelect) mediaSelect.innerHTML = options || '<option value="ro">Ragnarok Online</option>';
+  }
+
+  /* ── Construir grids de media dinámicamente ───────── */
+  function buildMediaGrids(games) {
+    const container = document.getElementById('media-grids-container');
+    if (!container) return;
+    if (!games.length) {
+      container.innerHTML = '<p style="color:var(--muted);font-size:.85rem">Sin juegos registrados.</p>';
+      return;
+    }
+    container.innerHTML = games.map((g, i) => `
+      <div id="media-section-${escH(g.slug)}" style="${i > 0 ? 'display:none' : ''}">
+        <h3 style="font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px">${escH(g.name)}</h3>
+        <div class="media-grid" id="media-grid-${escH(g.slug)}">
+          <p style="color:var(--muted);font-size:.85rem">Cargando…</p>
+        </div>
+      </div>`).join('');
   }
 
   /* ── DASHBOARD ────────────────────────────────────── */
@@ -427,13 +486,12 @@
       const quick = document.getElementById('dash-quick');
       quick.innerHTML = `
         <li>✅ API en línea — <code>https://sunshinesquad.es/api/health</code></li>
-        <li>📁 Uploads servidos desde <code>/uploads/</code></li>
-        <li>🎮 Juegos activos: Ragnarok Online · World of Warcraft</li>`;
+        <li>📁 Uploads servidos desde <code>/uploads/</code></li>`;
     } catch {}
   }
 
   /* ── POSTS ────────────────────────────────────────── */
-  async function loadPosts() {
+  async function loadPosts(autoEditId = null) {
     const tbody = document.getElementById('posts-tbody');
     try {
       const posts = await api('GET', 'posts?limit=100');
@@ -447,6 +505,7 @@
             <button class="btn btn-sm" style="border-color:var(--ro);color:var(--ro)" onclick="deletePost(${p.id})">Borrar</button>
           </div></td>
         </tr>`).join('');
+      if (autoEditId) editPost(autoEditId);
     } catch {
       tbody.innerHTML = '<tr><td colspan="3" style="color:var(--muted)">Error al cargar.</td></tr>';
     }
@@ -512,21 +571,27 @@
   }
 
   /* ── GUÍAS ────────────────────────────────────────── */
-  async function loadGuides() {
+  async function loadGuides(games = [], autoEditId = null) {
     const tbody = document.getElementById('guides-tbody');
     try {
       const guides = await api('GET', 'guides?limit=100');
       if (!guides.length) { tbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Sin guías todavía.</td></tr>'; return; }
-      tbody.innerHTML = guides.map(g => `
-        <tr>
-          <td><a href="guia.html?id=${g.id}" target="_blank" style="text-decoration:none">${escH(g.title)}</a></td>
-          <td><span class="game-badge ${g.game}">${g.game === 'ro' ? 'RO' : 'WoW'}</span></td>
-          <td style="color:var(--muted);white-space:nowrap">${fmtDate(g.created_at)}</td>
-          <td><div class="td-actions">
-            <button class="btn btn-sm" onclick="editGuide(${g.id})">Editar</button>
-            <button class="btn btn-sm" style="border-color:var(--ro);color:var(--ro)" onclick="deleteGuide(${g.id})">Borrar</button>
-          </div></td>
-        </tr>`).join('');
+      tbody.innerHTML = guides.map(g => {
+        const label = gameLabel(g.game, games);
+        const badgeCls = (g.game === 'ro' || g.game === 'wow') ? g.game : '';
+        const badgeStyle = badgeCls ? '' : ` style="background:transparent;border:1px solid var(--rule);color:var(--muted)"`;
+        return `
+          <tr>
+            <td><a href="guia.html?id=${g.id}" target="_blank" style="text-decoration:none">${escH(g.title)}</a></td>
+            <td><span class="game-badge ${badgeCls}"${badgeStyle}>${escH(label)}</span></td>
+            <td style="color:var(--muted);white-space:nowrap">${fmtDate(g.created_at)}</td>
+            <td><div class="td-actions">
+              <button class="btn btn-sm" onclick="editGuide(${g.id})">Editar</button>
+              <button class="btn btn-sm" style="border-color:var(--ro);color:var(--ro)" onclick="deleteGuide(${g.id})">Borrar</button>
+            </div></td>
+          </tr>`;
+      }).join('');
+      if (autoEditId) editGuide(autoEditId);
     } catch {
       tbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Error al cargar.</td></tr>';
     }
@@ -559,9 +624,10 @@
   }
 
   function resetGuideForm() {
+    const sel = document.getElementById('guide-game');
     document.getElementById('guide-id').value = '';
     document.getElementById('guide-title').value = '';
-    document.getElementById('guide-game').value = 'ro';
+    if (sel) sel.selectedIndex = 0;
     document.getElementById('guide-slug').value = '';
     document.getElementById('guide-content').value = '';
   }
@@ -570,7 +636,11 @@
     const guide = await api('GET', `guides/${id}`);
     document.getElementById('guide-id').value = guide.id;
     document.getElementById('guide-title').value = guide.title || '';
-    document.getElementById('guide-game').value = guide.game || 'ro';
+    const sel = document.getElementById('guide-game');
+    if (sel) {
+      sel.value = guide.game || '';
+      if (!sel.value && sel.options.length) sel.selectedIndex = 0;
+    }
     document.getElementById('guide-slug').value = guide.slug || '';
     document.getElementById('guide-content').value = guide.content || '';
     document.getElementById('guide-form-wrap').style.display = '';
@@ -584,17 +654,19 @@
   }
 
   /* ── MEDIA ────────────────────────────────────────── */
-  async function loadMedia() {
+  async function loadMedia(games = []) {
     try {
       const media = await api('GET', 'media');
-      ['ro','wow'].forEach(game => {
-        const grid = document.getElementById(`media-grid-${game}`);
-        const items = media.filter(m => m.game === game);
+      const slugs = games.length ? games.map(g => g.slug) : ['ro', 'wow'];
+      slugs.forEach(slug => {
+        const grid = document.getElementById(`media-grid-${slug}`);
+        if (!grid) return;
+        const items = media.filter(m => m.game === slug);
         if (!items.length) { grid.innerHTML = `<p style="color:var(--muted);font-size:.85rem">Sin media todavía.</p>`; return; }
         grid.innerHTML = items.map(m => `
           <div class="media-card">
             ${m.type === 'image'
-              ? `<img src="${escH(m.url)}" alt="${escH(m.title||'')}">`
+              ? `<img src="${escH(m.url)}" alt="${escH(m.title||'')}" loading="lazy">`
               : `<div style="height:100px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted)">▶ VIDEO</div>`}
             <div class="media-info">${escH(m.title||m.url.split('/').pop())}</div>
             <button class="media-del" onclick="deleteMedia(${m.id})">Eliminar</button>
@@ -603,14 +675,17 @@
     } catch {}
   }
 
-  function initMediaUpload() {
+  function initMediaUpload(games = []) {
     const gameSelect = document.getElementById('media-game-filter');
     const typeSelect = document.getElementById('media-type-filter');
 
     /* Cambiar juego → mostrar su grid */
-    gameSelect.addEventListener('change', () => {
-      document.getElementById('media-grid-ro').style.display  = gameSelect.value === 'ro'  ? '' : 'none';
-      document.getElementById('media-grid-wow').style.display = gameSelect.value === 'wow' ? '' : 'none';
+    gameSelect?.addEventListener('change', () => {
+      const slug = gameSelect.value;
+      games.forEach(g => {
+        const sec = document.getElementById(`media-section-${g.slug}`);
+        if (sec) sec.style.display = g.slug === slug ? '' : 'none';
+      });
     });
 
     /* Subir archivo */
@@ -624,7 +699,7 @@
         if (!r.url) throw new Error();
         await api('POST', 'media', { game: gameSelect.value, type: typeSelect.value, url: r.url, title: file.name });
         showStatus('media-status', 'Subido ✓');
-        loadMedia();
+        loadMedia(games);
       } catch { showStatus('media-status', 'Error al subir', false); }
       e.target.value = '';
     });
@@ -637,7 +712,7 @@
         await api('POST', 'media', { game: gameSelect.value, type: typeSelect.value, url });
         showStatus('media-status', 'Añadido ✓');
         document.getElementById('media-url-input').value = '';
-        loadMedia();
+        loadMedia(games);
       } catch { showStatus('media-status', 'Error', false); }
     });
 
@@ -659,7 +734,9 @@
   async function deleteMedia(id) {
     if (!confirm('¿Eliminar este archivo?')) return;
     await api('DELETE', `media/${id}`);
-    loadMedia(); loadDashboard();
+    /* Reload con los juegos actuales (re-fetch para no perder el estado) */
+    const games = await api('GET', 'games').catch(() => []);
+    loadMedia(games); loadDashboard();
   }
 
   /* ── CONFIG ───────────────────────────────────────── */
@@ -684,8 +761,35 @@
     });
   }
 
+  /* ── PÁGINAS — árbol dinámico ─────────────────────── */
+  function loadPages(games = []) {
+    const treeGames = document.getElementById('tree-games');
+    if (!treeGames) return;
+
+    /* Reemplazar el li de RO con todos los juegos dinámicos */
+    const parent = treeGames.parentNode;
+    /* Eliminar todos los li de juegos (RO y WoW estaban hardcodeados) */
+    Array.from(parent.querySelectorAll('li[data-game-node]')).forEach(n => n.remove());
+    /* Si ya existe el nodo estático de RO (id=tree-games), reemplazarlo */
+    treeGames.remove();
+
+    games.forEach(g => {
+      const badgeCls = (g.slug === 'ragnarok' || g.slug === 'wow') ? g.slug === 'ragnarok' ? 'ro' : 'wow' : '';
+      const badgeStyle = badgeCls ? '' : `style="background:transparent;border:1px solid ${escH(g.color)};color:${escH(g.color)}"`;
+      const li = document.createElement('li');
+      li.setAttribute('data-game-node', g.slug);
+      li.innerHTML = `
+        <a href="juego/${escH(g.slug)}.html" target="_blank">${escH(g.name)}</a> — juego/${escH(g.slug)}.html
+        <span class="badge ${badgeCls}" ${badgeStyle}>${escH(g.slug)}</span>
+        <ul class="sub">
+          <li>guia.html?id=X — guías de ${escH(g.name)}</li>
+        </ul>`;
+      parent.appendChild(li);
+    });
+  }
+
   /* ── NUEVA SECCIÓN DE JUEGO ──────────────────────── */
-  function initNewGameForm() {
+  function initNewGameForm(games = []) {
     document.getElementById('new-game-form').addEventListener('submit', async e => {
       e.preventDefault();
       const name  = document.getElementById('game-name').value.trim();
@@ -693,25 +797,20 @@
       const color = document.getElementById('game-color').value;
       if (!name || !slug) return;
       try {
-        /* 1 — Crear en BD */
         await api('POST', 'games', { name, slug, color });
-        /* 2 — Generar HTML de la página de juego */
         await api('POST', 'generate-game-page', { name, slug, color });
         showStatus('game-status', `Sección "${name}" creada ✓`);
-        loadPages();
+        /* Recargar juegos y actualizar toda la UI */
+        const updatedGames = await api('GET', 'games');
+        populateGameSelects(updatedGames);
+        buildMediaGrids(updatedGames);
+        await loadMedia(updatedGames);
+        loadPages(updatedGames);
+        /* Limpiar el formulario */
+        document.getElementById('game-name').value = '';
+        document.getElementById('game-slug').value = '';
       } catch { showStatus('game-status', 'Error al crear sección', false); }
     });
-  }
-
-  async function loadPages() {
-    /* Recarga la lista de juegos para actualizar el árbol */
-    try {
-      const games = await api('GET', 'games');
-      const li = document.getElementById('tree-games');
-      if (!li) return;
-      /* Reemplazar los li de juegos custom */
-      /* (implementación simplificada — muestra en consola) */
-    } catch {}
   }
   </script>
 </body>

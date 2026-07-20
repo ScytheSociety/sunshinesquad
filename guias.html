@@ -114,7 +114,7 @@
       .then(u => {
         if (u?.is_owner) {
           const b = document.getElementById('btn-new-guide');
-          if (b) { b.style.display = ''; b.onclick = () => location.href = 'guia-editor.html'; }
+          if (b) { b.style.display = ''; b.onclick = () => location.href = 'admin.html#guides'; }
         }
       }).catch(() => {});
   });
