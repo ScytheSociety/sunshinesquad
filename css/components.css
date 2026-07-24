@@ -468,6 +468,22 @@
   cursor: zoom-in;
 }
 .article-body .step-media img.guide-img { margin: 0; }
+.article-body img.guide-img.guide-img-lg { max-width: 300px; }
+
+/* Imagen "destacada" con botón NAVI superpuesto en la esquina inferior
+   derecha (con margen, sin pegarse al borde) */
+.article-body .step-img-wrap {
+  position: relative;
+  display: inline-block;
+}
+.article-body .step-img-wrap img.guide-img { margin: 0; display: block; }
+.article-body .step-img-wrap .step-img-navi {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: var(--bg);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+}
 
 /* Texto clickeable que abre el modal de respuestas */
 .article-body .trivia-trigger {
