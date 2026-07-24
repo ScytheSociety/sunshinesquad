@@ -550,6 +550,28 @@
   gap: 6px;
 }
 
+/* Bloque "Ghostring Journal": tarjetas sin imagen — solo nombre de zona
+   + botones NAVI numerados debajo */
+.article-body .navi-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 4px 0;
+}
+.article-body .navi-group {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 14px 16px;
+  min-width: 170px;
+}
+.article-body .navi-group h4 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+
 /* ── AVATAR CON BORDE DE GÉNERO ──────────────────────── */
 /* Uso: <div class="avatar avatar-f"> o .avatar-m
    El elemento puede ser div o img directamente.          */
