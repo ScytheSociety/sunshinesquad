@@ -357,11 +357,9 @@
 .article-body th, .article-body td { border: 1px solid var(--rule); padding: 10px 12px; text-align: left; }
 .article-body th { background: var(--surface); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
 .article-body tbody tr:nth-child(even) { background: var(--surface); }
-.article-body td.loc-cell { text-align: center; }
+.article-body td.loc-cell,  .article-body th.loc-cell  { text-align: center; }
+.article-body td.day-cell,  .article-body th.day-cell   { text-align: center; }
 .article-body .daily-table { table-layout: fixed; }
-.article-body .daily-table td.day-cell { text-align: center; }
-.article-body .daily-table th:nth-child(1),
-.article-body .daily-table th:nth-child(4) { text-align: center; }
 .article-body th { word-break: break-word; }
 
 /* ── GUÍA: ÍNDICE (TOC) ──────────────────────────────── */
