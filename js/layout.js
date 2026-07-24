@@ -116,10 +116,10 @@
               ? `<a href="${R}admin.html" class="btn btn-admin">Admin</a>`
               : '';
             authArea.innerHTML = `
-              <div class="nav-user">
+              <a class="nav-user" href="${R}perfil.html" title="Ver mi perfil">
                 <img src="${user.avatar || ''}" alt="${escH(user.username)}" onerror="this.style.display='none'">
                 <span>${escH(user.username)}</span>
-              </div>
+              </a>
               ${adminLink}
               <a href="${R}api/auth/logout" class="btn btn-logout">Salir</a>
             `;

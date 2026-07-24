@@ -86,13 +86,19 @@
   gap: 8px;
 }
 
-.nav-user {
+.nav-auth .nav-user {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 0;
   font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--muted);
+  transition: color 0.15s;
 }
+.nav-auth .nav-user:hover { color: var(--ink); }
 
 .nav-user img {
   width: 28px;

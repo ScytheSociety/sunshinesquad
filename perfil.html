@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script>(function(){var t=localStorage.getItem('ss-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);})();</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi perfil · Sunshine Squad</title>
+  <link rel="icon" type="image/png" href="img/logo/sunshine_squad.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="site-logo" href="index.html">Sunshine Squad</a>
+      <div id="site-nav-slot"></div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menú">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="inner">
+      <div class="profile-wrap" id="profile-root">
+        <p style="color:var(--muted)">Cargando&hellip;</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer-slot"></div>
+
+  <script>const SITE_ROOT = "";</script>
+  <script src="js/layout.js"></script>
+  <script>
+  const API = '';
+
+  function escH(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }); }
+    catch { return '—'; }
+  }
+  function fmtBday(mmdd) {
+    if (!mmdd) return '';
+    const [m, d] = mmdd.split('-');
+    const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return `${parseInt(d)} de ${months[parseInt(m)-1]}`;
+  }
+  function fmtEventDT(iso) {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+    } catch { return '—'; }
+  }
+  function totalChars(p) {
+    return (p.characters_by_game || []).reduce((s, g) => s + g.characters.length, 0);
+  }
+
+  function renderActiveEvents(events) {
+    if (!events || !events.length) return '<p class="profile-empty">No estás inscrito en ningún evento activo ahora mismo.</p>';
+    return `<div class="profile-event-list">${events.map(e => `
+      <div class="profile-event-item">
+        <div>
+          <div class="profile-event-name">${escH(e.name)}</div>
+          <div class="profile-event-meta">${escH(e.game_name)} · ${escH(e.character_name || '?')} · ${fmtEventDT(e.event_datetime_utc)}${e.is_wildcard ? ' · 🃏 Comodín' : ''}</div>
+        </div>
+        <div class="profile-event-role">${e.role_emoji || ''} ${escH(e.role_name || 'Sin rol')}</div>
+      </div>`).join('')}</div>`;
+  }
+
+  function renderCharacters(byGame) {
+    if (!byGame || !byGame.length) return '<p class="profile-empty">Todavía no tenés personajes registrados.</p>';
+    return byGame.map(g => `
+      <div class="profile-game-block">
+        <div class="profile-game-name">${escH(g.game_name)}</div>
+        <div class="profile-char-grid">
+          ${g.characters.map(c => `
+            <div class="profile-char-card ${c.is_main ? 'is-main' : ''}">
+              ${c.is_main ? '<span class="profile-main-badge" title="Personaje principal">⭐</span>' : ''}
+              <div class="profile-char-name">${escH(c.character_name)}</div>
+              <div class="profile-char-meta">${c.class_emoji || ''} ${escH(c.class_name || 'Sin clase')} · ${c.role_emoji || ''} ${escH(c.role_name || 'Sin rol')} · Nv. ${c.level}</div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+  }
+
+  function renderAchievements(list) {
+    if (!list || !list.length) return '<p class="profile-empty">Todavía no tenés logros.</p>';
+    return `<ul class="profile-ach-list">${list.map(a => `
+      <li class="profile-ach-item">
+        <div>
+          <div class="profile-ach-name">${a.emoji || '🏆'} ${escH(a.name)}</div>
+          <div class="profile-ach-game">${escH(a.game_name)}</div>
+        </div>
+        <div class="profile-ach-pts">+${a.points}</div>
+      </li>`).join('')}</ul>`;
+  }
+
+  function renderAttendance(list) {
+    if (!list || !list.length) return '<p class="profile-empty">Todavía no tenés asistencias registradas.</p>';
+    return `<div class="profile-attendance-grid">${list.map(a => `
+      <div class="profile-attendance-chip">✅ ${escH(a.activity_name)} <b>&times;${a.count}</b></div>`).join('')}</div>`;
+  }
+
+  function renderProfile(p) {
+    return `
+      <div class="profile-hero">
+        <div class="profile-avatar">${p.avatar
+          ? `<img src="${escH(p.avatar)}" alt="${escH(p.display_name)}">`
+          : (p.is_owner ? '👑' : (p.gender === 'female' ? '👩' : '👨'))}</div>
+        <div>
+          <div class="profile-name">
+            ${escH(p.display_name)}
+            ${p.is_owner ? '<span class="profile-owner-badge">👑 Owner</span>' : ''}
+          </div>
+          <div class="profile-meta">
+            🗓️ En el server desde <strong>${fmtDate(p.server_join_date)}</strong>
+            ${p.birthday_date ? `<br>🎂 Cumpleaños: <strong>${fmtBday(p.birthday_date)}</strong>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <div class="profile-stat-value">${p.total_points}</div>
+          <div class="profile-stat-label">Puntos de logro</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-value">${p.achievements.length}</div>
+          <div class="profile-stat-label">Logros</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-value">${totalChars(p)}</div>
+          <div class="profile-stat-label">Personajes</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-value">${p.total_attendance}</div>
+          <div class="profile-stat-label">Asistencias</div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">📅 Eventos activos</div>
+        ${renderActiveEvents(p.active_events)}
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">🎮 Personajes</div>
+        ${renderCharacters(p.characters_by_game)}
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">🏆 Logros</div>
+        ${renderAchievements(p.achievements)}
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">✅ Asistencia a actividades</div>
+        ${renderAttendance(p.activity_attendance)}
+      </div>
+    `;
+  }
+
+  (async () => {
+    const root = document.getElementById('profile-root');
+    try {
+      const user = await fetch(`${API}api/auth/me`, { credentials: 'include' }).then(r => r.ok ? r.json() : null);
+      if (!user) {
+        root.innerHTML = `
+          <div class="profile-login-wrap">
+            <p>Iniciá sesión con Discord para ver tu perfil.</p>
+            <a href="${API}api/auth/discord" class="btn">Login Discord</a>
+          </div>`;
+        return;
+      }
+
+      const p = await fetch(`${API}api/profile/me`, { credentials: 'include' }).then(r => r.ok ? r.json() : null);
+      if (!p) {
+        root.innerHTML = '<p class="profile-empty">No se pudo cargar tu perfil.</p>';
+        return;
+      }
+
+      const accent   = p.is_owner ? 'var(--ro)'      : (p.gender === 'female' ? 'var(--female)'    : 'var(--male)');
+      const accentBg = p.is_owner ? 'var(--ro-soft)'  : (p.gender === 'female' ? 'var(--female-bg)' : 'var(--male-bg)');
+      root.style.setProperty('--profile-accent', accent);
+      root.style.setProperty('--profile-accent-bg', accentBg);
+
+      document.title = `${p.display_name} · Mi perfil · Sunshine Squad`;
+      root.innerHTML = renderProfile(p);
+    } catch {
+      root.innerHTML = '<p class="profile-empty">No se pudo cargar tu perfil.</p>';
+    }
+  })();
+  </script>
+</body>
+</html>

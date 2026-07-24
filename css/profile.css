@@ -1,0 +1,170 @@
+/* ===================================================================
+   PROFILE.CSS — Página de perfil personal (perfil.html).
+   El color de acento (--profile-accent / --profile-accent-bg) lo
+   setea el JS en tiempo de carga según género (rosa/amarillo) o
+   rojo si es el owner — ver perfil.html.
+   =================================================================== */
+
+.profile-wrap { padding: 40px 0 64px; }
+
+.profile-login-wrap { text-align: center; padding: 100px 20px; }
+.profile-login-wrap p { color: var(--muted); margin-bottom: 20px; font-size: 1rem; }
+
+/* ── HERO ─────────────────────────────────────────────── */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  flex-wrap: wrap;
+  padding: 32px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: 4px solid var(--profile-accent);
+  border-radius: 14px;
+  margin-bottom: 28px;
+}
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 4px solid var(--profile-accent);
+  box-shadow: 0 0 0 4px var(--profile-accent-bg);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  background: var(--bg);
+}
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.profile-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.profile-owner-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 11px;
+  border-radius: 20px;
+  background: var(--profile-accent);
+  color: #fff;
+}
+.profile-meta { font-size: 0.86rem; color: var(--muted); line-height: 1.9; }
+.profile-meta strong { color: var(--ink); font-weight: 600; }
+
+/* ── STATS ────────────────────────────────────────────── */
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 36px;
+}
+.profile-stat {
+  text-align: center;
+  padding: 22px 12px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+}
+.profile-stat-value { font-size: 1.9rem; font-weight: 800; color: var(--profile-accent); line-height: 1.1; }
+.profile-stat-label {
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted); margin-top: 6px;
+}
+
+/* ── SECCIONES ────────────────────────────────────────── */
+.profile-section { margin-bottom: 38px; }
+.profile-section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--profile-accent);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.profile-section-title::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+.profile-empty { color: var(--muted); font-size: 0.88rem; }
+
+/* Personajes */
+.profile-game-block { margin-bottom: 22px; }
+.profile-game-block:last-child { margin-bottom: 0; }
+.profile-game-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; }
+.profile-char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.profile-char-card {
+  position: relative;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: var(--bg);
+}
+.profile-char-card.is-main { border-color: var(--profile-accent); }
+.profile-char-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; padding-right: 20px; }
+.profile-char-meta { font-size: 0.8rem; color: var(--muted); }
+.profile-main-badge { position: absolute; top: 12px; right: 14px; font-size: 0.9rem; }
+
+/* Logros */
+.profile-ach-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.profile-ach-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 18px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.profile-ach-name { font-weight: 600; font-size: 0.9rem; }
+.profile-ach-game { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.profile-ach-pts { font-weight: 800; font-size: 0.85rem; color: var(--profile-accent); white-space: nowrap; }
+
+/* Asistencia */
+.profile-attendance-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.profile-attendance-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 20px;
+  background: var(--profile-accent-bg);
+  border: 1px solid var(--rule);
+  font-size: 0.85rem;
+}
+.profile-attendance-chip b { color: var(--profile-accent); }
+
+/* Eventos activos */
+.profile-event-list { display: flex; flex-direction: column; gap: 12px; }
+.profile-event-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--profile-accent);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.profile-event-name { font-weight: 700; font-size: 0.95rem; }
+.profile-event-meta { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
+.profile-event-role { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .profile-hero { padding: 24px 20px; gap: 18px; }
+  .profile-avatar { width: 76px; height: 76px; font-size: 2rem; }
+  .profile-name { font-size: 1.3rem; }
+  .profile-event-item { flex-direction: column; align-items: flex-start; }
+}
