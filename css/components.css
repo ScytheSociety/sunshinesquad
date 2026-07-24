@@ -475,6 +475,7 @@
 .article-body .step-img-wrap {
   position: relative;
   display: inline-block;
+  align-self: flex-start;
 }
 .article-body .step-img-wrap img.guide-img { margin: 0; display: block; }
 .article-body .step-img-wrap .step-img-navi {
