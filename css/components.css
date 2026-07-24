@@ -485,6 +485,11 @@
   background: var(--bg);
   box-shadow: 0 2px 10px rgba(0,0,0,0.35);
 }
+.article-body .step-img-wrap .step-img-navi:hover,
+.article-body .step-img-wrap .step-img-navi.copied {
+  background: var(--ink);
+  color: var(--bg);
+}
 
 /* Texto clickeable que abre el modal de respuestas */
 .article-body .trivia-trigger {
