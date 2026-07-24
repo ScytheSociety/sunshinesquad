@@ -41,3 +41,18 @@
   --male:      #fbbf24;   /* amarillo — rol 1426917000550285382 */
   --male-bg:   #fffbeb;
 }
+
+/* ── Tema oscuro ──────────────────────────────────────
+   Solo los neutros cambian: fondo, superficie, texto y
+   líneas. Los colores de marca/juego (--ro, --wow, --blog,
+   --bday, --stream, --female, --male y sus variantes -soft/
+   -bd/-text) se mantienen fijos: son chips autocontenidos
+   (texto + fondo propio) y ya son legibles en ambos temas. */
+:root[data-theme="dark"] {
+  --bg:        #121212;
+  --surface:   #1c1c1f;
+  --ink:       #f0f0f0;
+  --muted:     #a0a0a8;
+  --rule:      #2c2c30;
+  --ink-rule:  #3d3d42;
+}

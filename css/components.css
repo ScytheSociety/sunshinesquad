@@ -26,13 +26,13 @@
   width: 100%;
   aspect-ratio: 16/9;
   object-fit: cover;
-  background: var(--blog-soft);
+  background: var(--surface);
   display: block;
 }
 .blog-card-thumb-placeholder {
   width: 100%;
   aspect-ratio: 16/9;
-  background: var(--blog-soft);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,8 +142,7 @@
 
 /* ── STREAM ──────────────────────────────────────────── */
 .stream-section {
-  background: var(--stream-soft);
-  border-bottom: 1px solid var(--stream-bd);
+  border-bottom: 1px solid var(--rule);
   padding: 40px 0;
 }
 
@@ -183,7 +182,7 @@
 }
 
 /* ── BIRTHDAY CARD ───────────────────────────────────── */
-.bday-section { background: var(--bday-soft); border-top: 1px solid var(--bday-bd); padding: 40px 0; }
+.bday-section { border-top: 1px solid var(--rule); padding: 40px 0; }
 
 .bday-card {
   display: flex;
@@ -223,8 +222,8 @@
   padding: 48px 0 40px;
   border-bottom: 1px solid var(--rule);
 }
-.game-hero.ro  { background: var(--ro-soft);  border-color: var(--ro-bd); }
-.game-hero.wow { background: var(--wow-soft); border-color: var(--wow-bd); }
+.game-hero.ro  { border-bottom: 3px solid var(--ro); }
+.game-hero.wow { border-bottom: 3px solid var(--wow); }
 
 .game-hero-title {
   font-size: clamp(2rem, 6vw, 3.5rem);
@@ -402,7 +401,7 @@
 .comment-header  { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; margin-bottom: 4px; }
 .comment-author  { font-weight: 700; font-size: 0.9rem; }
 .comment-date    { font-size: 0.75rem; color: var(--muted); }
-.comment-text    { font-size: 0.9rem; line-height: 1.6; color: #333; }
+.comment-text    { font-size: 0.9rem; line-height: 1.6; color: var(--ink); }
 
 .comment-form { display: flex; flex-direction: column; gap: 12px; }
 .comment-form textarea {

@@ -79,6 +79,29 @@
       });
     }
 
+    /* ── Toggle tema claro/oscuro ──────────────────── */
+    const headerInner = document.querySelector('.header-inner');
+    if (headerInner) {
+      const themeBtn = document.createElement('button');
+      themeBtn.className = 'theme-toggle';
+      themeBtn.id = 'theme-toggle';
+      themeBtn.type = 'button';
+      themeBtn.setAttribute('aria-label', 'Cambiar tema claro/oscuro');
+      headerInner.insertBefore(themeBtn, toggle || null);
+
+      const setIcon = () => {
+        themeBtn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+      };
+      setIcon();
+
+      themeBtn.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('ss-theme', next); } catch {}
+        setIcon();
+      });
+    }
+
     /* ── Auth en nav ──────────────────────────────── */
     const authArea = document.getElementById('nav-auth');
     if (authArea) {

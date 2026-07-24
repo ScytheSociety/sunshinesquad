@@ -8,14 +8,32 @@
 }
 
 .header-inner {
-  max-width: var(--max);
-  margin: 0 auto;
+  width: 100%;
   padding: 0 32px;
   display: flex;
   align-items: center;
   gap: 32px;
   min-height: 60px;
 }
+
+/* ── THEME TOGGLE ────────────────────────────────────── */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+  color: var(--ink);
+  transition: border-color 0.15s, background 0.15s;
+}
+.theme-toggle:hover { border-color: var(--ink); background: var(--surface); }
 
 /* Logo — el JS reemplaza el texto con la imagen */
 .site-logo {
@@ -103,7 +121,7 @@
 }
 .nav-auth .btn:hover {
   background: var(--ink) !important;
-  color: #fff !important;
+  color: var(--bg) !important;
   border-color: var(--ink) !important;
 }
 
@@ -209,7 +227,6 @@
 }
 
 .intro-section .inner {
-  max-width: 860px;
   text-align: center;
 }
 
