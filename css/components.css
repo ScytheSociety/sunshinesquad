@@ -456,20 +456,20 @@
 }
 .article-body .step-media {
   display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 16px;
 }
-.article-body .step-media table { flex: 1 1 320px; margin: 0; }
-.article-body .step-media img { flex-shrink: 0; margin: 0; }
+.article-body .step-media table { margin: 0; }
+.article-body .step-media img { margin: 0; }
 
 /* Imágenes de guía: chicas por defecto, se agrandan en el lightbox al hacer click */
 .article-body img.guide-img {
   max-width: 240px;
   width: 100%;
-  margin: 0 auto;
+  margin: 0 auto 16px;
   cursor: zoom-in;
 }
+.article-body .step-media img.guide-img { margin: 0; }
 
 /* ── AVATAR CON BORDE DE GÉNERO ──────────────────────── */
 /* Uso: <div class="avatar avatar-f"> o .avatar-m

@@ -114,9 +114,12 @@
 }
 .hub-modal-close:hover { color: var(--ink); }
 
-.hub-detail-banner {
-  display: block; width: 100%; max-height: 200px; object-fit: cover;
-  border-radius: 10px; margin-bottom: 18px;
+.hub-detail-top { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 4px; }
+.hub-detail-top-info { flex: 1; min-width: 0; }
+.hub-detail-square {
+  width: 120px; height: 120px; object-fit: cover;
+  border-radius: 12px; flex-shrink: 0;
+  border: 1px solid var(--rule);
 }
 .hub-detail-head { display: flex; align-items: center; gap: 18px; margin-bottom: 8px; }
 .hub-detail-avatar { width: 84px; height: 84px; font-size: 2.1rem; flex-shrink: 0; }
@@ -177,4 +180,6 @@
   .hub-modal { padding: 0; }
   .hub-modal-panel { max-width: none; min-height: 100%; border-radius: 0; padding: 24px 18px 32px; }
   .hub-detail-head { flex-wrap: wrap; }
+  .hub-detail-top { flex-direction: column; }
+  .hub-detail-square { width: 100%; height: 160px; }
 }

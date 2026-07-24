@@ -377,19 +377,24 @@
   }
 
   function renderEventDetail(ev) {
+    const ratio = ev.capacity ? Math.min(1, ev.main_count / ev.capacity) : 0;
     return `
-      ${ev.activity_image ? `<img class="hub-detail-banner" src="${escH(ev.activity_image)}" alt="${escH(ev.activity_name||ev.name)}">` : ''}
-      <div class="hub-detail-tag">${escH(ev.game_name)}${ev.activity_name ? ' · ' + escH(ev.activity_name) : ''}</div>
-      <h3 class="hub-detail-name">${escH(ev.name)}</h3>
-      ${ev.description ? `<p class="hub-detail-desc">${escH(ev.description)}</p>` : ''}
-      <div class="hub-detail-meta-grid">
-        <div><span class="hub-meta-label">🗓️ Hora servidor (${escH(ev.game_timezone)})</span><span>${fmtServerDT(ev.event_datetime_server)}</span></div>
-        <div><span class="hub-meta-label">🕒 Tu hora local</span><span>${fmtViewerDT(ev.event_datetime_utc)}</span></div>
-        <div><span class="hub-meta-label">👤 Creado por</span><span>${ev.creator ? escH(ev.creator.display_name) : '—'}</span></div>
-        <div><span class="hub-meta-label">🏆 Puntos</span><span>${ev.activity_points||0}</span></div>
+      <div class="hub-detail-top">
+        <div class="hub-detail-top-info">
+          <div class="hub-detail-tag">${escH(ev.game_name)}${ev.activity_name ? ' · ' + escH(ev.activity_name) : ''}</div>
+          <h3 class="hub-detail-name">${escH(ev.name)}</h3>
+          ${ev.description ? `<p class="hub-detail-desc">${escH(ev.description)}</p>` : ''}
+          <div class="hub-detail-meta-grid">
+            <div><span class="hub-meta-label">🗓️ Hora servidor (${escH(ev.game_timezone)})</span><span>${fmtServerDT(ev.event_datetime_server)}</span></div>
+            <div><span class="hub-meta-label">🕒 Tu hora local</span><span>${fmtViewerDT(ev.event_datetime_utc)}</span></div>
+            <div><span class="hub-meta-label">👤 Creado por</span><span>${ev.creator ? escH(ev.creator.display_name) : '—'}</span></div>
+            <div><span class="hub-meta-label">🏆 Puntos</span><span>${ev.activity_points||0}</span></div>
+          </div>
+        </div>
+        ${ev.activity_image ? `<img class="hub-detail-square" src="${escH(ev.activity_image)}" alt="${escH(ev.activity_name||ev.name)}">` : ''}
       </div>
       <div class="hub-detail-bar-wrap">
-        <div class="hub-detail-bar"><div class="hub-detail-bar-fill" style="width:${Math.round((ev.capacity? Math.min(1, ev.main_count/ev.capacity):0)*100)}%;background:${donutColor(ev.capacity? Math.min(1, ev.main_count/ev.capacity):0)}"></div></div>
+        <div class="hub-detail-bar"><div class="hub-detail-bar-fill" style="width:${Math.round(ratio*100)}%;background:${donutColor(ratio)}"></div></div>
         <span>${ev.main_count}${ev.capacity ? ` / ${ev.capacity}` : ''} inscritos</span>
       </div>
       <h4 class="hub-detail-h4">Participantes</h4>
