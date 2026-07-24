@@ -10,6 +10,7 @@
     <nav class="site-nav" id="site-nav">
       <a href="${R}index.html">Inicio</a>
       <a href="${R}blog.html">Blog</a>
+      <a href="${R}guias.html">Guías</a>
       <div class="nav-dropdown">
         <span>Juegos &#9660;</span>
         <div class="nav-dropdown-menu" id="nav-games-menu">

@@ -82,6 +82,13 @@
   .article-wrap { padding: 32px 0 48px; }
   .article-title { font-size: 1.8rem; }
 
+  /* Guía: acordeón y pasos */
+  .guide-section-toggle { padding: 12px 14px; }
+  .guide-section-title { font-size: 0.92rem; }
+  .guide-section-body { padding: 18px 16px 20px; }
+  .article-body .step { gap: 10px; }
+  .article-body img.guide-img { max-width: 160px; }
+
   /* Game info */
   .game-info-grid { grid-template-columns: 1fr; }
 

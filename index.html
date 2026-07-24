@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/header.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/hub.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
@@ -54,24 +55,33 @@
 
   <main>
 
-    <!-- ── CUMPLEAÑOS ─────────────────────────────────── -->
-    <section class="section bday-section" id="section-birthday">
+    <!-- ── HUB: CUMPLEAÑOS · EVENTO · TOP JUGADOR ──────── -->
+    <section class="section hub-section" id="section-hub">
       <div class="inner">
         <div class="section-head">
-          <h2 class="section-title bday">Próximo cumpleaños</h2>
+          <h2 class="section-title bday">Comunidad</h2>
         </div>
-        <div id="bday-container">
-          <div class="bday-card" style="opacity:.5">
-            <div class="bday-avatar">🎂</div>
-            <div class="bday-info">
-              <div class="bday-label">Próximo cumpleaños</div>
-              <div class="bday-name">Cargando&hellip;</div>
-              <div class="bday-date">—</div>
-            </div>
+        <div class="hub-grid">
+          <div id="bday-container" class="hub-slot">
+            <div class="hub-card hub-skel"><div class="hub-skel-avatar"></div><div class="hub-skel-lines"><span></span><span></span></div></div>
+          </div>
+          <div id="event-container" class="hub-slot">
+            <div class="hub-card hub-skel"><div class="hub-skel-avatar"></div><div class="hub-skel-lines"><span></span><span></span></div></div>
+          </div>
+          <div id="top-container" class="hub-slot">
+            <div class="hub-card hub-skel"><div class="hub-skel-avatar"></div><div class="hub-skel-lines"><span></span><span></span></div></div>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- ── HUB: MODAL DE DETALLE ───────────────────────── -->
+    <div class="hub-modal" id="hub-modal">
+      <div class="hub-modal-panel">
+        <button class="hub-modal-close" id="hub-modal-close" aria-label="Cerrar">&times;</button>
+        <div id="hub-modal-body"></div>
+      </div>
+    </div>
 
     <!-- ── STREAM ─────────────────────────────────────── -->
     <section class="section stream-section" id="section-stream">
@@ -208,27 +218,207 @@
     }
   })();
 
+  /* ── HUB: cumpleaños · próximo evento · top jugador ──── */
+  function avatarHtml(url, name, gender, extraClass) {
+    const cls = gender === 'female' ? 'avatar-f' : 'avatar-m';
+    return `<div class="avatar ${cls} ${extraClass||''}">${url ? `<img src="${escH(url)}" alt="${escH(name||'')}">` : (gender === 'female' ? '👩' : '👨')}</div>`;
+  }
+  function fmtServerDT(naiveStr) {
+    if (!naiveStr) return '—';
+    const [datePart, timePart] = naiveStr.split(' ');
+    const [y, mo, d] = datePart.split('-').map(Number);
+    const [h, mi] = (timePart || '00:00').split(':').map(Number);
+    const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return `${d} de ${months[mo-1]} de ${y} · ${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;
+  }
+  function fmtViewerDT(iso) {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleString('es-ES', {
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+      });
+    } catch { return '—'; }
+  }
+  function fmtJoinDate(iso) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' }); }
+    catch { return '—'; }
+  }
+  function donutColor(ratio) {
+    if (ratio >= 0.9) return '#22c55e';
+    if (ratio >= 0.5) return '#f59e0b';
+    return '#ef4444';
+  }
+  function charsByGameHtml(byGame) {
+    if (!byGame || !byGame.length) return '<p style="color:var(--muted);font-size:.85rem">Sin personajes registrados.</p>';
+    return byGame.map(g => `
+      <div class="hub-detail-game">
+        <div class="hub-detail-game-name">${escH(g.game_name)}</div>
+        <ul class="hub-char-list">
+          ${g.characters.map(c => `
+            <li>
+              ${c.is_main ? '<span class="hub-main-star" title="Principal">⭐</span>' : ''}
+              <strong>${escH(c.character_name)}</strong>
+              <span class="hub-char-meta">${c.class_emoji||''} ${escH(c.class_name||'Sin clase')} · ${c.role_emoji||''} ${escH(c.role_name||'Sin rol')} · Nv. ${c.level}</span>
+            </li>`).join('')}
+        </ul>
+      </div>`).join('');
+  }
+  function achievementsHtml(list) {
+    if (!list || !list.length) return '<p style="color:var(--muted);font-size:.85rem">Sin logros todavía.</p>';
+    return `<ul class="hub-ach-list">${list.map(a => `
+      <li><span>${a.emoji||'🏆'} ${escH(a.name)}</span><span class="hub-ach-pts">+${a.points} · ${escH(a.game_name)}</span></li>`).join('')}</ul>`;
+  }
+
+  /* Modal genérico */
+  const hubModal = document.getElementById('hub-modal');
+  function openModal(html) {
+    document.getElementById('hub-modal-body').innerHTML = html;
+    hubModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    hubModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('hub-modal-close').addEventListener('click', closeModal);
+  hubModal.addEventListener('click', e => { if (e.target === hubModal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* Detalle de persona — reutilizado por cumpleaños y top jugador */
+  function renderPersonDetail(p, tag) {
+    return `
+      <div class="hub-detail-head">
+        ${avatarHtml(p.avatar, p.display_name, p.gender, 'hub-detail-avatar')}
+        <div>
+          <div class="hub-detail-tag">${escH(tag)}</div>
+          <h3 class="hub-detail-name">${escH(p.display_name)}</h3>
+          <div class="hub-detail-sub">🗓️ En el server desde ${fmtJoinDate(p.server_join_date)}</div>
+          <div class="hub-detail-sub">🏆 ${p.total_points||0} puntos de logro</div>
+        </div>
+      </div>
+      <h4 class="hub-detail-h4">Personajes</h4>
+      ${charsByGameHtml(p.characters_by_game)}
+      <h4 class="hub-detail-h4">Logros</h4>
+      ${achievementsHtml(p.achievements)}
+    `;
+  }
+
+  function openPersonModal(p, tag) { openModal(renderPersonDetail(p, tag)); }
+
   /* Cumpleaños */
   (async () => {
     try {
       const b = await fetch(`${API}api/birthdays/next`).then(r => r.json());
-      if (!b || !b.display_name) return;
-      const zodiac  = getZodiac(b.birthday_date);
-      const gClass  = b.gender === 'female' ? 'avatar-f' : 'avatar-m';
-      document.getElementById('bday-container').innerHTML = `
-        <div class="bday-card">
-          <div class="bday-avatar ${gClass}">
-            ${b.avatar
-              ? `<img src="${b.avatar}" alt="${escH(b.display_name)}">`
-              : (b.gender === 'female' ? '👩' : '👨')}
+      const c = document.getElementById('bday-container');
+      if (!b || !b.display_name) { c.innerHTML = ''; return; }
+      const zodiac = getZodiac(b.birthday_date);
+      c.innerHTML = `
+        <button type="button" class="hub-card hub-card-bday">
+          ${avatarHtml(b.avatar, b.display_name, b.gender, 'hub-avatar')}
+          <div class="hub-card-body">
+            <div class="hub-card-label bday">🎂 Próximo cumpleaños</div>
+            <div class="hub-card-title">${escH(b.display_name)} ${zodiac.emoji}</div>
+            <div class="hub-card-sub">${zodiac.sign} — ${fmtBday(b.birthday_date)}</div>
+            <div class="hub-card-badge">${b.days_until === 0 ? '🎉 ¡Hoy!' : `En ${b.days_until} día${b.days_until !== 1 ? 's' : ''}`}</div>
           </div>
-          <div class="bday-info">
-            <div class="bday-label">Próximo cumpleaños</div>
-            <div class="bday-name">${escH(b.display_name)} ${zodiac.emoji}</div>
-            <div class="bday-date">${zodiac.sign} &mdash; ${fmtBday(b.birthday_date)}</div>
-            <div class="bday-days">${b.days_until === 0 ? '🎉 ¡Hoy!' : `En ${b.days_until} día${b.days_until !== 1 ? 's' : ''}`}</div>
+        </button>`;
+      c.querySelector('.hub-card').addEventListener('click', () => openPersonModal(b, '🎂 Cumpleañero/a'));
+    } catch { /* silencioso */ }
+  })();
+
+  /* Próximo evento */
+  (async () => {
+    try {
+      const ev = await fetch(`${API}api/events/next`).then(r => r.json());
+      const c = document.getElementById('event-container');
+      if (!ev) { c.innerHTML = ''; return; }
+      const ratio = ev.capacity > 0 ? Math.min(1, ev.main_count / ev.capacity) : 0;
+      const color = donutColor(ratio);
+      const pct   = Math.round(ratio * 100);
+      c.innerHTML = `
+        <button type="button" class="hub-card hub-card-event">
+          <div class="hub-donut" style="--pct:${pct};--donut-color:${color}">
+            <span class="hub-donut-value">${ev.main_count}${ev.capacity ? `/${ev.capacity}` : ''}</span>
           </div>
-        </div>`;
+          <div class="hub-card-body">
+            <div class="hub-card-label stream">📅 Próximo evento</div>
+            <div class="hub-card-title">${escH(ev.name)}</div>
+            <div class="hub-card-sub">Creado por ${escH(ev.creator ? ev.creator.display_name : '—')}</div>
+            <div class="hub-card-badge">${fmtViewerDT(ev.event_datetime_utc)}</div>
+          </div>
+        </button>`;
+      c.querySelector('.hub-card').addEventListener('click', () => openModal(renderEventDetail(ev)));
+    } catch { /* silencioso */ }
+  })();
+
+  function rosterGroupHtml(members) {
+    if (!members.length) return '<p style="color:var(--muted);font-size:.85rem">Nadie registrado todavía.</p>';
+    const groups = [];
+    members.forEach(m => {
+      let g = groups.find(x => x.role_name === m.role_name);
+      if (!g) { g = { role_name: m.role_name, role_emoji: m.role_emoji, items: [] }; groups.push(g); }
+      g.items.push(m);
+    });
+    return groups.map(g => `
+      <div class="hub-role-group">
+        <div class="hub-role-head">${g.role_emoji||''} ${escH(g.role_name)} <span class="hub-role-count">${g.items.length}</span></div>
+        <ul class="hub-roster-list">
+          ${g.items.map(m => `
+            <li>
+              ${avatarHtml(m.avatar, m.display_name, m.gender, 'hub-roster-avatar')}
+              <div>
+                <div class="hub-roster-name">${escH(m.display_name)} ${m.is_wildcard ? '🃏' : ''}</div>
+                <div class="hub-roster-char">${escH(m.character_name)} · ${m.class_emoji||''} ${escH(m.class_name||'Sin clase')} · Nv. ${m.level}</div>
+              </div>
+            </li>`).join('')}
+        </ul>
+      </div>`).join('');
+  }
+
+  function renderEventDetail(ev) {
+    return `
+      ${ev.activity_image ? `<img class="hub-detail-banner" src="${escH(ev.activity_image)}" alt="${escH(ev.activity_name||ev.name)}">` : ''}
+      <div class="hub-detail-tag">${escH(ev.game_name)}${ev.activity_name ? ' · ' + escH(ev.activity_name) : ''}</div>
+      <h3 class="hub-detail-name">${escH(ev.name)}</h3>
+      ${ev.description ? `<p class="hub-detail-desc">${escH(ev.description)}</p>` : ''}
+      <div class="hub-detail-meta-grid">
+        <div><span class="hub-meta-label">🗓️ Hora servidor (${escH(ev.game_timezone)})</span><span>${fmtServerDT(ev.event_datetime_server)}</span></div>
+        <div><span class="hub-meta-label">🕒 Tu hora local</span><span>${fmtViewerDT(ev.event_datetime_utc)}</span></div>
+        <div><span class="hub-meta-label">👤 Creado por</span><span>${ev.creator ? escH(ev.creator.display_name) : '—'}</span></div>
+        <div><span class="hub-meta-label">🏆 Puntos</span><span>${ev.activity_points||0}</span></div>
+      </div>
+      <div class="hub-detail-bar-wrap">
+        <div class="hub-detail-bar"><div class="hub-detail-bar-fill" style="width:${Math.round((ev.capacity? Math.min(1, ev.main_count/ev.capacity):0)*100)}%;background:${donutColor(ev.capacity? Math.min(1, ev.main_count/ev.capacity):0)}"></div></div>
+        <span>${ev.main_count}${ev.capacity ? ` / ${ev.capacity}` : ''} inscritos</span>
+      </div>
+      <h4 class="hub-detail-h4">Participantes</h4>
+      ${rosterGroupHtml(ev.roster.main)}
+      ${ev.roster.bench.length ? `<h4 class="hub-detail-h4">🃏 Banca / Comodines</h4>${rosterGroupHtml(ev.roster.bench)}` : ''}
+    `;
+  }
+
+  /* Top jugador */
+  (async () => {
+    try {
+      const p = await fetch(`${API}api/leaderboard/top`).then(r => r.json());
+      const c = document.getElementById('top-container');
+      if (!p) { c.innerHTML = ''; return; }
+      const mains = (p.characters_by_game||[]).map(g => {
+        const m = g.characters.find(ch => ch.is_main) || g.characters[0];
+        return m ? `${m.class_emoji||''} ${escH(m.character_name)}` : '';
+      }).filter(Boolean).join(' · ');
+      c.innerHTML = `
+        <button type="button" class="hub-card hub-card-top">
+          ${avatarHtml(p.avatar, p.display_name, p.gender, 'hub-avatar')}
+          <div class="hub-card-body">
+            <div class="hub-card-label blog">🏆 Top jugador</div>
+            <div class="hub-card-title">${escH(p.display_name)}</div>
+            <div class="hub-card-sub">${mains || 'Sin personajes'}</div>
+            <div class="hub-card-badge">${p.total_points} pts</div>
+          </div>
+        </button>`;
+      c.querySelector('.hub-card').addEventListener('click', () => openPersonModal(p, '🏆 Top jugador del server'));
     } catch { /* silencioso */ }
   })();
 

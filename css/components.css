@@ -285,7 +285,7 @@
 .lightbox-close:hover { opacity: 1; }
 
 /* ── ARTICLE (posts y guías) ─────────────────────────── */
-.article-wrap { max-width: 72ch; padding: 48px 0 64px; }
+.article-wrap { padding: 48px 0 64px; }
 
 .article-back {
   display: inline-flex;
@@ -362,6 +362,114 @@
 .article-body .daily-table td.day-cell { text-align: center; }
 .article-body .daily-table th:nth-child(1),
 .article-body .daily-table th:nth-child(4) { text-align: center; }
+.article-body th { word-break: break-word; }
+
+/* ── GUÍA: ÍNDICE (TOC) ──────────────────────────────── */
+.guide-toc {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin: 0 0 32px;
+}
+.guide-toc-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.guide-toc-list { list-style: none; counter-reset: guide-toc; padding: 0; }
+.guide-toc-list li { counter-increment: guide-toc; margin: 2px 0; }
+.guide-toc-list li::before {
+  content: counter(guide-toc) ".";
+  display: inline-block;
+  width: 1.6em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.guide-toc-list a {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 500;
+}
+.guide-toc-list a:hover { text-decoration: underline; }
+
+/* ── GUÍA: SECCIONES COLAPSABLES (MISIONES) ──────────── */
+.guide-section {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.guide-section-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--ink);
+}
+.guide-section-toggle:hover { background: var(--rule); }
+.guide-section-arrow {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  display: inline-block;
+  transition: transform 0.2s ease;
+  color: var(--muted);
+}
+.guide-section.open .guide-section-arrow { transform: rotate(90deg); }
+.guide-section-num { font-weight: 800; flex-shrink: 0; }
+.guide-section-title { font-size: 1.05rem; font-weight: 700; }
+.guide-section-body {
+  display: none;
+  padding: 24px 24px 28px;
+  border-top: 1px solid var(--rule);
+}
+.guide-section-body > *:first-child { margin-top: 0; }
+.guide-section.open .guide-section-body { display: block; }
+
+/* ── GUÍA: PASO NUMERADO (NAVI + imagen + tabla agrupados) ── */
+.article-body .step { display: flex; align-items: flex-start; gap: 16px; margin: 20px 0 28px; }
+.article-body .step-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.2;
+  flex-shrink: 0;
+  min-width: 1.4ch;
+}
+.article-body .step-body { flex: 1; min-width: 0; }
+.article-body .step-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+.article-body .step-media {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.article-body .step-media table { flex: 1 1 320px; margin: 0; }
+.article-body .step-media img { flex-shrink: 0; margin: 0; }
+
+/* Imágenes de guía: chicas por defecto, se agrandan en el lightbox al hacer click */
+.article-body img.guide-img {
+  max-width: 240px;
+  width: 100%;
+  margin: 0 auto;
+  cursor: zoom-in;
+}
 
 /* ── AVATAR CON BORDE DE GÉNERO ──────────────────────── */
 /* Uso: <div class="avatar avatar-f"> o .avatar-m

@@ -1,0 +1,180 @@
+/* ===================================================================
+   HUB.CSS — Cards de "Comunidad" en index.html:
+   Próximo cumpleaños · Próximo evento · Top jugador del server.
+   Cada card es clickable y abre un modal de detalle compartido.
+   =================================================================== */
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.hub-slot { min-width: 0; }
+
+/* ── SKELETON DE CARGA ────────────────────────────────── */
+.hub-skel { display: flex; align-items: center; gap: 16px; cursor: default; }
+.hub-skel-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--rule); flex-shrink: 0;
+}
+.hub-skel-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.hub-skel-lines span { height: 10px; border-radius: 4px; background: var(--rule); display: block; }
+.hub-skel-lines span:first-child { width: 70%; }
+.hub-skel-lines span:last-child { width: 45%; }
+
+/* ── CARD BASE ────────────────────────────────────────── */
+.hub-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.hub-card:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.hub-card:not(.hub-skel):hover {
+  border-color: var(--ink);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+.hub-card-body { flex: 1; min-width: 0; }
+.hub-card-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.hub-card-label.bday   { color: var(--bday); }
+.hub-card-label.stream { color: var(--stream); }
+.hub-card-label.blog   { color: var(--blog); }
+.hub-card-title {
+  font-size: 1.02rem; font-weight: 800; line-height: 1.25;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hub-card-sub {
+  font-size: 0.82rem; color: var(--muted); margin-top: 3px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hub-card-badge {
+  display: inline-block; margin-top: 8px;
+  font-size: 0.72rem; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--rule);
+}
+
+.hub-avatar { width: 56px; height: 56px; font-size: 1.6rem; flex-shrink: 0; }
+
+/* ── DONA DE PROGRESO (evento) ───────────────────────── */
+.hub-donut {
+  --pct: 0;
+  --donut-color: #ef4444;
+  width: 62px; height: 62px; border-radius: 50%; flex-shrink: 0;
+  background: conic-gradient(var(--donut-color) calc(var(--pct) * 1%), var(--rule) 0);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.hub-donut::before {
+  content: ""; position: absolute; inset: 7px;
+  border-radius: 50%; background: var(--bg);
+}
+.hub-donut-value {
+  position: relative; z-index: 1;
+  font-size: 0.82rem; font-weight: 800; color: var(--ink);
+}
+
+/* ── MODAL DE DETALLE ─────────────────────────────────── */
+.hub-modal {
+  display: none;
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.6);
+  align-items: flex-start; justify-content: center;
+  padding: 40px 16px;
+  overflow-y: auto;
+}
+.hub-modal.active { display: flex; }
+.hub-modal-panel {
+  position: relative;
+  background: var(--bg);
+  border-radius: 14px;
+  max-width: 640px;
+  width: 100%;
+  padding: 32px 28px 36px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+.hub-modal-close {
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: none; cursor: pointer;
+  font-size: 1.6rem; line-height: 1; color: var(--muted);
+}
+.hub-modal-close:hover { color: var(--ink); }
+
+.hub-detail-banner {
+  display: block; width: 100%; max-height: 200px; object-fit: cover;
+  border-radius: 10px; margin-bottom: 18px;
+}
+.hub-detail-head { display: flex; align-items: center; gap: 18px; margin-bottom: 8px; }
+.hub-detail-avatar { width: 84px; height: 84px; font-size: 2.1rem; flex-shrink: 0; }
+.hub-detail-tag { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 4px; }
+.hub-detail-name { font-size: 1.4rem; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+.hub-detail-sub { font-size: 0.85rem; color: var(--muted); margin: 2px 0; }
+.hub-detail-desc { font-size: 0.9rem; color: var(--muted); margin: 10px 0 4px; }
+.hub-detail-h4 {
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--muted); margin: 26px 0 12px; padding-top: 18px; border-top: 1px solid var(--rule);
+}
+.hub-detail-head + .hub-detail-h4 { border-top: none; padding-top: 0; margin-top: 20px; }
+
+.hub-detail-meta-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px;
+  margin: 16px 0; font-size: 0.85rem;
+}
+.hub-detail-meta-grid > div { display: flex; flex-direction: column; gap: 2px; }
+.hub-meta-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+
+.hub-detail-bar-wrap { display: flex; align-items: center; gap: 12px; margin: 12px 0 4px; font-size: 0.82rem; color: var(--muted); }
+.hub-detail-bar { flex: 1; height: 8px; border-radius: 5px; background: var(--rule); overflow: hidden; }
+.hub-detail-bar-fill { height: 100%; border-radius: 5px; transition: width 0.3s; }
+
+.hub-detail-game { margin-bottom: 14px; }
+.hub-detail-game-name { font-size: 0.8rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.hub-char-list { list-style: none; }
+.hub-char-list li { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--rule); font-size: 0.86rem; flex-wrap: wrap; }
+.hub-char-list li:last-child { border-bottom: none; }
+.hub-char-meta { color: var(--muted); font-size: 0.8rem; }
+.hub-main-star { font-size: 0.8rem; }
+
+.hub-ach-list { list-style: none; }
+.hub-ach-list li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--rule); font-size: 0.86rem; }
+.hub-ach-list li:last-child { border-bottom: none; }
+.hub-ach-pts { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+
+.hub-role-group { margin-bottom: 18px; }
+.hub-role-head { font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.hub-role-count {
+  font-size: 0.68rem; font-weight: 700; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: 20px; padding: 1px 8px;
+}
+.hub-roster-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.hub-roster-list li { display: flex; align-items: center; gap: 12px; }
+.hub-roster-avatar { width: 36px; height: 36px; font-size: 1rem; flex-shrink: 0; }
+.hub-roster-name { font-size: 0.88rem; font-weight: 600; }
+.hub-roster-char { font-size: 0.78rem; color: var(--muted); }
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hub-grid { grid-template-columns: 1fr; }
+  .hub-detail-meta-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .hub-card { padding: 14px 16px; gap: 12px; }
+  .hub-modal { padding: 0; }
+  .hub-modal-panel { max-width: none; min-height: 100%; border-radius: 0; padding: 24px 18px 32px; }
+  .hub-detail-head { flex-wrap: wrap; }
+}
