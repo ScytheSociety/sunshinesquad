@@ -35,7 +35,6 @@ function buildGuideAccordion(container) {
     btn.className = 'guide-section-toggle';
     btn.innerHTML =
       `<span class="guide-section-arrow">▶</span>` +
-      `<span class="guide-section-num">${num}.</span> ` +
       `<span class="guide-section-title">${h2.textContent}</span>`;
     btn.addEventListener('click', () => section.classList.toggle('open'));
 
