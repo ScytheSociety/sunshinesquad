@@ -88,6 +88,8 @@
   .guide-section-body { padding: 18px 16px 20px; }
   .article-body .step { gap: 10px; }
   .article-body img.guide-img { max-width: 160px; }
+  .article-body .poring-grid { gap: 20px; justify-content: center; }
+  .article-body .poring-card { width: 160px; }
 
   /* Game info */
   .game-info-grid { grid-template-columns: 1fr; }

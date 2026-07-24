@@ -507,22 +507,25 @@
 .answer-modal-list { padding-left: 1.3em; }
 .answer-modal-list li { margin: 8px 0; font-size: 0.9rem; }
 
-/* Bloque "The Poring Journal": imagen + grilla de botones NAVI a su lado */
-.article-body .poring-block {
+/* Bloque "The Poring Journal": tarjetas lado a lado — título, imagen,
+   y debajo los botones NAVI numerados, todo del ancho de la imagen */
+.article-body .poring-grid {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 16px;
-  margin: 14px 0 30px;
+  gap: 28px;
+  margin: 16px 0 30px;
 }
-.article-body .poring-block img.guide-img { margin: 0; flex-shrink: 0; }
+.article-body .poring-card { width: 240px; flex-shrink: 0; }
+.article-body .poring-card h3 { margin: 0 0 10px; }
+.article-body .poring-card img.guide-img {
+  width: 100%;
+  max-width: none;
+  margin: 0 0 10px;
+}
 .article-body .poring-navis {
   display: flex;
   flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 8px;
-  flex: 1;
-  min-width: 180px;
+  gap: 6px;
 }
 
 /* ── AVATAR CON BORDE DE GÉNERO ──────────────────────── */
