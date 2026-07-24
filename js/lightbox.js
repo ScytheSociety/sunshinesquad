@@ -24,6 +24,29 @@ document.addEventListener('DOMContentLoaded', () => {
   close.addEventListener('click', closeLb);
   lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+  /* Modal de respuestas (trivia, etc.) */
+  const am = document.createElement('div');
+  am.className = 'answer-modal';
+  am.innerHTML = `
+    <div class="answer-modal-panel">
+      <button class="answer-modal-close" aria-label="Cerrar">&times;</button>
+      <h3 class="answer-modal-title"></h3>
+      <ol class="answer-modal-list"></ol>
+    </div>`;
+  document.body.appendChild(am);
+  function closeAm() { am.classList.remove('active'); }
+  am.querySelector('.answer-modal-close').addEventListener('click', closeAm);
+  am.addEventListener('click', e => { if (e.target === am) closeAm(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAm(); });
+
+  window.showAnswers = function (el) {
+    const title   = el.dataset.title || 'Respuestas';
+    const answers = (el.dataset.answers || '').split('|').map(a => a.trim()).filter(Boolean);
+    am.querySelector('.answer-modal-title').textContent = title;
+    am.querySelector('.answer-modal-list').innerHTML = answers.map(a => `<li>${a}</li>`).join('');
+    am.classList.add('active');
+  };
 });
 
 /* Mantener compatibilidad con onclick="openLightbox()" en guías viejas */

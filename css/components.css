@@ -469,6 +469,62 @@
 }
 .article-body .step-media img.guide-img { margin: 0; }
 
+/* Texto clickeable que abre el modal de respuestas */
+.article-body .trivia-trigger {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.article-body .trivia-trigger:hover { color: var(--muted); }
+
+/* Modal de respuestas (trivia, etc.) */
+.answer-modal {
+  display: none;
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.6);
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.answer-modal.active { display: flex; }
+.answer-modal-panel {
+  position: relative;
+  background: var(--bg);
+  border-radius: 12px;
+  max-width: 380px; width: 100%;
+  padding: 28px 26px 30px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+.answer-modal-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; cursor: pointer;
+  font-size: 1.5rem; line-height: 1; color: var(--muted);
+}
+.answer-modal-close:hover { color: var(--ink); }
+.answer-modal-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 16px; padding-right: 20px; }
+.answer-modal-list { padding-left: 1.3em; }
+.answer-modal-list li { margin: 8px 0; font-size: 0.9rem; }
+
+/* Bloque "The Poring Journal": imagen + grilla de botones NAVI a su lado */
+.article-body .poring-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 14px 0 30px;
+}
+.article-body .poring-block img.guide-img { margin: 0; flex-shrink: 0; }
+.article-body .poring-navis {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+  flex: 1;
+  min-width: 180px;
+}
+
 /* ── AVATAR CON BORDE DE GÉNERO ──────────────────────── */
 /* Uso: <div class="avatar avatar-f"> o .avatar-m
    El elemento puede ser div o img directamente.          */
