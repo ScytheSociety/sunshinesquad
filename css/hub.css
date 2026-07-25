@@ -42,11 +42,12 @@
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
 }
 .hub-card:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.hub-card:not(.hub-skel):hover {
+.hub-card:not(.hub-skel):not(.hub-card-empty):hover {
   border-color: var(--ink);
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
   transform: translateY(-2px);
 }
+.hub-card-empty { cursor: default; }
 .hub-card-body { flex: 1; min-width: 0; }
 .hub-card-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
 .hub-card-label.bday   { color: var(--bday); }

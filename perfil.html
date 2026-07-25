@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/header.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/hub.css">
   <link rel="stylesheet" href="css/profile.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
@@ -33,6 +34,13 @@
       </div>
     </div>
   </main>
+
+  <div class="hub-modal" id="attendance-modal">
+    <div class="hub-modal-panel">
+      <button class="hub-modal-close" id="attendance-modal-close" aria-label="Cerrar">&times;</button>
+      <div id="attendance-modal-body"></div>
+    </div>
+  </div>
 
   <div id="site-footer-slot"></div>
 
@@ -63,6 +71,10 @@
   }
   function totalChars(p) {
     return (p.characters_by_game || []).reduce((s, g) => s + g.characters.length, 0);
+  }
+  function avatarHtml(url, name, gender) {
+    const cls = gender === 'female' ? 'avatar-f' : 'avatar-m';
+    return `<div class="avatar ${cls} hub-roster-avatar">${url ? `<img src="${escH(url)}" alt="${escH(name||'')}">` : (gender === 'female' ? '👩' : '👨')}</div>`;
   }
 
   function renderActiveEvents(events) {
@@ -99,21 +111,75 @@
       <li class="profile-ach-item">
         <div>
           <div class="profile-ach-name">${a.emoji || '🏆'} ${escH(a.name)}</div>
-          <div class="profile-ach-game">${escH(a.game_name)}</div>
+          <div class="profile-ach-game">${escH(a.game_name)} · ${fmtEventDT(a.earned_at)}</div>
         </div>
         <div class="profile-ach-pts">+${a.points}</div>
       </li>`).join('')}</ul>`;
   }
 
+  let attendanceData = [];
+
   function renderAttendance(list) {
+    attendanceData = list || [];
     if (!list || !list.length) return '<p class="profile-empty">Todavía no tenés asistencias registradas.</p>';
-    return `<div class="profile-attendance-grid">${list.map(a => `
-      <div class="profile-attendance-chip">✅ ${escH(a.activity_name)} <b>&times;${a.count}</b></div>`).join('')}</div>`;
+    return `<div class="profile-attendance-grid">${list.map((a, i) => `
+      <button type="button" class="profile-attendance-chip" onclick="openAttendanceModal(${i})">✅ ${escH(a.activity_name)} <b>&times;${a.count}</b></button>`).join('')}</div>`;
   }
 
+  function rosterGroupHtml(members) {
+    if (!members || !members.length) return '<p class="profile-empty">Sin registros.</p>';
+    const groups = [];
+    members.forEach(m => {
+      let g = groups.find(x => x.role_name === m.role_name);
+      if (!g) { g = { role_name: m.role_name, role_emoji: m.role_emoji, items: [] }; groups.push(g); }
+      g.items.push(m);
+    });
+    return groups.map(g => `
+      <div class="hub-role-group">
+        <div class="hub-role-head">${g.role_emoji || ''} ${escH(g.role_name)} <span class="hub-role-count">${g.items.length}</span></div>
+        <ul class="hub-roster-list">
+          ${g.items.map(m => `
+            <li>
+              ${avatarHtml(m.avatar, m.display_name, m.gender)}
+              <div>
+                <div class="hub-roster-name">${escH(m.display_name)}</div>
+                <div class="hub-roster-char">${escH(m.character_name)} · ${m.class_emoji || ''} ${escH(m.class_name || 'Sin clase')} · Nv. ${m.level}</div>
+              </div>
+            </li>`).join('')}
+        </ul>
+      </div>`).join('');
+  }
+
+  window.openAttendanceModal = function (idx) {
+    const a = attendanceData[idx];
+    if (!a) return;
+    const body = document.getElementById('attendance-modal-body');
+    body.innerHTML = `
+      <div class="hub-detail-tag">✅ Asistencia</div>
+      <h3 class="hub-detail-name">${escH(a.activity_name)}</h3>
+      <p class="profile-meta" style="margin-bottom:20px">${a.count} asistencia${a.count !== 1 ? 's' : ''} registrada${a.count !== 1 ? 's' : ''}</p>
+      ${a.events.map(ev => `
+        <h4 class="hub-detail-h4">${escH(ev.event_name)} — ${fmtEventDT(ev.event_datetime_utc)}</h4>
+        ${rosterGroupHtml(ev.roster)}
+      `).join('')}
+    `;
+    document.getElementById('attendance-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+  function closeAttendanceModal() {
+    document.getElementById('attendance-modal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('attendance-modal-close').addEventListener('click', closeAttendanceModal);
+  document.getElementById('attendance-modal').addEventListener('click', e => {
+    if (e.target.id === 'attendance-modal') closeAttendanceModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAttendanceModal(); });
+
   function renderProfile(p) {
+    const banner = p.profile_banner && p.profile_banner.banner_url;
     return `
-      <div class="profile-hero">
+      <div class="profile-hero${banner ? ' has-banner' : ''}"${banner ? ` style="background-image:url('${escH(banner)}')"` : ''}>
         <div class="profile-avatar">${p.avatar
           ? `<img src="${escH(p.avatar)}" alt="${escH(p.display_name)}">`
           : (p.is_owner ? '👑' : (p.gender === 'female' ? '👩' : '👨'))}</div>
@@ -125,6 +191,7 @@
           <div class="profile-meta">
             🗓️ En el server desde <strong>${fmtDate(p.server_join_date)}</strong>
             ${p.birthday_date ? `<br>🎂 Cumpleaños: <strong>${fmtBday(p.birthday_date)}</strong>` : ''}
+            ${banner ? `<br>🎮 Perfil de <strong>${escH(p.profile_banner.game_name)}</strong>` : ''}
           </div>
         </div>
       </div>

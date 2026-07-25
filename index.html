@@ -332,7 +332,16 @@
     try {
       const ev = await fetch(`${API}api/events/next`).then(r => r.json());
       const c = document.getElementById('event-container');
-      if (!ev) { c.innerHTML = ''; return; }
+      if (!ev) {
+        c.innerHTML = `
+          <div class="hub-card hub-card-empty">
+            <div class="hub-card-body">
+              <div class="hub-card-label stream">📅 Próximo evento</div>
+              <div class="hub-card-sub">No hay eventos próximos por ahora.</div>
+            </div>
+          </div>`;
+        return;
+      }
       const ratio = ev.capacity > 0 ? Math.min(1, ev.main_count / ev.capacity) : 0;
       const color = donutColor(ratio);
       const pct   = Math.round(ratio * 100);

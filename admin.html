@@ -287,6 +287,39 @@
         </ul>
 
         <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--rule)">
+          <h3 style="font-size:.88rem;font-weight:700;margin-bottom:20px">Juegos existentes</h3>
+          <p style="color:var(--muted);font-size:.85rem;margin-bottom:20px">
+            Editá el nombre, el color del badge, y el banner que aparece en el perfil de los usuarios que tengan más puntos de logro en ese juego.
+          </p>
+          <table class="admin-table" id="games-table">
+            <thead><tr><th>Juego</th><th>Color</th><th>Banner de perfil</th><th>Acciones</th></tr></thead>
+            <tbody id="games-tbody"><tr><td colspan="4" style="color:var(--muted)">Cargando…</td></tr></tbody>
+          </table>
+
+          <div id="game-edit-wrap" style="display:none;margin-top:8px;margin-bottom:32px;padding:20px;border:1px solid var(--rule);border-radius:8px">
+            <form class="admin-form" id="game-edit-form" style="max-width:480px;margin:0">
+              <input type="hidden" id="edit-game-id" value="">
+              <label>Nombre del juego</label>
+              <input type="text" id="edit-game-name" required>
+              <label>Color del badge (hex)</label>
+              <input type="color" id="edit-game-color" style="width:80px;height:40px;padding:2px;margin-bottom:20px;cursor:pointer">
+              <label>Banner de perfil</label>
+              <img id="edit-game-banner-preview" src="" alt="" style="display:none;max-width:280px;border-radius:8px;margin-bottom:12px;border:1px solid var(--rule)">
+              <div style="display:flex;gap:8px;margin-bottom:20px">
+                <button type="button" class="btn btn-sm" onclick="document.getElementById('upload-game-banner').click()">Subir banner</button>
+                <input type="file" id="upload-game-banner" accept="image/*" style="display:none">
+                <span class="status-msg" id="game-banner-status" style="margin-left:4px"></span>
+              </div>
+              <div class="actions">
+                <button type="submit" class="btn">Guardar</button>
+                <button type="button" class="btn" id="btn-cancel-game-edit" style="border-color:var(--muted);color:var(--muted)">Cancelar</button>
+                <span class="status-msg" id="game-edit-status"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--rule)">
           <h3 style="font-size:.88rem;font-weight:700;margin-bottom:20px">Crear nueva sección de juego</h3>
           <form class="admin-form" id="new-game-form" style="max-width:480px">
             <label>Nombre del juego</label>
@@ -431,6 +464,7 @@
 
     /* Árbol de páginas */
     loadPages(games);
+    loadGamesTable(games);
 
     /* Inicializar formularios e interacciones */
     initPostForm();
@@ -438,6 +472,7 @@
     initMediaUpload(games);
     initConfigForm();
     initNewGameForm(games);
+    initGameEditForm();
   }
 
   /* ── Poblar selects de juego ──────────────────────── */
@@ -807,10 +842,84 @@
         buildMediaGrids(updatedGames);
         await loadMedia(updatedGames);
         loadPages(updatedGames);
+        loadGamesTable(updatedGames);
         /* Limpiar el formulario */
         document.getElementById('game-name').value = '';
         document.getElementById('game-slug').value = '';
       } catch { showStatus('game-status', 'Error al crear sección', false); }
+    });
+  }
+
+  /* ── JUEGOS EXISTENTES — editar nombre/color/banner ───────── */
+  let gamesForEdit = [];
+
+  function loadGamesTable(games = []) {
+    gamesForEdit = games;
+    const tbody = document.getElementById('games-tbody');
+    if (!games.length) { tbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Sin juegos registrados.</td></tr>'; return; }
+    tbody.innerHTML = games.map(g => `
+      <tr>
+        <td>${escH(g.name)}</td>
+        <td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${escH(g.color)};border:1px solid var(--rule);vertical-align:middle"></span></td>
+        <td>${g.banner_url
+          ? `<img src="${escH(g.banner_url)}" alt="" style="width:60px;height:34px;object-fit:cover;border-radius:4px;border:1px solid var(--rule)">`
+          : `<span style="color:var(--muted);font-size:.82rem">Sin banner</span>`}</td>
+        <td><button class="btn btn-sm" onclick="editGame(${g.id})">Editar</button></td>
+      </tr>`).join('');
+  }
+
+  function editGame(id) {
+    const g = gamesForEdit.find(x => x.id === id);
+    if (!g) return;
+    document.getElementById('edit-game-id').value = g.id;
+    document.getElementById('edit-game-name').value = g.name;
+    document.getElementById('edit-game-color').value = g.color;
+    const preview = document.getElementById('edit-game-banner-preview');
+    if (g.banner_url) { preview.src = g.banner_url; preview.style.display = ''; }
+    else { preview.style.display = 'none'; }
+    document.getElementById('game-edit-wrap').style.display = '';
+    document.getElementById('game-edit-wrap').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function initGameEditForm() {
+    document.getElementById('btn-cancel-game-edit').onclick = () => {
+      document.getElementById('game-edit-wrap').style.display = 'none';
+    };
+
+    document.getElementById('upload-game-banner').addEventListener('change', async e => {
+      const file = e.target.files[0];
+      const id = document.getElementById('edit-game-id').value;
+      if (!file || !id) return;
+      const fd = new FormData(); fd.append('file', file);
+      showStatus('game-banner-status', 'Subiendo…');
+      try {
+        const r = await fetch(`api/games/${id}/banner`, { method: 'POST', credentials: 'include', body: fd }).then(r => r.json());
+        if (!r.url) throw new Error();
+        const preview = document.getElementById('edit-game-banner-preview');
+        preview.src = r.url; preview.style.display = '';
+        showStatus('game-banner-status', 'Banner subido ✓');
+        const g = gamesForEdit.find(x => x.id === Number(id));
+        if (g) g.banner_url = r.url;
+      } catch { showStatus('game-banner-status', 'Error al subir', false); }
+      e.target.value = '';
+    });
+
+    document.getElementById('game-edit-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('edit-game-id').value;
+      const body = {
+        name: document.getElementById('edit-game-name').value.trim(),
+        color: document.getElementById('edit-game-color').value,
+      };
+      try {
+        await api('PUT', `games/${id}`, body);
+        showStatus('game-edit-status', 'Guardado ✓');
+        const updatedGames = await api('GET', 'games');
+        loadGamesTable(updatedGames);
+        populateGameSelects(updatedGames);
+        loadPages(updatedGames);
+        document.getElementById('game-edit-wrap').style.display = 'none';
+      } catch { showStatus('game-edit-status', 'Error al guardar', false); }
     });
   }
   </script>
