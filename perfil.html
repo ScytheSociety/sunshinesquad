@@ -122,8 +122,20 @@
   function renderAttendance(list) {
     attendanceData = list || [];
     if (!list || !list.length) return '<p class="profile-empty">Todavía no tenés asistencias registradas.</p>';
-    return `<div class="profile-attendance-grid">${list.map((a, i) => `
-      <button type="button" class="profile-attendance-chip" onclick="openAttendanceModal(${i})">✅ ${escH(a.activity_name)} <b>&times;${a.count}</b></button>`).join('')}</div>`;
+    return list.map((a, ai) => `
+      <div class="profile-attendance-group">
+        <div class="profile-attendance-group-title">${escH(a.activity_name)} <span class="hub-role-count">${a.count}</span></div>
+        <div class="profile-event-list">
+          ${a.events.map((ev, ei) => `
+            <button type="button" class="profile-event-item profile-event-item-btn" onclick="openAttendanceModal(${ai},${ei})">
+              <div>
+                <div class="profile-event-name">${escH(ev.event_name)}</div>
+                <div class="profile-event-meta">${escH(ev.game_name)} · Creado por ${escH(ev.creator_name || '—')} · ${fmtEventDT(ev.event_datetime_utc)}</div>
+              </div>
+              <span class="profile-event-role">👥 Ver participantes</span>
+            </button>`).join('')}
+        </div>
+      </div>`).join('');
   }
 
   function rosterGroupHtml(members) {
@@ -150,18 +162,17 @@
       </div>`).join('');
   }
 
-  window.openAttendanceModal = function (idx) {
-    const a = attendanceData[idx];
-    if (!a) return;
+  window.openAttendanceModal = function (activityIdx, eventIdx) {
+    const a = attendanceData[activityIdx];
+    const ev = a && a.events[eventIdx];
+    if (!ev) return;
     const body = document.getElementById('attendance-modal-body');
     body.innerHTML = `
-      <div class="hub-detail-tag">✅ Asistencia</div>
-      <h3 class="hub-detail-name">${escH(a.activity_name)}</h3>
-      <p class="profile-meta" style="margin-bottom:20px">${a.count} asistencia${a.count !== 1 ? 's' : ''} registrada${a.count !== 1 ? 's' : ''}</p>
-      ${a.events.map(ev => `
-        <h4 class="hub-detail-h4">${escH(ev.event_name)} — ${fmtEventDT(ev.event_datetime_utc)}</h4>
-        ${rosterGroupHtml(ev.roster)}
-      `).join('')}
+      <div class="hub-detail-tag">${escH(a.activity_name)} · ${escH(ev.game_name)}</div>
+      <h3 class="hub-detail-name">${escH(ev.event_name)}</h3>
+      <p class="profile-meta" style="margin-bottom:20px">🗓️ ${fmtEventDT(ev.event_datetime_utc)} · 👤 Creado por ${escH(ev.creator_name || '—')}</p>
+      <h4 class="hub-detail-h4">Participantes</h4>
+      ${rosterGroupHtml(ev.roster)}
     `;
     document.getElementById('attendance-modal').classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -231,7 +242,7 @@
       </div>
 
       <div class="profile-section">
-        <div class="profile-section-title">✅ Asistencia a actividades</div>
+        <div class="profile-section-title">✅ Asistencia a eventos</div>
         ${renderAttendance(p.activity_attendance)}
       </div>
     `;

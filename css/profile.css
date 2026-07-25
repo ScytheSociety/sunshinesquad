@@ -155,26 +155,19 @@
 .profile-ach-game { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
 .profile-ach-pts { font-weight: 800; font-size: 0.85rem; color: var(--profile-accent); white-space: nowrap; }
 
-/* Asistencia */
-.profile-attendance-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-.profile-attendance-chip {
+/* Asistencia a eventos — agrupada por actividad */
+.profile-attendance-group { margin-bottom: 22px; }
+.profile-attendance-group:last-child { margin-bottom: 0; }
+.profile-attendance-group-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 16px;
-  border-radius: 20px;
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  color: var(--ink);
-  font-family: inherit;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: border-color 0.15s;
 }
-.profile-attendance-chip:hover { border-color: var(--profile-accent); }
-.profile-attendance-chip b { color: var(--profile-accent); }
 
-/* Eventos activos */
+/* Eventos activos + filas de asistencia (ambas reusan .profile-event-item) */
 .profile-event-list { display: flex; flex-direction: column; gap: 12px; }
 .profile-event-item {
   display: flex;
@@ -188,9 +181,18 @@
   border-radius: 10px;
   background: var(--bg);
 }
+.profile-event-item-btn {
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.profile-event-item-btn:hover { background: var(--surface); }
 .profile-event-name { font-weight: 700; font-size: 0.95rem; }
 .profile-event-meta { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
-.profile-event-role { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+.profile-event-role { font-size: 0.82rem; font-weight: 600; white-space: nowrap; color: var(--profile-accent); }
 
 @media (max-width: 640px) {
   .profile-hero { padding: 24px 20px; gap: 18px; }
